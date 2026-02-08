@@ -292,7 +292,7 @@ body{min-height:100vh;font-family:'Outfit',sans-serif;background:#111}
 const SUPA_URL = 'YOUR_SUPABASE_URL';       // e.g. https://xxxxx.supabase.co
 const SUPA_KEY = 'YOUR_SUPABASE_ANON_KEY';  // anon public key
 
-let sb = null; // initialized in boot()
+const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
 /* ═══════════════════════════════════════════════════════════════
    CONSTANTS
@@ -326,7 +326,6 @@ function switchTab(t) {
 }
 
 async function doLogin() {
-  if(!sb) return msg('Configure Supabase credentials first','error');
   const email = $('l-email').value.trim(), pass = $('l-pass').value;
   if (!email||!pass) return msg('Fill in both fields','error');
   try {
@@ -338,7 +337,6 @@ async function doLogin() {
 }
 
 async function doSignup() {
-  if(!sb) return msg('Configure Supabase credentials first','error');
   const name = $('s-name').value.trim(), email = $('s-email').value.trim(), pass = $('s-pass').value;
   if (!name||!email||!pass) return msg('Fill in all fields','error');
   if (pass.length<6) return msg('Password must be at least 6 characters','error');
@@ -356,7 +354,6 @@ async function doSignup() {
 }
 
 async function doLogout() {
-  if(!sb) return;
   await sb.auth.signOut();
   $('app-screen').classList.add('hidden');
   $('auth-screen').classList.remove('hidden');
@@ -365,7 +362,6 @@ async function doLogout() {
 }
 
 async function doGoogle() {
-  if(!sb) return msg('Configure Supabase credentials first','error');
   try {
     const {error} = await sb.auth.signInWithOAuth({
       provider: 'google',
@@ -649,39 +645,16 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
    ═══════════════════════════════════════════════════════════════ */
 function $(id){ return document.getElementById(id); }
 
+// Enter key on auth fields
+document.addEventListener('DOMContentLoaded', () => {
+  $('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+  $('s-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doSignup()});
+});
+
 /* ═══════════════════════════════════════════════════════════════
    BOOT — Check existing session
    ═══════════════════════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', async () => {
-
-  // Validate Supabase credentials
-  if (!SUPA_URL || !SUPA_KEY || SUPA_URL.includes('YOUR_') || SUPA_KEY.includes('YOUR_')) {
-    $('auth-screen').classList.remove('hidden');
-    $('app-screen').classList.add('hidden');
-    document.querySelector('.auth-card').innerHTML = `
-      <div class="auth-icon">⚠️</div>
-      <h1 class="auth-title">Setup Required</h1>
-      <p class="auth-subtitle" style="margin-bottom:12px">Add your Supabase credentials to get started</p>
-      <div style="text-align:left;background:rgba(255,255,255,.06);border-radius:12px;padding:16px;font-size:13px;color:rgba(255,255,255,.6);line-height:1.7;font-family:'IBM Plex Mono',monospace">
-        <span style="color:#ff6b6b">1.</span> Create a project at <span style="color:#51cf66">supabase.com</span><br>
-        <span style="color:#ff6b6b">2.</span> Run <span style="color:#51cf66">schema.sql</span> in SQL Editor<br>
-        <span style="color:#ff6b6b">3.</span> Open this file and replace:<br><br>
-        <code style="color:#ffd93d">const SUPA_URL = '<span style="color:#ff6b6b">your-url</span>';</code><br>
-        <code style="color:#ffd93d">const SUPA_KEY = '<span style="color:#ff6b6b">your-key</span>';</code><br><br>
-        Find these in:<br><b style="color:#fff">Project Settings → API</b>
-      </div>
-    `;
-    return;
-  }
-
-  // Initialize Supabase client
-  sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
-
-  // Enter key on auth fields
-  $('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
-  $('s-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doSignup()});
-
-  // Check existing session
+(async function boot() {
   const {data:{session}} = await sb.auth.getSession();
   if (session) {
     enterApp();
@@ -697,7 +670,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       $('auth-screen').classList.remove('hidden');
     }
   });
-});
+})();
 </script>
 </body>
 </html>
