@@ -23,56 +23,19 @@
 [data-theme="6"]{--bg:linear-gradient(145deg,#1a1a1a,#2d2d2d,#1e1e1e);--card-bg:#252525;--border:#444;--h-font:'Bebas Neue',sans-serif;--b-font:'IBM Plex Mono',monospace;--txt:#e0e0e0;--txt2:#888;--accent:#ff6b35;--goal:#4ecdc4;--note:#4ecdc4;--diary:#ffd93d;--today-bg:#ff6b35;--wknd:#ff8a5c;--btn:linear-gradient(135deg,#ff6b35,#ff8a5c);--btn-sh:rgba(255,107,53,.4);--input-bg:#1e1e1e;--pattern:repeating-linear-gradient(0deg,transparent,transparent 49px,rgba(255,255,255,.02) 50px);--shadow:0 8px 40px rgba(0,0,0,.4);--cell-hover:rgba(255,107,53,.08);--pulse:rgba(255,107,53,.3)}
 
 /* ═══════════════════════════════════════════════════════════════
-   AUTH SCREEN
+   APP STYLES
    ═══════════════════════════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100vh;font-family:'Outfit',sans-serif;background:#111}
+body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(--txt);display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px;transition:background .5s ease}
 .hidden{display:none!important}
-
-.auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);padding:20px;position:relative;overflow:hidden}
-.auth-screen::before,.auth-screen::after{content:'';position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;opacity:.4}
-.auth-screen::before{width:400px;height:400px;background:#e94560;top:-100px;right:-100px}
-.auth-screen::after{width:350px;height:350px;background:#0f3460;bottom:-80px;left:-80px}
-
-.auth-card{background:rgba(255,255,255,.06);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:40px 36px;width:100%;max-width:400px;text-align:center;position:relative;z-index:1;box-shadow:0 24px 80px rgba(0,0,0,.3);animation:authIn .5s ease}
-@keyframes authIn{from{opacity:0;transform:translateY(30px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
-
-.auth-icon{font-size:52px;margin-bottom:8px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}
-.auth-title{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:#fff;margin-bottom:4px}
-.auth-subtitle{font-size:14px;color:rgba(255,255,255,.5);margin-bottom:28px}
-
-.auth-tabs{display:flex;background:rgba(255,255,255,.06);border-radius:12px;padding:3px;margin-bottom:24px}
-.auth-tab{flex:1;padding:9px 0;border:none;background:transparent;color:rgba(255,255,255,.5);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border-radius:10px;transition:all .2s}
-.auth-tab.active{background:rgba(255,255,255,.12);color:#fff}
-
-.auth-form{display:flex;flex-direction:column;gap:12px}
-.auth-form input{width:100%;padding:13px 16px;border:1.5px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.06);color:#fff;font-family:'Outfit',sans-serif;font-size:15px;outline:none;transition:border-color .2s,background .2s}
-.auth-form input::placeholder{color:rgba(255,255,255,.3)}
-.auth-form input:focus{border-color:#e94560;background:rgba(255,255,255,.09)}
-
-.auth-btn{width:100%;padding:13px 0;border:none;border-radius:12px;background:linear-gradient(135deg,#e94560,#c23152);color:#fff;font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;cursor:pointer;margin-top:4px;box-shadow:0 4px 20px rgba(233,69,96,.35);transition:transform .12s,box-shadow .12s}
-.auth-btn:hover{transform:translateY(-1px);box-shadow:0 6px 25px rgba(233,69,96,.45)}
-.auth-btn:active{transform:scale(.98)}
-.auth-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-
-.auth-message{margin-top:16px;font-size:13px;min-height:20px}
-.auth-message.error{color:#ff6b6b}
-.auth-message.success{color:#51cf66}
-
-/* ═══════════════════════════════════════════════════════════════
-   APP SCREEN — CALENDAR
-   ═══════════════════════════════════════════════════════════════ */
-.app-screen{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(--txt);display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px;transition:background .5s ease}
 .pattern-overlay{position:fixed;inset:0;background:var(--pattern);pointer-events:none;z-index:0}
 
-/* Top Bar */
 .top-bar{width:100%;max-width:840px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;position:relative;z-index:20}
 .top-bar-right{display:flex;align-items:center;gap:8px}
 
 .btn-today{background:color-mix(in srgb,var(--accent) 10%,transparent);border:1.5px solid color-mix(in srgb,var(--accent) 28%,transparent);border-radius:20px;padding:5px 15px;font-size:13px;font-family:var(--b-font);cursor:pointer;color:var(--accent);font-weight:600;transition:transform .12s}
 .btn-today:hover{transform:scale(1.05)}
 
-/* Dropdowns */
 .dd-wrap{position:relative}
 .dd-btn{background:var(--card-bg);border:1.5px solid var(--border);border-radius:22px;padding:5px 12px;font-size:13px;font-family:var(--b-font);cursor:pointer;color:var(--txt);display:flex;align-items:center;gap:5px;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:transform .12s;white-space:nowrap}
 .dd-btn:hover{transform:scale(1.03)}
@@ -81,9 +44,7 @@ body{min-height:100vh;font-family:'Outfit',sans-serif;background:#111}
 .dd-opt:hover{background:rgba(128,128,128,.12)}
 .dd-opt.active{background:rgba(128,128,128,.15)}
 .dd-div{height:1px;background:var(--border);margin:3px 0}
-.user-email{padding:4px 12px;font-size:11px;color:var(--txt2);overflow:hidden;text-overflow:ellipsis}
 
-/* Month Header */
 .month-header{width:100%;max-width:840px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;z-index:1}
 .nav-arrow{background:none;border:none;font-size:42px;cursor:pointer;color:var(--txt2);padding:0 12px;line-height:1;transition:color .15s,transform .12s}
 .nav-arrow:hover{color:var(--accent);transform:scale(1.15)}
@@ -94,7 +55,6 @@ body{min-height:100vh;font-family:'Outfit',sans-serif;background:#111}
 .month-title p{font-size:clamp(15px,3.5vw,22px);color:var(--txt2);font-family:var(--h-font);font-weight:700}
 [data-theme="6"] .month-title p{letter-spacing:5px}
 
-/* Grid */
 .calendar-grid{width:100%;max-width:840px;background:var(--card-bg);border-radius:16px;border:2px solid var(--border);overflow:hidden;box-shadow:var(--shadow);z-index:1;position:relative;animation:slideIn .35s ease}
 @keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
@@ -103,10 +63,8 @@ body{min-height:100vh;font-family:'Outfit',sans-serif;background:#111}
 .day-hdr:last-child{border-right:none}
 .day-hdr.wk{color:var(--wknd)}
 [data-theme="6"] .day-hdr{letter-spacing:2px}
-
 .cells{display:grid;grid-template-columns:repeat(7,1fr)}
 
-/* Cells */
 .cell{min-height:clamp(64px,12vw,106px);padding:4px 5px;border-right:1px solid color-mix(in srgb,var(--border) 30%,transparent);border-bottom:1px solid color-mix(in srgb,var(--border) 30%,transparent);position:relative;overflow:hidden;cursor:pointer;transition:transform .12s,background .12s}
 .cell:nth-child(7n){border-right:none}
 .cell.lr{border-bottom:none}
@@ -124,23 +82,18 @@ body{min-height:100vh;font-family:'Outfit',sans-serif;background:#111}
 .xm{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.75;pointer-events:none;z-index:1}
 .gb{position:absolute;top:2px;right:3px;font-size:8px;background:var(--goal);color:#fff;border-radius:5px;padding:1px 5px;font-family:var(--b-font);font-weight:700;z-index:4;line-height:12px}
 .np{font-size:clamp(8px,1.5vw,11px);color:var(--note);line-height:1.15;margin-top:1px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;z-index:3;font-weight:600}
-.dd{position:absolute;bottom:2px;right:3px;font-size:10px;z-index:3}
+.di{position:absolute;bottom:2px;right:3px;font-size:10px;z-index:3}
 
-/* Stats */
 .stats{width:100%;max-width:840px;margin-top:10px;display:flex;flex-wrap:wrap;gap:18px;justify-content:center;font-size:14px;color:var(--txt2);z-index:1}
 .hint{margin-top:5px;font-size:12px;color:var(--txt2);opacity:.6;z-index:1}
-
-/* Toast */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--txt,#333);color:var(--card-bg,#fff);padding:7px 18px;border-radius:20px;font-size:13px;z-index:50}
 
-/* ═══════════════════════════════════════════════════════════════
-   MODAL
-   ═══════════════════════════════════════════════════════════════ */
+/* Modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(6px);animation:fadeIn .2s ease}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .modal{background:var(--card-bg);border-radius:18px;padding:28px 26px 22px;width:92%;max-width:450px;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow);font-family:var(--b-font);border:2px solid var(--border);position:relative;animation:mIn .25s ease}
 @keyframes mIn{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
-.modal-x{position:absolute;top:10px;right:14px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--txt2);font-family:var(--b-font)}
+.modal-x{position:absolute;top:10px;right:14px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--txt2)}
 .modal-x:hover{color:var(--accent)}
 .modal h2{font-size:28px;color:var(--txt);font-family:var(--h-font);font-weight:900;margin-bottom:2px}
 .modal>p{font-size:16px;color:var(--txt2);margin-bottom:18px}
@@ -162,86 +115,40 @@ body{min-height:100vh;font-family:'Outfit',sans-serif;background:#111}
 
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-thumb{background:var(--border,#888);border-radius:3px}
-
-@media(max-width:480px){
-  .app-screen{padding:8px 4px 24px}
-  .cell{min-height:58px;padding:3px}
-  .modal{padding:20px 16px 16px}
-  .top-bar-right{gap:4px}
-  .dd-btn{padding:4px 8px;font-size:11px}
-}
+@media(max-width:480px){body{padding:8px 4px 24px}.cell{min-height:58px;padding:3px}.modal{padding:20px 16px 16px}.top-bar-right{gap:4px}.dd-btn{padding:4px 8px;font-size:11px}}
 </style>
 </head>
 <body>
 
-<!-- ════════════ AUTH SCREEN ════════════ -->
-<div id="auth-screen" class="auth-screen">
-  <div class="auth-card">
-    <div class="auth-icon">📅</div>
-    <h1 class="auth-title">My Calendar</h1>
-    <p class="auth-subtitle">Your personal planner, diary & goal tracker</p>
-    <div class="auth-tabs">
-      <button id="tab-login" class="auth-tab active" onclick="switchTab('login')">Log In</button>
-      <button id="tab-signup" class="auth-tab" onclick="switchTab('signup')">Sign Up</button>
+<div class="pattern-overlay"></div>
+
+<div class="top-bar">
+  <button class="btn-today" onclick="goToday()">● Today</button>
+  <div class="top-bar-right">
+    <div class="dd-wrap">
+      <button class="dd-btn" onclick="toggleDD('theme-dd',event)"><span id="t-emoji"></span> <span id="t-name"></span> ▾</button>
+      <div id="theme-dd" class="dd-panel hidden"></div>
     </div>
-    <div id="form-login" class="auth-form">
-      <input type="email" id="l-email" placeholder="Email" autocomplete="email" />
-      <input type="password" id="l-pass" placeholder="Password" autocomplete="current-password" />
-      <button class="auth-btn" onclick="doLogin()">Log In</button>
-    </div>
-    <div id="form-signup" class="auth-form hidden">
-      <input type="text" id="s-name" placeholder="Display Name" autocomplete="name" />
-      <input type="email" id="s-email" placeholder="Email" autocomplete="email" />
-      <input type="password" id="s-pass" placeholder="Password (min 6 chars)" autocomplete="new-password" />
-      <button class="auth-btn" onclick="doSignup()">Create Account</button>
-    </div>
-    <div id="auth-msg" class="auth-message"></div>
   </div>
 </div>
 
-<!-- ════════════ APP SCREEN ════════════ -->
-<div id="app-screen" class="app-screen hidden">
-  <div class="pattern-overlay"></div>
-
-  <div class="top-bar">
-    <button class="btn-today" onclick="goToday()">● Today</button>
-    <div class="top-bar-right">
-      <!-- Theme picker -->
-      <div class="dd-wrap">
-        <button class="dd-btn" onclick="toggleDD('theme-dd',event)"><span id="t-emoji"></span> <span id="t-name"></span> ▾</button>
-        <div id="theme-dd" class="dd-panel hidden"></div>
-      </div>
-      <!-- User menu -->
-      <div class="dd-wrap">
-        <button class="dd-btn" onclick="toggleDD('user-dd',event)">👤 <span id="u-name"></span></button>
-        <div id="user-dd" class="dd-panel hidden">
-          <div class="user-email" id="u-email"></div>
-          <div class="dd-div"></div>
-          <button class="dd-opt" onclick="doLogout()">🚪 Log Out</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="month-header">
-    <button class="nav-arrow" onclick="prevMonth()">‹</button>
-    <div class="month-title"><h1 id="m-name"></h1><p id="y-label"></p></div>
-    <button class="nav-arrow" onclick="nextMonth()">›</button>
-  </div>
-
-  <div class="calendar-grid" id="cal-grid">
-    <div class="day-headers">
-      <div class="day-hdr">Mon</div><div class="day-hdr">Tue</div><div class="day-hdr">Wed</div>
-      <div class="day-hdr">Thu</div><div class="day-hdr">Fri</div><div class="day-hdr wk">Sat</div><div class="day-hdr wk">Sun</div>
-    </div>
-    <div class="cells" id="cells"></div>
-  </div>
-
-  <div class="stats" id="stats"></div>
-  <div class="hint">Theme changes daily · pick one manually from the dropdown</div>
+<div class="month-header">
+  <button class="nav-arrow" onclick="prevMonth()">‹</button>
+  <div class="month-title"><h1 id="m-name"></h1><p id="y-label"></p></div>
+  <button class="nav-arrow" onclick="nextMonth()">›</button>
 </div>
 
-<!-- ════════════ MODAL ════════════ -->
+<div class="calendar-grid" id="cal-grid">
+  <div class="day-headers">
+    <div class="day-hdr">Mon</div><div class="day-hdr">Tue</div><div class="day-hdr">Wed</div>
+    <div class="day-hdr">Thu</div><div class="day-hdr">Fri</div><div class="day-hdr wk">Sat</div><div class="day-hdr wk">Sun</div>
+  </div>
+  <div class="cells" id="cells"></div>
+</div>
+
+<div class="stats" id="stats"></div>
+<div class="hint">Theme changes daily · pick one manually from the dropdown</div>
+
 <div id="modal-ov" class="modal-overlay hidden" onclick="closeModal()">
   <div class="modal" onclick="event.stopPropagation()">
     <button class="modal-x" onclick="closeModal()">✕</button>
@@ -269,395 +176,139 @@ body{min-height:100vh;font-family:'Outfit',sans-serif;background:#111}
 <div id="toast" class="toast hidden">Loading...</div>
 
 <script>
-/* ═══════════════════════════════════════════════════════════════
-   CONFIGURATION — Replace with your Supabase credentials
-   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════ */
+const sb = window.supabase.createClient(
+  'https://wylxvmkcrexwfpjpbhyy.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5bHh2bWtjcmV4d2ZwanBiaHl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2MzkxMDYsImV4cCI6MjA4NDIxNTEwNn0.6Bxo42hx4jwlJGWnfjiTpiDUsYfc1QLTN3YtrU1efak'
+);
+const UID = 'default-user';
 
-const SUPA_URL = 'https://wylxvmkcrexwfpjpbhyy.supabase.co';       // e.g. https://xxxxx.supabase.co
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5bHh2bWtjcmV4d2ZwanBiaHl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2MzkxMDYsImV4cCI6MjA4NDIxNTEwNn0.6Bxo42hx4jwlJGWnfjiTpiDUsYfc1QLTN3YtrU1efak';  // anon public key
+const MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MC={red:'#d63031',pink:'#e84393',teal:'#00b894',cyan:'#00cec9',orange:'#e17055',purple:'#6c5ce7',yellow:'#fdcb6e'};
+const TH=[{name:'Parchment Journal',emoji:'📜'},{name:'Midnight Tokyo',emoji:'🌃'},{name:'Forest Morning',emoji:'🌿'},{name:'Ocean Breeze',emoji:'🌊'},{name:'Sunset Amber',emoji:'🌅'},{name:'Lavender Dusk',emoji:'🪻'},{name:'Carbon Night',emoji:'🖤'}];
 
-let sb = null; // initialized in boot()
+let curYear=new Date().getFullYear(), curMonth=new Date().getMonth(), calData={}, modalKey=null, modalColor='red', manualTheme=-1;
 
-/* ═══════════════════════════════════════════════════════════════
-   CONSTANTS
-   ═══════════════════════════════════════════════════════════════ */
-const MO = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const DN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const MC = {red:'#d63031',pink:'#e84393',teal:'#00b894',cyan:'#00cec9',orange:'#e17055',purple:'#6c5ce7',yellow:'#fdcb6e'};
-const TH = [
-  {name:'Parchment Journal',emoji:'📜'},{name:'Midnight Tokyo',emoji:'🌃'},
-  {name:'Forest Morning',emoji:'🌿'},{name:'Ocean Breeze',emoji:'🌊'},
-  {name:'Sunset Amber',emoji:'🌅'},{name:'Lavender Dusk',emoji:'🪻'},
-  {name:'Carbon Night',emoji:'🖤'}
-];
+function $(id){return document.getElementById(id)}
 
-let curYear = new Date().getFullYear();
-let curMonth = new Date().getMonth();
-let calData = {};
-let modalKey = null;
-let modalColor = 'red';
-let manualTheme = -1;
+/* THEMES */
+function autoTheme(){const n=new Date(),s=new Date(n.getFullYear(),0,0);return Math.floor((n-s)/864e5)%TH.length}
+function activeTheme(){return manualTheme===-1?autoTheme():manualTheme}
+function applyTheme(i){document.body.setAttribute('data-theme',i);$('t-emoji').textContent=TH[i].emoji;$('t-name').textContent=TH[i].name}
 
-/* ═══════════════════════════════════════════════════════════════
-   AUTH
-   ═══════════════════════════════════════════════════════════════ */
-function switchTab(t) {
-  $('auth-msg').textContent = '';
-  $('tab-login').classList.toggle('active', t==='login');
-  $('tab-signup').classList.toggle('active', t==='signup');
-  $('form-login').classList.toggle('hidden', t!=='login');
-  $('form-signup').classList.toggle('hidden', t!=='signup');
-}
-
-async function doLogin() {
-  if(!sb) return msg('Configure Supabase credentials first','error');
-  const email = $('l-email').value.trim(), pass = $('l-pass').value;
-  if (!email||!pass) return msg('Fill in both fields','error');
-  try {
-    const {error} = await sb.auth.signInWithPassword({email, password:pass});
-    if (error) throw error;
-    msg('Logged in!','success');
-    setTimeout(enterApp, 400);
-  } catch(e) { msg(e.message,'error'); }
-}
-
-async function doSignup() {
-  if(!sb) return msg('Configure Supabase credentials first','error');
-  const name = $('s-name').value.trim(), email = $('s-email').value.trim(), pass = $('s-pass').value;
-  if (!name||!email||!pass) return msg('Fill in all fields','error');
-  if (pass.length<6) return msg('Password must be at least 6 characters','error');
-  try {
-    const {data,error} = await sb.auth.signUp({email, password:pass, options:{data:{display_name:name}}});
-    if (error) throw error;
-    if (data.user && !data.session) {
-      msg('Account created! Check email to confirm, then log in.','success');
-      switchTab('login');
-    } else {
-      msg('Account created!','success');
-      setTimeout(enterApp, 400);
-    }
-  } catch(e) { msg(e.message,'error'); }
-}
-
-async function doLogout() {
-  if(!sb) return;
-  await sb.auth.signOut();
-  $('app-screen').classList.add('hidden');
-  $('auth-screen').classList.remove('hidden');
-  $('l-email').value=$('l-pass').value=$('s-name').value=$('s-email').value=$('s-pass').value='';
-  closeAllDD();
-}
-
-async function enterApp() {
-  $('auth-screen').classList.add('hidden');
-  $('app-screen').classList.remove('hidden');
-  const {data:{user}} = await sb.auth.getUser();
-  if (user) {
-    $('u-name').textContent = user.user_metadata?.display_name || user.email?.split('@')[0] || 'User';
-    $('u-email').textContent = user.email || '';
-  }
-  await loadThemePref();
-  applyTheme(activeTheme());
-  await loadAndRender();
-}
-
-function msg(t, cls) { const el=$('auth-msg'); el.textContent=t; el.className='auth-message '+cls; }
-
-/* ═══════════════════════════════════════════════════════════════
-   THEMES
-   ═══════════════════════════════════════════════════════════════ */
-function autoTheme() { const n=new Date(),s=new Date(n.getFullYear(),0,0); return Math.floor((n-s)/864e5)%TH.length; }
-function activeTheme() { return manualTheme===-1 ? autoTheme() : manualTheme; }
-
-function applyTheme(i) {
-  document.body.setAttribute('data-theme', i);
-  $('t-emoji').textContent = TH[i].emoji;
-  $('t-name').textContent = TH[i].name;
-}
-
-function buildThemeDD() {
-  const dd = $('theme-dd');
-  dd.innerHTML = '';
-  // Auto option
-  let b = document.createElement('button');
-  b.className = 'dd-opt' + (manualTheme===-1?' active':'');
-  b.textContent = '🔄 Auto (daily rotation)';
-  b.onclick = () => { manualTheme=-1; applyTheme(activeTheme()); buildThemeDD(); saveThemePref(); closeAllDD(); };
-  dd.appendChild(b);
+function buildThemeDD(){
+  const dd=$('theme-dd');dd.innerHTML='';
+  let b=document.createElement('button');b.className='dd-opt'+(manualTheme===-1?' active':'');b.textContent='🔄 Auto (daily rotation)';
+  b.onclick=()=>{manualTheme=-1;applyTheme(activeTheme());buildThemeDD();saveThemePref();closeAllDD()};dd.appendChild(b);
   dd.appendChild(Object.assign(document.createElement('div'),{className:'dd-div'}));
-  TH.forEach((t,i) => {
-    let b = document.createElement('button');
-    b.className = 'dd-opt' + (manualTheme===i?' active':'');
-    b.textContent = t.emoji+' '+t.name;
-    b.onclick = () => { manualTheme=i; applyTheme(i); buildThemeDD(); saveThemePref(); closeAllDD(); };
-    dd.appendChild(b);
-  });
+  TH.forEach((t,i)=>{let b=document.createElement('button');b.className='dd-opt'+(manualTheme===i?' active':'');b.textContent=t.emoji+' '+t.name;
+  b.onclick=()=>{manualTheme=i;applyTheme(i);buildThemeDD();saveThemePref();closeAllDD()};dd.appendChild(b)});
 }
 
-async function saveThemePref() {
-  const {data:{user}} = await sb.auth.getUser();
-  if (!user) return;
-  await sb.from('calendar_app_preferences').upsert({user_id:user.id, theme_pref:manualTheme},{onConflict:'user_id'}).select();
-}
+async function saveThemePref(){await sb.from('calendar_app_preferences').upsert({user_id:UID,theme_pref:manualTheme},{onConflict:'user_id'})}
+async function loadThemePref(){const{data}=await sb.from('calendar_app_preferences').select('theme_pref').eq('user_id',UID).single();manualTheme=data?.theme_pref??-1;buildThemeDD()}
 
-async function loadThemePref() {
-  const {data:{user}} = await sb.auth.getUser();
-  if (!user) return;
-  const {data} = await sb.from('calendar_app_preferences').select('theme_pref').eq('user_id',user.id).single();
-  manualTheme = data?.theme_pref ?? -1;
-  buildThemeDD();
-}
+/* DROPDOWN */
+function toggleDD(id,e){e.stopPropagation();const el=$(id),was=el.classList.contains('hidden');closeAllDD();if(was)el.classList.remove('hidden')}
+function closeAllDD(){document.querySelectorAll('.dd-panel').forEach(p=>p.classList.add('hidden'))}
+document.addEventListener('click',closeAllDD);
 
-/* ═══════════════════════════════════════════════════════════════
-   DROPDOWN TOGGLE
-   ═══════════════════════════════════════════════════════════════ */
-function toggleDD(id, e) {
-  e.stopPropagation();
-  const el = $(id);
-  const wasHidden = el.classList.contains('hidden');
-  closeAllDD();
-  if (wasHidden) el.classList.remove('hidden');
-}
+/* CALENDAR */
+function daysIn(y,m){return new Date(y,m+1,0).getDate()}
+function firstDay(y,m){const d=new Date(y,m,1).getDay();return d===0?6:d-1}
+function isToday(d){const t=new Date();return d===t.getDate()&&curMonth===t.getMonth()&&curYear===t.getFullYear()}
+function dk(d){return`${curYear}-${String(curMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function xSvg(c){return`<svg class="xm" width="28" height="28" viewBox="0 0 40 40"><line x1="7" y1="7" x2="33" y2="33" stroke="${c}" stroke-width="4" stroke-linecap="round"/><line x1="33" y1="7" x2="7" y2="33" stroke="${c}" stroke-width="4" stroke-linecap="round"/></svg>`}
 
-function closeAllDD() {
-  document.querySelectorAll('.dd-panel').forEach(p => p.classList.add('hidden'));
-}
-
-document.addEventListener('click', closeAllDD);
-
-/* ═══════════════════════════════════════════════════════════════
-   CALENDAR RENDERING
-   ═══════════════════════════════════════════════════════════════ */
-function daysIn(y,m){ return new Date(y,m+1,0).getDate(); }
-function firstDay(y,m){ const d=new Date(y,m,1).getDay(); return d===0?6:d-1; }
-function isToday(d){ const t=new Date(); return d===t.getDate()&&curMonth===t.getMonth()&&curYear===t.getFullYear(); }
-function dk(d){ return `${curYear}-${String(curMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
-function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
-function xSvg(c){ return `<svg class="xm" width="28" height="28" viewBox="0 0 40 40"><line x1="7" y1="7" x2="33" y2="33" stroke="${c}" stroke-width="4" stroke-linecap="round"/><line x1="33" y1="7" x2="7" y2="33" stroke="${c}" stroke-width="4" stroke-linecap="round"/></svg>`; }
-
-function renderCal() {
-  const c=$('cells'), dim=daysIn(curYear,curMonth), fd=firstDay(curYear,curMonth);
-  const pDim=daysIn(curYear,curMonth===0?11:curMonth-1);
-  const total=Math.ceil((fd+dim)/7)*7, rows=Math.ceil(total/7);
-
-  $('m-name').textContent = MO[curMonth];
-  $('y-label').textContent = curYear;
-
-  let h = '';
-  for (let i=0;i<total;i++) {
-    let day, cur;
-    if (i<fd){day=pDim-fd+i+1;cur=false}
-    else if(i<fd+dim){day=i-fd+1;cur=true}
-    else{day=i-fd-dim+1;cur=false}
-
-    const we=i%7>=5, lr=Math.floor(i/7)===rows-1;
-    const key=cur?dk(day):null, dd=key?calData[key]:null;
-
-    let cls='cell';
-    if(cur)cls+=' cur'; else cls+=' om';
-    if(we&&cur)cls+=' we';
-    if(lr)cls+=' lr';
-
-    let dcls='dnum';
-    if(isToday(day)&&cur)dcls+=' today';
-
+function renderCal(){
+  const c=$('cells'),dim=daysIn(curYear,curMonth),fd=firstDay(curYear,curMonth),pDim=daysIn(curYear,curMonth===0?11:curMonth-1);
+  const total=Math.ceil((fd+dim)/7)*7,rows=Math.ceil(total/7);
+  $('m-name').textContent=MO[curMonth];$('y-label').textContent=curYear;
+  let h='';
+  for(let i=0;i<total;i++){
+    let day,cur;
+    if(i<fd){day=pDim-fd+i+1;cur=false}else if(i<fd+dim){day=i-fd+1;cur=true}else{day=i-fd-dim+1;cur=false}
+    const we=i%7>=5,lr=Math.floor(i/7)===rows-1,key=cur?dk(day):null,dd=key?calData[key]:null;
+    let cls='cell';if(cur)cls+=' cur';else cls+=' om';if(we&&cur)cls+=' we';if(lr)cls+=' lr';
+    let dcls='dnum';if(isToday(day)&&cur)dcls+=' today';
     h+=`<div class="${cls}" ${cur?`data-k="${key}"`:''}><div class="${dcls}">${day}</div>`;
     if(cur&&dd){
-      if(dd.marked) h+=xSvg(MC[dd.markColor]||MC.red);
-      if(dd.isGoal) h+='<div class="gb">★ GOAL</div>';
-      if(dd.note) h+=`<div class="np">${esc(dd.note)}</div>`;
-      if(dd.diary) h+='<div class="dd">📖</div>';
+      if(dd.marked)h+=xSvg(MC[dd.markColor]||MC.red);
+      if(dd.isGoal)h+='<div class="gb">★ GOAL</div>';
+      if(dd.note)h+=`<div class="np">${esc(dd.note)}</div>`;
+      if(dd.diary)h+='<div class="di">📖</div>';
     }
     h+='</div>';
   }
-  c.innerHTML = h;
-
-  c.querySelectorAll('.cell.cur').forEach(el=>{
-    el.addEventListener('click',()=>openModal(el.dataset.k, calData[el.dataset.k]));
-  });
-
-  // Re-animate grid
-  const g=$('cal-grid'); g.style.animation='none'; g.offsetHeight; g.style.animation='slideIn .35s ease';
+  c.innerHTML=h;
+  c.querySelectorAll('.cell.cur').forEach(el=>{el.addEventListener('click',()=>openModal(el.dataset.k,calData[el.dataset.k]))});
+  const g=$('cal-grid');g.style.animation='none';g.offsetHeight;g.style.animation='slideIn .35s ease';
   updateStats();
 }
 
-function updateStats() {
-  const ent=Object.values(calData);
-  const m=ent.filter(e=>e.marked).length, g=ent.filter(e=>e.isGoal).length, d=ent.filter(e=>e.diary).length;
-  $('stats').innerHTML = m+g+d===0 ? 'Tap any day to start tracking'
-    : `<span>✕ ${m} marked</span><span>⭐ ${g} goals</span><span>📖 ${d} diary entries</span>`;
+function updateStats(){
+  const ent=Object.values(calData),m=ent.filter(e=>e.marked).length,g=ent.filter(e=>e.isGoal).length,d=ent.filter(e=>e.diary).length;
+  $('stats').innerHTML=m+g+d===0?'Tap any day to start tracking':`<span>✕ ${m} marked</span><span>⭐ ${g} goals</span><span>📖 ${d} diary entries</span>`;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   NAVIGATION
-   ═══════════════════════════════════════════════════════════════ */
+/* NAVIGATION */
 function prevMonth(){if(curMonth===0){curMonth=11;curYear--}else curMonth--;loadAndRender()}
 function nextMonth(){if(curMonth===11){curMonth=0;curYear++}else curMonth++;loadAndRender()}
 function goToday(){const t=new Date();curYear=t.getFullYear();curMonth=t.getMonth();loadAndRender()}
+document.addEventListener('keydown',e=>{if(!$('modal-ov').classList.contains('hidden'))return;if(e.key==='ArrowLeft')prevMonth();if(e.key==='ArrowRight')nextMonth()});
 
-document.addEventListener('keydown',e=>{
-  if(!$('modal-ov').classList.contains('hidden')) return;
-  if(!$('auth-screen').classList.contains('hidden')) return;
-  if(e.key==='ArrowLeft')prevMonth();
-  if(e.key==='ArrowRight')nextMonth();
-});
-
-/* ═══════════════════════════════════════════════════════════════
-   DATA LOADING (SUPABASE)
-   ═══════════════════════════════════════════════════════════════ */
-async function loadAndRender() {
+/* LOAD DATA */
+async function loadAndRender(){
   $('toast').classList.remove('hidden');
-  const {data:{user}} = await sb.auth.getUser();
-  if(!user){$('toast').classList.add('hidden');return}
-  const uid=user.id;
-  const s=`${curYear}-${String(curMonth+1).padStart(2,'0')}-01`;
-  const last=daysIn(curYear,curMonth);
-  const e=`${curYear}-${String(curMonth+1).padStart(2,'0')}-${last}`;
-
+  const s=`${curYear}-${String(curMonth+1).padStart(2,'0')}-01`,last=daysIn(curYear,curMonth),e=`${curYear}-${String(curMonth+1).padStart(2,'0')}-${last}`;
   calData={};
-
-  const {data:cal} = await sb.from('calendar_app_entries').select('entry_date,is_marked,mark_color,is_goal,note').eq('user_id',uid).gte('entry_date',s).lte('entry_date',e);
-  const {data:diary} = await sb.from('calendar_app_diary').select('entry_date,content').eq('user_id',uid).gte('entry_date',s).lte('entry_date',e);
-
-  (cal||[]).forEach(r=>{ calData[r.entry_date]={marked:r.is_marked,markColor:r.mark_color||'red',isGoal:r.is_goal,note:r.note||'',diary:''}; });
-  (diary||[]).forEach(r=>{
-    if(!calData[r.entry_date]) calData[r.entry_date]={marked:false,markColor:'red',isGoal:false,note:'',diary:''};
-    calData[r.entry_date].diary=r.content||'';
-  });
-
-  $('toast').classList.add('hidden');
-  renderCal();
+  try{
+    const{data:cal}=await sb.from('calendar_app_entries').select('entry_date,is_marked,mark_color,is_goal,note').eq('user_id',UID).gte('entry_date',s).lte('entry_date',e);
+    const{data:diary}=await sb.from('calendar_app_diary').select('entry_date,content').eq('user_id',UID).gte('entry_date',s).lte('entry_date',e);
+    (cal||[]).forEach(r=>{calData[r.entry_date]={marked:r.is_marked,markColor:r.mark_color||'red',isGoal:r.is_goal,note:r.note||'',diary:''}});
+    (diary||[]).forEach(r=>{if(!calData[r.entry_date])calData[r.entry_date]={marked:false,markColor:'red',isGoal:false,note:'',diary:''};calData[r.entry_date].diary=r.content||''});
+  }catch(err){console.error('Load:',err)}
+  $('toast').classList.add('hidden');renderCal();
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   MODAL
-   ═══════════════════════════════════════════════════════════════ */
-function buildCP() {
-  const cpk=$('cpk'); cpk.innerHTML='';
-  Object.entries(MC).forEach(([n,c])=>{
-    const b=document.createElement('button');
-    b.className='cdot'+(modalColor===n?' act':'');
-    b.style.background=c;
-    b.onclick=()=>{modalColor=n;buildCP()};
-    cpk.appendChild(b);
-  });
+/* MODAL */
+function buildCP(){const cpk=$('cpk');cpk.innerHTML='';Object.entries(MC).forEach(([n,c])=>{const b=document.createElement('button');b.className='cdot'+(modalColor===n?' act':'');b.style.background=c;b.onclick=()=>{modalColor=n;buildCP()};cpk.appendChild(b)})}
+function toggleCP(){$('cpk').classList.toggle('hidden',!$('chk-mark').checked)}
+
+function openModal(key,data){
+  modalKey=key;const d=new Date(key+'T00:00:00');
+  $('m-title').textContent=`${d.getDate()} ${MO[d.getMonth()]}`;$('m-day').textContent=`${DN[d.getDay()]}, ${d.getFullYear()}`;
+  const dd=data||{};$('chk-mark').checked=dd.marked||false;$('chk-goal').checked=dd.isGoal||false;
+  $('inp-note').value=dd.note||'';$('inp-diary').value=dd.diary||'';modalColor=dd.markColor||'red';
+  buildCP();toggleCP();$('modal-ov').classList.remove('hidden');
 }
 
-function toggleCP(){
-  const show=$('chk-mark').checked;
-  $('cpk').classList.toggle('hidden',!show);
-}
+function closeModal(){$('modal-ov').classList.add('hidden');modalKey=null}
 
-function openModal(key, data) {
-  modalKey = key;
-  const d = new Date(key+'T00:00:00');
-  $('m-title').textContent = `${d.getDate()} ${MO[d.getMonth()]}`;
-  $('m-day').textContent = `${DN[d.getDay()]}, ${d.getFullYear()}`;
-
-  const dd = data || {};
-  $('chk-mark').checked = dd.marked||false;
-  $('chk-goal').checked = dd.isGoal||false;
-  $('inp-note').value = dd.note||'';
-  $('inp-diary').value = dd.diary||'';
-  modalColor = dd.markColor||'red';
-
-  buildCP();
-  toggleCP();
-  $('modal-ov').classList.remove('hidden');
-}
-
-function closeModal(){ $('modal-ov').classList.add('hidden'); modalKey=null; }
-
-async function saveModal() {
-  if(!modalKey) return;
-  const data={
-    marked:$('chk-mark').checked,
-    markColor:modalColor,
-    isGoal:$('chk-goal').checked,
-    note:$('inp-note').value.trim(),
-    diary:$('inp-diary').value.trim()
-  };
-
+async function saveModal(){
+  if(!modalKey)return;
+  const data={marked:$('chk-mark').checked,markColor:modalColor,isGoal:$('chk-goal').checked,note:$('inp-note').value.trim(),diary:$('inp-diary').value.trim()};
   const empty=!data.marked&&!data.isGoal&&!data.note&&!data.diary;
-  if(empty) delete calData[modalKey]; else calData[modalKey]=data;
-  closeModal();
-  renderCal();
-
-  // Save to Supabase
-  const {data:{user}} = await sb.auth.getUser();
-  if(!user) return;
-  const uid=user.id;
-  const hasCal=data.marked||data.isGoal||data.note;
-  const hasDiary=data.diary;
-
-  if(hasCal){
-    await sb.from('calendar_app_entries').upsert({user_id:uid,entry_date:modalKey,is_marked:data.marked,mark_color:data.markColor,is_goal:data.isGoal,note:data.note||null},{onConflict:'user_id, entry_date'});
-  } else {
-    await sb.from('calendar_app_entries').delete().eq('user_id',uid).eq('entry_date',modalKey);
-  }
-
-  if(hasDiary){
-    await sb.from('calendar_app_diary').upsert({user_id:uid,entry_date:modalKey,content:data.diary},{onConflict:'user_id, entry_date'});
-  } else {
-    await sb.from('calendar_app_diary').delete().eq('user_id',uid).eq('entry_date',modalKey);
-  }
+  if(empty)delete calData[modalKey];else calData[modalKey]=data;
+  closeModal();renderCal();
+  try{
+    if(data.marked||data.isGoal||data.note){await sb.from('calendar_app_entries').upsert({user_id:UID,entry_date:modalKey,is_marked:data.marked,mark_color:data.markColor,is_goal:data.isGoal,note:data.note||null},{onConflict:'user_id, entry_date'})}
+    else{await sb.from('calendar_app_entries').delete().eq('user_id',UID).eq('entry_date',modalKey)}
+    if(data.diary){await sb.from('calendar_app_diary').upsert({user_id:UID,entry_date:modalKey,content:data.diary},{onConflict:'user_id, entry_date'})}
+    else{await sb.from('calendar_app_diary').delete().eq('user_id',UID).eq('entry_date',modalKey)}
+  }catch(err){console.error('Save:',err)}
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 
-/* ═══════════════════════════════════════════════════════════════
-   HELPERS
-   ═══════════════════════════════════════════════════════════════ */
-function $(id){ return document.getElementById(id); }
-
-/* ═══════════════════════════════════════════════════════════════
-   BOOT — Check existing session
-   ═══════════════════════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', async () => {
-
-  // Validate Supabase credentials
-  if (!SUPA_URL || !SUPA_KEY || SUPA_URL.includes('YOUR_') || SUPA_KEY.includes('YOUR_')) {
-    $('auth-screen').classList.remove('hidden');
-    $('app-screen').classList.add('hidden');
-    document.querySelector('.auth-card').innerHTML = `
-      <div class="auth-icon">⚠️</div>
-      <h1 class="auth-title">Setup Required</h1>
-      <p class="auth-subtitle" style="margin-bottom:12px">Add your Supabase credentials to get started</p>
-      <div style="text-align:left;background:rgba(255,255,255,.06);border-radius:12px;padding:16px;font-size:13px;color:rgba(255,255,255,.6);line-height:1.7;font-family:'IBM Plex Mono',monospace">
-        <span style="color:#ff6b6b">1.</span> Create a project at <span style="color:#51cf66">supabase.com</span><br>
-        <span style="color:#ff6b6b">2.</span> Run <span style="color:#51cf66">schema.sql</span> in SQL Editor<br>
-        <span style="color:#ff6b6b">3.</span> Open this file and replace:<br><br>
-        <code style="color:#ffd93d">const SUPA_URL = '<span style="color:#ff6b6b">your-url</span>';</code><br>
-        <code style="color:#ffd93d">const SUPA_KEY = '<span style="color:#ff6b6b">your-key</span>';</code><br><br>
-        Find these in:<br><b style="color:#fff">Project Settings → API</b>
-      </div>
-    `;
-    return;
-  }
-
-  // Initialize Supabase client
-  sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
-
-  // Enter key on auth fields
-  $('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
-  $('s-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doSignup()});
-
-  // Check existing session
-  const {data:{session}} = await sb.auth.getSession();
-  if (session) {
-    enterApp();
-  } else {
-    $('auth-screen').classList.remove('hidden');
-    $('app-screen').classList.add('hidden');
-  }
-
-  // Listen for auth changes
-  sb.auth.onAuthStateChange((event) => {
-    if (event==='SIGNED_OUT') {
-      $('app-screen').classList.add('hidden');
-      $('auth-screen').classList.remove('hidden');
-    }
-  });
+/* BOOT */
+document.addEventListener('DOMContentLoaded',async()=>{
+  applyTheme(activeTheme());
+  try{await loadThemePref()}catch(e){}
+  applyTheme(activeTheme());
+  await loadAndRender();
 });
 </script>
 </body>
