@@ -11,31 +11,30 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-/* ═══════════════════════════════════════════════════════════════
-   THEME DEFINITIONS
-   ═══════════════════════════════════════════════════════════════ */
-[data-theme="0"]{--bg:linear-gradient(145deg,#fdf6e3,#f5e6c8,#ede0c8);--card-bg:#fffdf7;--border:#d4c5a9;--h-font:'Playfair Display',serif;--b-font:'Caveat',cursive;--txt:#2d3436;--txt2:#636e72;--accent:#d63031;--goal:#00b894;--note:#00b894;--diary:#6c5ce7;--today-bg:#d63031;--wknd:#d63031;--btn:linear-gradient(135deg,#00b894,#00cec9);--btn-sh:rgba(0,184,148,.4);--input-bg:#fff9ee;--pattern:none;--shadow:0 8px 40px rgba(0,0,0,.08);--cell-hover:rgba(214,48,49,.05);--pulse:rgba(214,48,49,.3)}
-[data-theme="1"]{--bg:linear-gradient(145deg,#0a0a1a,#1a1a3e,#0d0d2b);--card-bg:#12122e;--border:#2a2a5e;--h-font:'Orbitron',sans-serif;--b-font:'Rajdhani',sans-serif;--txt:#e0e0ff;--txt2:#8888bb;--accent:#ff2d95;--goal:#00f5d4;--note:#00f5d4;--diary:#b388ff;--today-bg:#ff2d95;--wknd:#ff6b9d;--btn:linear-gradient(135deg,#ff2d95,#ff6b6b);--btn-sh:rgba(255,45,149,.4);--input-bg:#1a1a3e;--pattern:radial-gradient(circle at 20% 80%,rgba(255,45,149,.06),transparent 50%),radial-gradient(circle at 80% 20%,rgba(0,245,212,.04),transparent 50%);--shadow:0 8px 40px rgba(255,45,149,.1),0 0 80px rgba(0,0,0,.5);--cell-hover:rgba(255,45,149,.08);--pulse:rgba(255,45,149,.3)}
-[data-theme="2"]{--bg:linear-gradient(145deg,#f0f7ee,#dcedc8,#c5e1a5);--card-bg:#f9fdf6;--border:#a5d6a7;--h-font:'DM Serif Display',serif;--b-font:'Nunito',sans-serif;--txt:#2e4a2e;--txt2:#5a7a5a;--accent:#2e7d32;--goal:#ff8f00;--note:#2e7d32;--diary:#5d4037;--today-bg:#2e7d32;--wknd:#558b2f;--btn:linear-gradient(135deg,#43a047,#66bb6a);--btn-sh:rgba(67,160,71,.4);--input-bg:#f0f7ee;--pattern:none;--shadow:0 8px 40px rgba(46,125,50,.08);--cell-hover:rgba(46,125,50,.06);--pulse:rgba(46,125,50,.3)}
-[data-theme="3"]{--bg:linear-gradient(145deg,#e3f2fd,#bbdefb,#90caf9);--card-bg:#f5faff;--border:#90caf9;--h-font:'Libre Baskerville',serif;--b-font:'Source Sans 3',sans-serif;--txt:#1a3a5c;--txt2:#5a8ab5;--accent:#0277bd;--goal:#e65100;--note:#0277bd;--diary:#4527a0;--today-bg:#0277bd;--wknd:#0288d1;--btn:linear-gradient(135deg,#0288d1,#03a9f4);--btn-sh:rgba(2,136,209,.4);--input-bg:#e8f4fd;--pattern:none;--shadow:0 8px 40px rgba(2,119,189,.08);--cell-hover:rgba(2,119,189,.06);--pulse:rgba(2,119,189,.3)}
-[data-theme="4"]{--bg:linear-gradient(145deg,#fff3e0,#ffe0b2,#ffcc80);--card-bg:#fffaf3;--border:#ffb74d;--h-font:'Abril Fatface',serif;--b-font:'Quicksand',sans-serif;--txt:#4e2a00;--txt2:#8d6e40;--accent:#e65100;--goal:#ad1457;--note:#e65100;--diary:#6a1b9a;--today-bg:#e65100;--wknd:#f4511e;--btn:linear-gradient(135deg,#e65100,#ff6d00);--btn-sh:rgba(230,81,0,.35);--input-bg:#fff8ee;--pattern:none;--shadow:0 8px 40px rgba(230,81,0,.08);--cell-hover:rgba(230,81,0,.06);--pulse:rgba(230,81,0,.3)}
-[data-theme="5"]{--bg:linear-gradient(145deg,#f3e5f5,#e1bee7,#ce93d8);--card-bg:#faf5fc;--border:#ce93d8;--h-font:'Cormorant Garamond',serif;--b-font:'Outfit',sans-serif;--txt:#3a1a4a;--txt2:#7a5a8a;--accent:#7b1fa2;--goal:#00838f;--note:#7b1fa2;--diary:#c2185b;--today-bg:#7b1fa2;--wknd:#8e24aa;--btn:linear-gradient(135deg,#8e24aa,#ab47bc);--btn-sh:rgba(142,36,170,.4);--input-bg:#f3e5f5;--pattern:none;--shadow:0 8px 40px rgba(123,31,162,.08);--cell-hover:rgba(123,31,162,.06);--pulse:rgba(123,31,162,.3)}
-[data-theme="6"]{--bg:linear-gradient(145deg,#1a1a1a,#2d2d2d,#1e1e1e);--card-bg:#252525;--border:#444;--h-font:'Bebas Neue',sans-serif;--b-font:'IBM Plex Mono',monospace;--txt:#e0e0e0;--txt2:#888;--accent:#ff6b35;--goal:#4ecdc4;--note:#4ecdc4;--diary:#ffd93d;--today-bg:#ff6b35;--wknd:#ff8a5c;--btn:linear-gradient(135deg,#ff6b35,#ff8a5c);--btn-sh:rgba(255,107,53,.4);--input-bg:#1e1e1e;--pattern:repeating-linear-gradient(0deg,transparent,transparent 49px,rgba(255,255,255,.02) 50px);--shadow:0 8px 40px rgba(0,0,0,.4);--cell-hover:rgba(255,107,53,.08);--pulse:rgba(255,107,53,.3)}
+/* ═══════════════ THEMES ═══════════════ */
+[data-theme="0"]{--bg:linear-gradient(145deg,#fdf6e3,#f5e6c8,#ede0c8);--card-bg:#fffdf7;--border:#d4c5a9;--h-font:'Playfair Display',serif;--b-font:'Caveat',cursive;--txt:#2d3436;--txt2:#636e72;--accent:#d63031;--goal:#00b894;--note:#00b894;--diary:#6c5ce7;--today-bg:#2ecc71;--wknd:#d63031;--btn:linear-gradient(135deg,#00b894,#00cec9);--btn-sh:rgba(0,184,148,.4);--input-bg:#fff9ee;--pattern:none;--shadow:0 8px 40px rgba(0,0,0,.08);--cell-hover:rgba(214,48,49,.05);--pulse:rgba(46,204,113,.4)}
+[data-theme="1"]{--bg:linear-gradient(145deg,#0a0a1a,#1a1a3e,#0d0d2b);--card-bg:#12122e;--border:#2a2a5e;--h-font:'Orbitron',sans-serif;--b-font:'Rajdhani',sans-serif;--txt:#e0e0ff;--txt2:#8888bb;--accent:#ff2d95;--goal:#00f5d4;--note:#00f5d4;--diary:#b388ff;--today-bg:#2ecc71;--wknd:#ff6b9d;--btn:linear-gradient(135deg,#ff2d95,#ff6b6b);--btn-sh:rgba(255,45,149,.4);--input-bg:#1a1a3e;--pattern:radial-gradient(circle at 20% 80%,rgba(255,45,149,.06),transparent 50%),radial-gradient(circle at 80% 20%,rgba(0,245,212,.04),transparent 50%);--shadow:0 8px 40px rgba(255,45,149,.1),0 0 80px rgba(0,0,0,.5);--cell-hover:rgba(255,45,149,.08);--pulse:rgba(46,204,113,.4)}
+[data-theme="2"]{--bg:linear-gradient(145deg,#f0f7ee,#dcedc8,#c5e1a5);--card-bg:#f9fdf6;--border:#a5d6a7;--h-font:'DM Serif Display',serif;--b-font:'Nunito',sans-serif;--txt:#2e4a2e;--txt2:#5a7a5a;--accent:#2e7d32;--goal:#ff8f00;--note:#2e7d32;--diary:#5d4037;--today-bg:#2ecc71;--wknd:#c0392b;--btn:linear-gradient(135deg,#43a047,#66bb6a);--btn-sh:rgba(67,160,71,.4);--input-bg:#f0f7ee;--pattern:none;--shadow:0 8px 40px rgba(46,125,50,.08);--cell-hover:rgba(46,125,50,.06);--pulse:rgba(46,204,113,.4)}
+[data-theme="3"]{--bg:linear-gradient(145deg,#e3f2fd,#bbdefb,#90caf9);--card-bg:#f5faff;--border:#90caf9;--h-font:'Libre Baskerville',serif;--b-font:'Source Sans 3',sans-serif;--txt:#1a3a5c;--txt2:#5a8ab5;--accent:#0277bd;--goal:#e65100;--note:#0277bd;--diary:#4527a0;--today-bg:#2ecc71;--wknd:#c0392b;--btn:linear-gradient(135deg,#0288d1,#03a9f4);--btn-sh:rgba(2,136,209,.4);--input-bg:#e8f4fd;--pattern:none;--shadow:0 8px 40px rgba(2,119,189,.08);--cell-hover:rgba(2,119,189,.06);--pulse:rgba(46,204,113,.4)}
+[data-theme="4"]{--bg:linear-gradient(145deg,#fff3e0,#ffe0b2,#ffcc80);--card-bg:#fffaf3;--border:#ffb74d;--h-font:'Abril Fatface',serif;--b-font:'Quicksand',sans-serif;--txt:#4e2a00;--txt2:#8d6e40;--accent:#e65100;--goal:#ad1457;--note:#e65100;--diary:#6a1b9a;--today-bg:#2ecc71;--wknd:#c0392b;--btn:linear-gradient(135deg,#e65100,#ff6d00);--btn-sh:rgba(230,81,0,.35);--input-bg:#fff8ee;--pattern:none;--shadow:0 8px 40px rgba(230,81,0,.08);--cell-hover:rgba(230,81,0,.06);--pulse:rgba(46,204,113,.4)}
+[data-theme="5"]{--bg:linear-gradient(145deg,#f3e5f5,#e1bee7,#ce93d8);--card-bg:#faf5fc;--border:#ce93d8;--h-font:'Cormorant Garamond',serif;--b-font:'Outfit',sans-serif;--txt:#3a1a4a;--txt2:#7a5a8a;--accent:#7b1fa2;--goal:#00838f;--note:#7b1fa2;--diary:#c2185b;--today-bg:#2ecc71;--wknd:#c0392b;--btn:linear-gradient(135deg,#8e24aa,#ab47bc);--btn-sh:rgba(142,36,170,.4);--input-bg:#f3e5f5;--pattern:none;--shadow:0 8px 40px rgba(123,31,162,.08);--cell-hover:rgba(123,31,162,.06);--pulse:rgba(46,204,113,.4)}
+[data-theme="6"]{--bg:linear-gradient(145deg,#1a1a1a,#2d2d2d,#1e1e1e);--card-bg:#252525;--border:#444;--h-font:'Bebas Neue',sans-serif;--b-font:'IBM Plex Mono',monospace;--txt:#e0e0e0;--txt2:#888;--accent:#ff6b35;--goal:#4ecdc4;--note:#4ecdc4;--diary:#ffd93d;--today-bg:#2ecc71;--wknd:#ff6b6b;--btn:linear-gradient(135deg,#ff6b35,#ff8a5c);--btn-sh:rgba(255,107,53,.4);--input-bg:#1e1e1e;--pattern:repeating-linear-gradient(0deg,transparent,transparent 49px,rgba(255,255,255,.02) 50px);--shadow:0 8px 40px rgba(0,0,0,.4);--cell-hover:rgba(255,107,53,.08);--pulse:rgba(46,204,113,.4)}
 
-/* ═══════════════════════════════════════════════════════════════
-   APP STYLES
-   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════ BASE ═══════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(--txt);display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px;transition:background .5s ease}
 .hidden{display:none!important}
 .pattern-overlay{position:fixed;inset:0;background:var(--pattern);pointer-events:none;z-index:0}
 
+/* ═══════════════ TOP BAR ═══════════════ */
 .top-bar{width:100%;max-width:840px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;position:relative;z-index:20}
 .top-bar-right{display:flex;align-items:center;gap:8px}
-
 .btn-today{background:color-mix(in srgb,var(--accent) 10%,transparent);border:1.5px solid color-mix(in srgb,var(--accent) 28%,transparent);border-radius:20px;padding:5px 15px;font-size:13px;font-family:var(--b-font);cursor:pointer;color:var(--accent);font-weight:600;transition:transform .12s}
 .btn-today:hover{transform:scale(1.05)}
+.icon-btn{background:var(--card-bg);border:1.5px solid var(--border);border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:transform .12s}
+.icon-btn:hover{transform:scale(1.1)}
 
+/* ═══════════════ DROPDOWNS ═══════════════ */
 .dd-wrap{position:relative}
 .dd-btn{background:var(--card-bg);border:1.5px solid var(--border);border-radius:22px;padding:5px 12px;font-size:13px;font-family:var(--b-font);cursor:pointer;color:var(--txt);display:flex;align-items:center;gap:5px;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:transform .12s;white-space:nowrap}
 .dd-btn:hover{transform:scale(1.03)}
@@ -45,6 +44,7 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 .dd-opt.active{background:rgba(128,128,128,.15)}
 .dd-div{height:1px;background:var(--border);margin:3px 0}
 
+/* ═══════════════ MONTH HEADER ═══════════════ */
 .month-header{width:100%;max-width:840px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;z-index:1}
 .nav-arrow{background:none;border:none;font-size:42px;cursor:pointer;color:var(--txt2);padding:0 12px;line-height:1;transition:color .15s,transform .12s}
 .nav-arrow:hover{color:var(--accent);transform:scale(1.15)}
@@ -55,9 +55,9 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 .month-title p{font-size:clamp(15px,3.5vw,22px);color:var(--txt2);font-family:var(--h-font);font-weight:700}
 [data-theme="6"] .month-title p{letter-spacing:5px}
 
+/* ═══════════════ GRID ═══════════════ */
 .calendar-grid{width:100%;max-width:840px;background:var(--card-bg);border-radius:16px;border:2px solid var(--border);overflow:hidden;box-shadow:var(--shadow);z-index:1;position:relative;animation:slideIn .35s ease}
 @keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-
 .day-headers{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:2px solid var(--border)}
 .day-hdr{text-align:center;padding:10px 0;font-size:clamp(11px,2.6vw,16px);font-weight:700;color:var(--txt);font-family:var(--h-font);border-right:1px solid color-mix(in srgb,var(--border) 30%,transparent)}
 .day-hdr:last-child{border-right:none}
@@ -65,33 +65,52 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 [data-theme="6"] .day-hdr{letter-spacing:2px}
 .cells{display:grid;grid-template-columns:repeat(7,1fr)}
 
+/* ═══════════════ CELLS ═══════════════ */
 .cell{min-height:clamp(64px,12vw,106px);padding:4px 5px;border-right:1px solid color-mix(in srgb,var(--border) 30%,transparent);border-bottom:1px solid color-mix(in srgb,var(--border) 30%,transparent);position:relative;overflow:hidden;cursor:pointer;transition:transform .12s,background .12s}
 .cell:nth-child(7n){border-right:none}
 .cell.lr{border-bottom:none}
 .cell.cur:hover{transform:scale(1.03);z-index:2;background:var(--cell-hover)!important}
 .cell.cur:active{transform:scale(.97)}
 .cell.om{opacity:.22;cursor:default;pointer-events:none}
-.cell.we{background:color-mix(in srgb,var(--wknd) 4%,transparent)}
+
+/* Weekend cells: darker bg */
+.cell.we{background:color-mix(in srgb,var(--wknd) 6%,transparent)}
+.cell.we .dnum{color:var(--wknd)}
+
+/* Holiday cells */
+.cell.holiday .dnum{color:var(--wknd)!important}
+.holiday-tag{position:absolute;bottom:1px;left:2px;font-size:7px;color:var(--wknd);font-weight:700;opacity:.8;max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;z-index:4}
+
+/* Birthday cells — confetti border */
+.cell.birthday{
+  background:linear-gradient(135deg,rgba(255,182,193,.12),rgba(255,215,0,.12))!important;
+  border-image:linear-gradient(135deg,#ff6b6b,#feca57,#48dbfb,#ff9ff3,#54a0ff,#5f27cd) 1;
+  border-width:2px;border-style:solid;
+}
+.bday-icon{position:absolute;top:1px;right:2px;font-size:12px;z-index:5}
+.bday-name{position:absolute;bottom:1px;left:2px;font-size:clamp(6px,1.2vw,9px);color:#e84393;font-weight:700;max-width:85%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;z-index:5}
+
+/* Today: green live dot */
+.today-dot{position:absolute;top:4px;left:4px;width:8px;height:8px;background:#2ecc71;border-radius:50%;z-index:6;animation:livePulse 1.8s ease-in-out infinite;box-shadow:0 0 6px rgba(46,204,113,.6)}
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+
+/* Weather icon */
+.wx-icon{position:absolute;top:1px;right:2px;font-size:11px;z-index:4;opacity:.8;line-height:1}
 
 .dnum{font-size:clamp(13px,3vw,22px);font-weight:700;font-family:var(--h-font);color:var(--txt);display:flex;align-items:center;justify-content:center;line-height:1;position:relative;z-index:3;width:fit-content}
 [data-theme="6"] .dnum{letter-spacing:1px}
-.cell.we .dnum{color:var(--wknd)}
-.dnum.today{color:#fff!important;background:var(--today-bg);width:clamp(22px,5vw,32px);height:clamp(22px,5vw,32px);border-radius:50%;animation:pulse 2.5s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 var(--pulse)}50%{box-shadow:0 0 0 8px transparent}}
-
 .xm{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.75;pointer-events:none;z-index:1}
 .gb{position:absolute;top:2px;right:3px;font-size:8px;background:var(--goal);color:#fff;border-radius:5px;padding:1px 5px;font-family:var(--b-font);font-weight:700;z-index:4;line-height:12px}
 .np{font-size:clamp(8px,1.5vw,11px);color:var(--note);line-height:1.15;margin-top:1px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;z-index:3;font-weight:600}
 .di{position:absolute;bottom:2px;right:3px;font-size:10px;z-index:3}
-
 .stats{width:100%;max-width:840px;margin-top:10px;display:flex;flex-wrap:wrap;gap:18px;justify-content:center;font-size:14px;color:var(--txt2);z-index:1}
 .hint{margin-top:5px;font-size:12px;color:var(--txt2);opacity:.6;z-index:1}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--txt,#333);color:var(--card-bg,#fff);padding:7px 18px;border-radius:20px;font-size:13px;z-index:50}
 
-/* Modal */
+/* ═══════════════ MODAL ═══════════════ */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(6px);animation:fadeIn .2s ease}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.modal{background:var(--card-bg);border-radius:18px;padding:28px 26px 22px;width:92%;max-width:450px;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow);font-family:var(--b-font);border:2px solid var(--border);position:relative;animation:mIn .25s ease}
+.modal{background:var(--card-bg);border-radius:18px;padding:28px 26px 22px;width:92%;max-width:480px;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow);font-family:var(--b-font);border:2px solid var(--border);position:relative;animation:mIn .25s ease}
 @keyframes mIn{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 .modal-x{position:absolute;top:10px;right:14px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--txt2)}
 .modal-x:hover{color:var(--accent)}
@@ -105,26 +124,45 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 .cdot:hover{transform:scale(1.15)}
 .cdot.act{border-color:var(--txt);transform:scale(1.25)}
 .flbl{font-size:16px;display:block;margin-bottom:5px;color:var(--txt);font-weight:600}
-.modal textarea{width:100%;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:var(--input-bg);font-size:15px;font-family:var(--b-font);resize:vertical;outline:none;transition:border-color .15s}
-.modal textarea:focus{border-color:var(--accent)}
+.modal textarea,.modal input[type=text],.modal input[type=date]{width:100%;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:var(--input-bg);font-size:15px;font-family:var(--b-font);outline:none;transition:border-color .15s;color:var(--txt)}
+.modal textarea:focus,.modal input:focus{border-color:var(--accent)}
+.modal textarea{resize:vertical}
 #inp-note{color:var(--note)}
 #inp-diary{color:var(--diary)}
 .btn-save{width:100%;padding:11px 0;margin-top:6px;border-radius:12px;border:none;background:var(--btn);color:#fff;font-size:18px;font-family:var(--b-font);cursor:pointer;font-weight:700;box-shadow:0 4px 15px var(--btn-sh);transition:transform .12s}
 .btn-save:hover{transform:scale(1.02)}
 .btn-save:active{transform:scale(.98)}
 
+/* Birthday info in modal */
+.bday-info{background:linear-gradient(135deg,rgba(255,182,193,.15),rgba(255,215,0,.15));border:1.5px solid rgba(255,107,107,.25);border-radius:10px;padding:8px 12px;font-size:14px;color:var(--txt);display:flex;align-items:center;gap:8px}
+
+/* ═══════════════ BIRTHDAY MANAGER ═══════════════ */
+.bday-list{max-height:300px;overflow-y:auto;margin:12px 0}
+.bday-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:10px;margin-bottom:4px;background:rgba(128,128,128,.06);font-size:14px}
+.bday-row-info{display:flex;flex-direction:column;gap:2px}
+.bday-row-name{font-weight:700;color:var(--txt)}
+.bday-row-date{font-size:12px;color:var(--txt2)}
+.bday-row-actions{display:flex;gap:4px}
+.bday-row-actions button{background:none;border:none;cursor:pointer;font-size:16px;padding:2px 5px;border-radius:6px;transition:background .1s}
+.bday-row-actions button:hover{background:rgba(128,128,128,.15)}
+.bday-add-form{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.bday-add-form input{padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;background:var(--input-bg);font-size:14px;font-family:var(--b-font);outline:none;color:var(--txt)}
+.bday-add-form input:focus{border-color:var(--accent)}
+.bday-add-form input[type=text]{flex:1;min-width:120px}
+.bday-add-btn{padding:8px 16px;border:none;border-radius:10px;background:var(--btn);color:#fff;font-size:14px;font-family:var(--b-font);cursor:pointer;font-weight:700;white-space:nowrap}
+
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-thumb{background:var(--border,#888);border-radius:3px}
-@media(max-width:480px){body{padding:8px 4px 24px}.cell{min-height:58px;padding:3px}.modal{padding:20px 16px 16px}.top-bar-right{gap:4px}.dd-btn{padding:4px 8px;font-size:11px}}
+@media(max-width:480px){body{padding:8px 4px 24px}.cell{min-height:58px;padding:3px}.modal{padding:20px 16px 16px}.top-bar-right{gap:4px}.dd-btn{padding:4px 8px;font-size:11px}.icon-btn{width:28px;height:28px;font-size:13px}}
 </style>
 </head>
 <body>
-
 <div class="pattern-overlay"></div>
 
 <div class="top-bar">
   <button class="btn-today" onclick="goToday()">● Today</button>
   <div class="top-bar-right">
+    <button class="icon-btn" onclick="openBdayManager()" title="Birthday Manager">🎂</button>
     <div class="dd-wrap">
       <button class="dd-btn" onclick="toggleDD('theme-dd',event)"><span id="t-emoji"></span> <span id="t-name"></span> ▾</button>
       <div id="theme-dd" class="dd-panel hidden"></div>
@@ -147,13 +185,17 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 </div>
 
 <div class="stats" id="stats"></div>
-<div class="hint">Theme changes daily · pick one manually from the dropdown</div>
+<div class="hint">Theme changes daily · 🎂 manage birthdays · weather updates for 7 days</div>
 
+<!-- DAY EDITOR MODAL -->
 <div id="modal-ov" class="modal-overlay hidden" onclick="closeModal()">
   <div class="modal" onclick="event.stopPropagation()">
     <button class="modal-x" onclick="closeModal()">✕</button>
     <h2 id="m-title"></h2>
     <p id="m-day"></p>
+    <div id="modal-bday-info"></div>
+    <div id="modal-holiday-info"></div>
+    <div id="modal-wx-info"></div>
     <div class="msec">
       <label class="cbl"><input type="checkbox" id="chk-mark" onchange="toggleCP()"><span>✕ Mark this day</span></label>
       <div class="cpk hidden" id="cpk"></div>
@@ -173,30 +215,196 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
   </div>
 </div>
 
+<!-- BIRTHDAY MANAGER MODAL -->
+<div id="bday-ov" class="modal-overlay hidden" onclick="closeBdayManager()">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:500px">
+    <button class="modal-x" onclick="closeBdayManager()">✕</button>
+    <h2>🎂 Birthdays</h2>
+    <p>Manage birthdays — they show every year with age</p>
+    <div class="bday-list" id="bday-list"></div>
+    <div class="dd-div"></div>
+    <div class="bday-add-form">
+      <input type="text" id="bday-name" placeholder="Person's name" />
+      <input type="date" id="bday-date" />
+      <button class="bday-add-btn" onclick="addBday()">Add</button>
+    </div>
+    <div id="bday-msg" style="margin-top:8px;font-size:13px;color:var(--accent)"></div>
+  </div>
+</div>
+
 <div id="toast" class="toast hidden">Loading...</div>
 
 <script>
-/* ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════ SUPABASE ═══════════════ */
 const sb = window.supabase.createClient(
   'https://wylxvmkcrexwfpjpbhyy.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5bHh2bWtjcmV4d2ZwanBiaHl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2MzkxMDYsImV4cCI6MjA4NDIxNTEwNn0.6Bxo42hx4jwlJGWnfjiTpiDUsYfc1QLTN3YtrU1efak'
 );
-const UID = 'default-user';
+const UID='default-user';
 
+/* ═══════════════ CONSTANTS ═══════════════ */
 const MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MC={red:'#d63031',pink:'#e84393',teal:'#00b894',cyan:'#00cec9',orange:'#e17055',purple:'#6c5ce7',yellow:'#fdcb6e'};
 const TH=[{name:'Parchment Journal',emoji:'📜'},{name:'Midnight Tokyo',emoji:'🌃'},{name:'Forest Morning',emoji:'🌿'},{name:'Ocean Breeze',emoji:'🌊'},{name:'Sunset Amber',emoji:'🌅'},{name:'Lavender Dusk',emoji:'🪻'},{name:'Carbon Night',emoji:'🖤'}];
 
-let curYear=new Date().getFullYear(), curMonth=new Date().getMonth(), calData={}, modalKey=null, modalColor='red', manualTheme=-1;
+let curYear=new Date().getFullYear(),curMonth=new Date().getMonth();
+let calData={},modalKey=null,modalColor='red',manualTheme=-1;
+let birthdays=[];       // [{id, person_name, birth_date}]
+let holidays={};        // {'MM-DD': 'Holiday Name'}
+let weatherData={};     // {'YYYY-MM-DD': {icon, tempMax, tempMin, code}}
 
 function $(id){return document.getElementById(id)}
 
-/* THEMES */
+/* ═══════════════ JAPAN HOLIDAYS (static 2025–2026) ═══════════════ */
+const JP_HOLIDAYS_STATIC = {
+  '2025-01-01':'New Year','2025-01-13':'Coming of Age','2025-02-11':'Foundation Day',
+  '2025-02-23':'Emperor\'s Birthday','2025-02-24':'Holiday (observed)','2025-03-20':'Vernal Equinox',
+  '2025-04-29':'Shōwa Day','2025-05-03':'Constitution Day','2025-05-04':'Greenery Day',
+  '2025-05-05':'Children\'s Day','2025-05-06':'Holiday (observed)','2025-07-21':'Marine Day',
+  '2025-08-11':'Mountain Day','2025-09-15':'Respect for Aged','2025-09-23':'Autumnal Equinox',
+  '2025-10-13':'Sports Day','2025-11-03':'Culture Day','2025-11-23':'Labor Thanksgiving','2025-11-24':'Holiday (observed)',
+  '2026-01-01':'New Year','2026-01-12':'Coming of Age','2026-02-11':'Foundation Day',
+  '2026-02-23':'Emperor\'s Birthday','2026-03-20':'Vernal Equinox',
+  '2026-04-29':'Shōwa Day','2026-05-03':'Constitution Day','2026-05-04':'Greenery Day',
+  '2026-05-05':'Children\'s Day','2026-05-06':'Holiday (observed)','2026-07-20':'Marine Day',
+  '2026-08-11':'Mountain Day','2026-09-21':'Respect for Aged','2026-09-23':'Autumnal Equinox',
+  '2026-10-12':'Sports Day','2026-11-03':'Culture Day','2026-11-23':'Labor Thanksgiving'
+};
+
+// Copy static as baseline
+Object.assign(holidays, JP_HOLIDAYS_STATIC);
+
+// Try Nager.Date API to refresh
+async function refreshHolidays() {
+  try {
+    const year = new Date().getFullYear();
+    for (const y of [year, year + 1]) {
+      const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${y}/JP`);
+      if (!res.ok) continue;
+      const data = await res.json();
+      data.forEach(h => { holidays[h.date] = h.localName || h.name; });
+    }
+    console.log('✅ Holidays refreshed from API');
+  } catch (e) { console.warn('Holiday API failed, using static:', e.message); }
+}
+
+function getHoliday(dateStr) { return holidays[dateStr] || null; }
+
+/* ═══════════════ WEATHER (Open-Meteo) ═══════════════ */
+const WX_ICONS = {
+  0:'☀️', 1:'🌤️', 2:'⛅', 3:'☁️',
+  45:'🌫️', 48:'🌫️',
+  51:'🌦️', 53:'🌦️', 55:'🌧️',
+  61:'🌧️', 63:'🌧️', 65:'🌧️',
+  66:'🌧️', 67:'🌧️',
+  71:'❄️', 73:'❄️', 75:'❄️', 77:'❄️',
+  80:'🌧️', 81:'🌧️', 82:'🌧️',
+  85:'❄️', 86:'❄️',
+  95:'⛈️', 96:'⛈️', 99:'⛈️'
+};
+
+async function loadWeather() {
+  try {
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=35.79&longitude=140.06&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo&forecast_days=7');
+    if (!res.ok) return;
+    const d = await res.json();
+    const days = d.daily;
+    for (let i = 0; i < days.time.length; i++) {
+      const code = days.weathercode[i];
+      const tMax = days.temperature_2m_max[i];
+      const tMin = days.temperature_2m_min[i];
+      let icon = WX_ICONS[code] || '🌤️';
+      if (tMin <= 0) icon = '🥶';
+      weatherData[days.time[i]] = { icon, tMax: Math.round(tMax), tMin: Math.round(tMin), code };
+    }
+    console.log('✅ Weather loaded');
+  } catch (e) { console.warn('Weather failed:', e.message); }
+}
+
+/* ═══════════════ BIRTHDAYS ═══════════════ */
+async function loadBirthdays() {
+  try {
+    const { data } = await sb.from('calendar_app_birthdays').select('*').eq('user_id', UID);
+    birthdays = data || [];
+  } catch (e) { console.warn('Bday load failed:', e); birthdays = []; }
+}
+
+function getBdaysForDate(month, day) {
+  return birthdays.filter(b => {
+    const d = new Date(b.birth_date + 'T00:00:00');
+    return d.getMonth() === month && d.getDate() === day;
+  });
+}
+
+function calcAge(birthDate, onDate) {
+  let age = onDate.getFullYear() - birthDate.getFullYear();
+  const m = onDate.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && onDate.getDate() < birthDate.getDate())) age--;
+  return age;
+}
+
+/* Birthday Manager */
+function openBdayManager() {
+  $('bday-ov').classList.remove('hidden');
+  renderBdayList();
+}
+function closeBdayManager() { $('bday-ov').classList.add('hidden'); }
+
+function renderBdayList() {
+  const list = $('bday-list');
+  if (birthdays.length === 0) {
+    list.innerHTML = '<div style="text-align:center;color:var(--txt2);padding:20px;font-size:14px">No birthdays yet — add one below!</div>';
+    return;
+  }
+  const sorted = [...birthdays].sort((a, b) => {
+    const da = new Date(a.birth_date + 'T00:00:00'), db = new Date(b.birth_date + 'T00:00:00');
+    return (da.getMonth() * 100 + da.getDate()) - (db.getMonth() * 100 + db.getDate());
+  });
+  list.innerHTML = sorted.map(b => {
+    const d = new Date(b.birth_date + 'T00:00:00');
+    const age = calcAge(d, new Date());
+    return `<div class="bday-row">
+      <div class="bday-row-info">
+        <span class="bday-row-name">🎂 ${esc(b.person_name)}</span>
+        <span class="bday-row-date">${d.getDate()} ${MO[d.getMonth()]} ${d.getFullYear()} · Age ${age}</span>
+      </div>
+      <div class="bday-row-actions">
+        <button onclick="deleteBday('${b.id}')" title="Delete">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function addBday() {
+  const name = $('bday-name').value.trim();
+  const date = $('bday-date').value;
+  $('bday-msg').textContent = '';
+  if (!name || !date) return ($('bday-msg').textContent = 'Fill in name and date');
+  try {
+    const { data, error } = await sb.from('calendar_app_birthdays').insert({ user_id: UID, person_name: name, birth_date: date }).select();
+    if (error) throw error;
+    birthdays.push(data[0]);
+    $('bday-name').value = '';
+    $('bday-date').value = '';
+    renderBdayList();
+    renderCal();
+  } catch (e) { $('bday-msg').textContent = e.message; }
+}
+
+async function deleteBday(id) {
+  try {
+    await sb.from('calendar_app_birthdays').delete().eq('id', id);
+    birthdays = birthdays.filter(b => b.id !== id);
+    renderBdayList();
+    renderCal();
+  } catch (e) { console.error('Delete bday:', e); }
+}
+
+/* ═══════════════ THEMES ═══════════════ */
 function autoTheme(){const n=new Date(),s=new Date(n.getFullYear(),0,0);return Math.floor((n-s)/864e5)%TH.length}
 function activeTheme(){return manualTheme===-1?autoTheme():manualTheme}
 function applyTheme(i){document.body.setAttribute('data-theme',i);$('t-emoji').textContent=TH[i].emoji;$('t-name').textContent=TH[i].name}
-
 function buildThemeDD(){
   const dd=$('theme-dd');dd.innerHTML='';
   let b=document.createElement('button');b.className='dd-opt'+(manualTheme===-1?' active':'');b.textContent='🔄 Auto (daily rotation)';
@@ -205,16 +413,15 @@ function buildThemeDD(){
   TH.forEach((t,i)=>{let b=document.createElement('button');b.className='dd-opt'+(manualTheme===i?' active':'');b.textContent=t.emoji+' '+t.name;
   b.onclick=()=>{manualTheme=i;applyTheme(i);buildThemeDD();saveThemePref();closeAllDD()};dd.appendChild(b)});
 }
-
 async function saveThemePref(){await sb.from('calendar_app_preferences').upsert({user_id:UID,theme_pref:manualTheme},{onConflict:'user_id'})}
 async function loadThemePref(){const{data}=await sb.from('calendar_app_preferences').select('theme_pref').eq('user_id',UID).single();manualTheme=data?.theme_pref??-1;buildThemeDD()}
 
-/* DROPDOWN */
+/* ═══════════════ DROPDOWN ═══════════════ */
 function toggleDD(id,e){e.stopPropagation();const el=$(id),was=el.classList.contains('hidden');closeAllDD();if(was)el.classList.remove('hidden')}
 function closeAllDD(){document.querySelectorAll('.dd-panel').forEach(p=>p.classList.add('hidden'))}
 document.addEventListener('click',closeAllDD);
 
-/* CALENDAR */
+/* ═══════════════ CALENDAR RENDERING ═══════════════ */
 function daysIn(y,m){return new Date(y,m+1,0).getDate()}
 function firstDay(y,m){const d=new Date(y,m,1).getDay();return d===0?6:d-1}
 function isToday(d){const t=new Date();return d===t.getDate()&&curMonth===t.getMonth()&&curYear===t.getFullYear()}
@@ -230,16 +437,52 @@ function renderCal(){
   for(let i=0;i<total;i++){
     let day,cur;
     if(i<fd){day=pDim-fd+i+1;cur=false}else if(i<fd+dim){day=i-fd+1;cur=true}else{day=i-fd-dim+1;cur=false}
-    const we=i%7>=5,lr=Math.floor(i/7)===rows-1,key=cur?dk(day):null,dd=key?calData[key]:null;
-    let cls='cell';if(cur)cls+=' cur';else cls+=' om';if(we&&cur)cls+=' we';if(lr)cls+=' lr';
-    let dcls='dnum';if(isToday(day)&&cur)dcls+=' today';
-    h+=`<div class="${cls}" ${cur?`data-k="${key}"`:''}><div class="${dcls}">${day}</div>`;
+    const we=i%7>=5,lr=Math.floor(i/7)===rows-1;
+    const key=cur?dk(day):null,dd=key?calData[key]:null;
+    const hol=cur?getHoliday(key):null;
+    const bdays=cur?getBdaysForDate(curMonth,day):[];
+    const wx=cur?weatherData[key]:null;
+    const today=isToday(day)&&cur;
+
+    let cls='cell';
+    if(cur)cls+=' cur';else cls+=' om';
+    if(we&&cur)cls+=' we';
+    if(lr)cls+=' lr';
+    if(hol&&cur)cls+=' holiday';
+    if(bdays.length>0&&cur)cls+=' birthday';
+
+    let dcls='dnum';
+
+    h+=`<div class="${cls}" ${cur?`data-k="${key}"`:''}>`;
+
+    // Today green dot
+    if(today) h+='<div class="today-dot"></div>';
+
+    // Weather icon (top-right, but birthday icon takes priority)
+    if(wx&&cur&&bdays.length===0) h+=`<span class="wx-icon">${wx.icon}</span>`;
+
+    // Birthday icon (top-right)
+    if(bdays.length>0&&cur) h+='<span class="bday-icon">🎂</span>';
+
+    // Day number
+    h+=`<div class="${dcls}">${day}</div>`;
+
     if(cur&&dd){
       if(dd.marked)h+=xSvg(MC[dd.markColor]||MC.red);
       if(dd.isGoal)h+='<div class="gb">★ GOAL</div>';
       if(dd.note)h+=`<div class="np">${esc(dd.note)}</div>`;
       if(dd.diary)h+='<div class="di">📖</div>';
     }
+
+    // Birthday name
+    if(bdays.length>0&&cur){
+      const bname=bdays.map(b=>b.person_name).join(', ');
+      h+=`<span class="bday-name">${esc(bname)}</span>`;
+    }
+
+    // Holiday tag
+    if(hol&&cur&&bdays.length===0) h+=`<span class="holiday-tag">🎌 ${esc(hol)}</span>`;
+
     h+='</div>';
   }
   c.innerHTML=h;
@@ -253,13 +496,13 @@ function updateStats(){
   $('stats').innerHTML=m+g+d===0?'Tap any day to start tracking':`<span>✕ ${m} marked</span><span>⭐ ${g} goals</span><span>📖 ${d} diary entries</span>`;
 }
 
-/* NAVIGATION */
+/* ═══════════════ NAVIGATION ═══════════════ */
 function prevMonth(){if(curMonth===0){curMonth=11;curYear--}else curMonth--;loadAndRender()}
 function nextMonth(){if(curMonth===11){curMonth=0;curYear++}else curMonth++;loadAndRender()}
 function goToday(){const t=new Date();curYear=t.getFullYear();curMonth=t.getMonth();loadAndRender()}
-document.addEventListener('keydown',e=>{if(!$('modal-ov').classList.contains('hidden'))return;if(e.key==='ArrowLeft')prevMonth();if(e.key==='ArrowRight')nextMonth()});
+document.addEventListener('keydown',e=>{if(!$('modal-ov').classList.contains('hidden')||!$('bday-ov').classList.contains('hidden'))return;if(e.key==='ArrowLeft')prevMonth();if(e.key==='ArrowRight')nextMonth()});
 
-/* LOAD DATA */
+/* ═══════════════ LOAD DATA ═══════════════ */
 async function loadAndRender(){
   $('toast').classList.remove('hidden');
   const s=`${curYear}-${String(curMonth+1).padStart(2,'0')}-01`,last=daysIn(curYear,curMonth),e=`${curYear}-${String(curMonth+1).padStart(2,'0')}-${last}`;
@@ -273,14 +516,41 @@ async function loadAndRender(){
   $('toast').classList.add('hidden');renderCal();
 }
 
-/* MODAL */
+/* ═══════════════ DAY MODAL ═══════════════ */
 function buildCP(){const cpk=$('cpk');cpk.innerHTML='';Object.entries(MC).forEach(([n,c])=>{const b=document.createElement('button');b.className='cdot'+(modalColor===n?' act':'');b.style.background=c;b.onclick=()=>{modalColor=n;buildCP()};cpk.appendChild(b)})}
 function toggleCP(){$('cpk').classList.toggle('hidden',!$('chk-mark').checked)}
 
 function openModal(key,data){
-  modalKey=key;const d=new Date(key+'T00:00:00');
-  $('m-title').textContent=`${d.getDate()} ${MO[d.getMonth()]}`;$('m-day').textContent=`${DN[d.getDay()]}, ${d.getFullYear()}`;
-  const dd=data||{};$('chk-mark').checked=dd.marked||false;$('chk-goal').checked=dd.isGoal||false;
+  modalKey=key;
+  const d=new Date(key+'T00:00:00');
+  $('m-title').textContent=`${d.getDate()} ${MO[d.getMonth()]}`;
+  $('m-day').textContent=`${DN[d.getDay()]}, ${d.getFullYear()}`;
+
+  // Birthday info
+  const bdays=getBdaysForDate(d.getMonth(),d.getDate());
+  if(bdays.length>0){
+    const infos=bdays.map(b=>{
+      const bd=new Date(b.birth_date+'T00:00:00');
+      const age=calcAge(bd,d);
+      return `🎂 <b>${esc(b.person_name)}</b> turns <b>${age}</b>`;
+    }).join('<br>');
+    $('modal-bday-info').innerHTML=`<div class="bday-info" style="margin-bottom:12px">${infos}</div>`;
+  } else { $('modal-bday-info').innerHTML=''; }
+
+  // Holiday info
+  const hol=getHoliday(key);
+  if(hol){
+    $('modal-holiday-info').innerHTML=`<div class="bday-info" style="margin-bottom:12px;border-color:rgba(192,57,43,.25);background:linear-gradient(135deg,rgba(231,76,60,.08),rgba(241,196,15,.08))">🎌 <b>${esc(hol)}</b></div>`;
+  } else { $('modal-holiday-info').innerHTML=''; }
+
+  // Weather info
+  const wx=weatherData[key];
+  if(wx){
+    $('modal-wx-info').innerHTML=`<div class="bday-info" style="margin-bottom:12px;border-color:rgba(52,152,219,.25);background:linear-gradient(135deg,rgba(52,152,219,.08),rgba(46,204,113,.08))">${wx.icon} <b>${wx.tMax}°C</b> / ${wx.tMin}°C</div>`;
+  } else { $('modal-wx-info').innerHTML=''; }
+
+  const dd=data||{};
+  $('chk-mark').checked=dd.marked||false;$('chk-goal').checked=dd.isGoal||false;
   $('inp-note').value=dd.note||'';$('inp-diary').value=dd.diary||'';modalColor=dd.markColor||'red';
   buildCP();toggleCP();$('modal-ov').classList.remove('hidden');
 }
@@ -301,14 +571,23 @@ async function saveModal(){
   }catch(err){console.error('Save:',err)}
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeBdayManager()}});
 
-/* BOOT */
+/* ═══════════════ BOOT ═══════════════ */
 document.addEventListener('DOMContentLoaded',async()=>{
   applyTheme(activeTheme());
-  try{await loadThemePref()}catch(e){}
+
+  // Load everything in parallel
+  await Promise.allSettled([
+    loadThemePref(),
+    loadBirthdays(),
+    loadWeather(),
+    refreshHolidays()
+  ]);
+
   applyTheme(activeTheme());
   await loadAndRender();
+  console.log('✅ Calendar ready');
 });
 </script>
 </body>
