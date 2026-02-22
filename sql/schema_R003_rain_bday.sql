@@ -1,3 +1,9 @@
+DROP TABLE IF EXISTS calendar_app_entries CASCADE;
+DROP TABLE IF EXISTS calendar_app_diary CASCADE;
+DROP TABLE IF EXISTS calendar_app_preferences CASCADE;
+DROP TABLE IF EXISTS calendar_app_birthdays CASCADE;
+DROP FUNCTION IF EXISTS update_modified_column() CASCADE;
+
 -- ═══════════════════════════════════════════════════════════════
 -- CALENDAR APP — Schema v2 (No Auth, with Birthdays)
 --

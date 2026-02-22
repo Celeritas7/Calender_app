@@ -145,11 +145,10 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 .bday-row-actions{display:flex;gap:4px}
 .bday-row-actions button{background:none;border:none;cursor:pointer;font-size:16px;padding:2px 5px;border-radius:6px;transition:background .1s}
 .bday-row-actions button:hover{background:rgba(128,128,128,.15)}
-.bday-add-form{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
-.bday-add-form input,.bday-add-form select{padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;background:var(--input-bg);font-size:14px;font-family:var(--b-font);outline:none;color:var(--txt)}
-.bday-add-form input:focus,.bday-add-form select:focus{border-color:var(--accent)}
+.bday-add-form{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.bday-add-form input{padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;background:var(--input-bg);font-size:14px;font-family:var(--b-font);outline:none;color:var(--txt)}
+.bday-add-form input:focus{border-color:var(--accent)}
 .bday-add-form input[type=text]{flex:1;min-width:120px}
-.bday-add-form select{min-width:70px}
 .bday-add-btn{padding:8px 16px;border:none;border-radius:10px;background:var(--btn);color:#fff;font-size:14px;font-family:var(--b-font);cursor:pointer;font-weight:700;white-space:nowrap}
 
 ::-webkit-scrollbar{width:6px}
@@ -226,9 +225,7 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
     <div class="dd-div"></div>
     <div class="bday-add-form">
       <input type="text" id="bday-name" placeholder="Person's name" />
-      <select id="bday-day"><option value="">Day</option></select>
-      <select id="bday-month"><option value="">Month</option></select>
-      <input type="number" id="bday-year" placeholder="Year (optional)" min="1900" max="2030" style="width:110px" />
+      <input type="date" id="bday-date" />
       <button class="bday-add-btn" onclick="addBday()">Add</button>
     </div>
     <div id="bday-msg" style="margin-top:8px;font-size:13px;color:var(--accent)"></div>
@@ -347,10 +344,6 @@ function calcAge(birthDate, onDate) {
   return age;
 }
 
-function yearKnown(b) {
-  return new Date(b.birth_date + 'T00:00:00').getFullYear() !== 1900;
-}
-
 /* Birthday Manager */
 function openBdayManager() {
   $('bday-ov').classList.remove('hidden');
@@ -370,13 +363,11 @@ function renderBdayList() {
   });
   list.innerHTML = sorted.map(b => {
     const d = new Date(b.birth_date + 'T00:00:00');
-    const yk = yearKnown(b);
-    const age = yk ? calcAge(d, new Date()) : null;
-    const dateStr = `${d.getDate()} ${MO[d.getMonth()]}` + (yk ? ` ${d.getFullYear()} · Age ${age}` : '');
+    const age = calcAge(d, new Date());
     return `<div class="bday-row">
       <div class="bday-row-info">
         <span class="bday-row-name">🎂 ${esc(b.person_name)}</span>
-        <span class="bday-row-date">${dateStr}</span>
+        <span class="bday-row-date">${d.getDate()} ${MO[d.getMonth()]} ${d.getFullYear()} · Age ${age}</span>
       </div>
       <div class="bday-row-actions">
         <button onclick="deleteBday('${b.id}')" title="Delete">🗑️</button>
@@ -387,23 +378,15 @@ function renderBdayList() {
 
 async function addBday() {
   const name = $('bday-name').value.trim();
-  const day = $('bday-day').value;
-  const month = $('bday-month').value;
-  const year = $('bday-year').value.trim();
+  const date = $('bday-date').value;
   $('bday-msg').textContent = '';
-  if (!name || !day || !month) return ($('bday-msg').textContent = 'Fill in name, day, and month');
-  const y = year ? parseInt(year) : 1900;
-  const m = String(parseInt(month)).padStart(2, '0');
-  const d = String(parseInt(day)).padStart(2, '0');
-  const date = `${y}-${m}-${d}`;
+  if (!name || !date) return ($('bday-msg').textContent = 'Fill in name and date');
   try {
     const { data, error } = await sb.from('calendar_app_birthdays').insert({ user_id: UID, person_name: name, birth_date: date }).select();
     if (error) throw error;
     birthdays.push(data[0]);
     $('bday-name').value = '';
-    $('bday-day').value = '';
-    $('bday-month').value = '';
-    $('bday-year').value = '';
+    $('bday-date').value = '';
     renderBdayList();
     renderCal();
   } catch (e) { $('bday-msg').textContent = e.message; }
@@ -548,9 +531,8 @@ function openModal(key,data){
   if(bdays.length>0){
     const infos=bdays.map(b=>{
       const bd=new Date(b.birth_date+'T00:00:00');
-      const yk=yearKnown(b);
-      if(yk){const age=calcAge(bd,d);return `🎂 <b>${esc(b.person_name)}</b> turns <b>${age}</b>`;}
-      return `🎂 <b>${esc(b.person_name)}</b>'s birthday`;
+      const age=calcAge(bd,d);
+      return `🎂 <b>${esc(b.person_name)}</b> turns <b>${age}</b>`;
     }).join('<br>');
     $('modal-bday-info').innerHTML=`<div class="bday-info" style="margin-bottom:12px">${infos}</div>`;
   } else { $('modal-bday-info').innerHTML=''; }
@@ -593,11 +575,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeB
 
 /* ═══════════════ BOOT ═══════════════ */
 document.addEventListener('DOMContentLoaded',async()=>{
-  // Populate day/month dropdowns
-  const daySel=$('bday-day'), monSel=$('bday-month');
-  for(let i=1;i<=31;i++){const o=document.createElement('option');o.value=i;o.textContent=i;daySel.appendChild(o)}
-  MO.forEach((m,i)=>{const o=document.createElement('option');o.value=i+1;o.textContent=m;monSel.appendChild(o)});
-
   applyTheme(activeTheme());
 
   // Load everything in parallel
