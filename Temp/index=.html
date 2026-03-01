@@ -102,6 +102,7 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 .xm{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.75;pointer-events:none;z-index:1}
 .gb{position:absolute;top:2px;right:3px;font-size:8px;background:var(--goal);color:#fff;border-radius:5px;padding:1px 5px;font-family:var(--b-font);font-weight:700;z-index:4;line-height:12px}
 .np{font-size:clamp(8px,1.5vw,11px);color:var(--note);line-height:1.15;margin-top:1px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;z-index:3;font-weight:600}
+.di{position:absolute;bottom:2px;right:3px;font-size:10px;z-index:3}
 .stats{width:100%;max-width:840px;margin-top:10px;display:flex;flex-wrap:wrap;gap:18px;justify-content:center;font-size:14px;color:var(--txt2);z-index:1}
 .hint{margin-top:5px;font-size:12px;color:var(--txt2);opacity:.6;z-index:1}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--txt,#333);color:var(--card-bg,#fff);padding:7px 18px;border-radius:20px;font-size:13px;z-index:50}
@@ -135,29 +136,6 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 /* Birthday info in modal */
 .bday-info{background:linear-gradient(135deg,rgba(255,182,193,.15),rgba(255,215,0,.15));border:1.5px solid rgba(255,107,107,.25);border-radius:10px;padding:8px 12px;font-size:14px;color:var(--txt);display:flex;align-items:center;gap:8px}
 
-/* Diary mood picker */
-.diary-mood-bar{display:flex;align-items:center;gap:6px;margin-bottom:8px}
-.diary-mood-label{font-size:12px;color:var(--txt2);margin-right:2px}
-.diary-mood{width:30px;height:30px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:transform .12s,border-color .15s}
-.diary-mood:hover{transform:scale(1.15)}
-.diary-mood.act{border-color:var(--txt);transform:scale(1.2)}
-.diary-mood.good{background:rgba(107,203,119,.2)}
-.diary-mood.neutral{background:rgba(128,128,128,.2)}
-.diary-mood.bad{background:rgba(255,107,107,.2)}
-
-.diary-preview{margin-top:8px;border-radius:10px;padding:10px 12px;min-height:20px;font-size:13px;line-height:1.7;background:color-mix(in srgb,var(--input-bg) 80%,transparent);border:1px solid color-mix(in srgb,var(--border) 50%,transparent)}
-.diary-preview:empty{display:none}
-.diary-preview .dl-good{color:#27ae60;font-weight:500}
-.diary-preview .dl-bad{color:#e74c3c;font-weight:500}
-.diary-preview .dl-neutral{color:var(--txt2)}
-.diary-preview .dl-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px;vertical-align:middle}
-
-/* Diary cell indicator with mood color */
-.di{position:absolute;bottom:2px;right:3px;font-size:10px;z-index:3}
-.di-mixed{color:#ffd93d}
-.di-good{color:#27ae60}
-.di-bad{color:#e74c3c}
-
 /* ═══════════════ BIRTHDAY MANAGER ═══════════════ */
 .bday-list{max-height:300px;overflow-y:auto;margin:12px 0}
 .bday-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:10px;margin-bottom:4px;background:rgba(128,128,128,.06);font-size:14px}
@@ -174,28 +152,6 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 .bday-add-form select{min-width:70px}
 .bday-add-btn{padding:8px 16px;border:none;border-radius:10px;background:var(--btn);color:#fff;font-size:14px;font-family:var(--b-font);cursor:pointer;font-weight:700;white-space:nowrap}
 
-/* ═══════════════ WEATHER VIEW ═══════════════ */
-.wx-view-active{outline:2px solid var(--accent);outline-offset:-2px}
-
-body.wx-mode .cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
-body.wx-mode .cell .dnum{font-size:clamp(12px,2.5vw,18px)}
-body.wx-mode .cell .xm,
-body.wx-mode .cell .gb,
-body.wx-mode .cell .np,
-body.wx-mode .cell .di,
-body.wx-mode .cell .bday-icon,
-body.wx-mode .cell .bday-name,
-body.wx-mode .cell .holiday-tag,
-body.wx-mode .cell .wx-icon{display:none!important}
-
-body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-items:center;gap:0;z-index:5}
-.wx-big{display:none!important}
-.wx-big-icon{font-size:clamp(18px,4vw,30px);line-height:1.1}
-.wx-temps{display:flex;gap:4px;font-size:clamp(9px,1.8vw,13px);font-weight:700;line-height:1.2}
-.wx-hi{color:#e74c3c}
-.wx-lo{color:#3498db}
-.wx-none{font-size:clamp(8px,1.5vw,11px);color:var(--txt2);opacity:.5}
-
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-thumb{background:var(--border,#888);border-radius:3px}
 @media(max-width:480px){body{padding:8px 4px 24px}.cell{min-height:58px;padding:3px}.modal{padding:20px 16px 16px}.top-bar-right{gap:4px}.dd-btn{padding:4px 8px;font-size:11px}.icon-btn{width:28px;height:28px;font-size:13px}}
@@ -207,7 +163,6 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
 <div class="top-bar">
   <button class="btn-today" onclick="goToday()">● Today</button>
   <div class="top-bar-right">
-    <button class="icon-btn" id="wx-toggle" onclick="toggleWxView()" title="Weather View">🌤️</button>
     <button class="icon-btn" onclick="openBdayManager()" title="Birthday Manager">🎂</button>
     <div class="dd-wrap">
       <button class="dd-btn" onclick="toggleDD('theme-dd',event)"><span id="t-emoji"></span> <span id="t-name"></span> ▾</button>
@@ -231,7 +186,7 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
 </div>
 
 <div class="stats" id="stats"></div>
-<div class="hint">Theme changes daily · 🎂 manage birthdays · 🌤️ toggle weather view</div>
+<div class="hint">Theme changes daily · 🎂 manage birthdays · weather updates for 7 days</div>
 
 <!-- DAY EDITOR MODAL -->
 <div id="modal-ov" class="modal-overlay hidden" onclick="closeModal()">
@@ -255,14 +210,7 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
     </div>
     <div class="msec">
       <label class="flbl">📖 Personal Diary</label>
-      <div class="diary-mood-bar">
-        <span class="diary-mood-label">Ink color:</span>
-        <button class="diary-mood good act" id="dm-good" onclick="setDiaryMood('good')" title="Good">😊</button>
-        <button class="diary-mood neutral" id="dm-neutral" onclick="setDiaryMood('neutral')" title="Neutral">😐</button>
-        <button class="diary-mood bad" id="dm-bad" onclick="setDiaryMood('bad')" title="Bad">😟</button>
-      </div>
-      <textarea id="inp-diary" rows="4" placeholder="Type a line... switch ink color for the next line" oninput="diaryPreviewUpdate()"></textarea>
-      <div class="diary-preview" id="diary-preview"></div>
+      <textarea id="inp-diary" rows="4" placeholder="Write your thoughts..."></textarea>
     </div>
     <button class="btn-save" onclick="saveModal()">Save Entry</button>
   </div>
@@ -304,14 +252,8 @@ const MC={red:'#d63031',pink:'#e84393',teal:'#00b894',cyan:'#00cec9',orange:'#e1
 const TH=[{name:'Parchment Journal',emoji:'📜'},{name:'Midnight Tokyo',emoji:'🌃'},{name:'Forest Morning',emoji:'🌿'},{name:'Ocean Breeze',emoji:'🌊'},{name:'Sunset Amber',emoji:'🌅'},{name:'Lavender Dusk',emoji:'🪻'},{name:'Carbon Night',emoji:'🖤'}];
 
 let curYear=new Date().getFullYear(),curMonth=new Date().getMonth();
-let calData={},modalKey=null,modalColor='red',manualTheme=-1,wxMode=false;
-<<<<<<< HEAD
-let birthdays=[];
-let diaryMood='good';       // current ink color
-let diaryLineMoods=[];      // mood per line [{mood}]
-=======
+let calData={},modalKey=null,modalColor='red',manualTheme=-1;
 let birthdays=[];       // [{id, person_name, birth_date}]
->>>>>>> 352e8a67044bcb75d9a5a5ebc6e2bbd308a11f29
 let holidays={};        // {'MM-DD': 'Holiday Name'}
 let weatherData={};     // {'YYYY-MM-DD': {icon, tempMax, tempMin, code}}
 
@@ -476,15 +418,6 @@ async function deleteBday(id) {
   } catch (e) { console.error('Delete bday:', e); }
 }
 
-/* ═══════════════ WEATHER VIEW TOGGLE ═══════════════ */
-function toggleWxView(){
-  wxMode=!wxMode;
-  document.body.classList.toggle('wx-mode',wxMode);
-  $('wx-toggle').classList.toggle('wx-view-active',wxMode);
-  $('wx-toggle').title=wxMode?'Normal View':'Weather View';
-  renderCal();
-}
-
 /* ═══════════════ THEMES ═══════════════ */
 function autoTheme(){const n=new Date(),s=new Date(n.getFullYear(),0,0);return Math.floor((n-s)/864e5)%TH.length}
 function activeTheme(){return manualTheme===-1?autoTheme():manualTheme}
@@ -555,11 +488,7 @@ function renderCal(){
       if(dd.marked)h+=xSvg(MC[dd.markColor]||MC.red);
       if(dd.isGoal)h+='<div class="gb">★ GOAL</div>';
       if(dd.note)h+=`<div class="np">${esc(dd.note)}</div>`;
-      if(dd.diary){
-        const dm=diaryOverallMood(dd.diary);
-        const dcls=dm==='mixed'?'di-mixed':dm==='good'?'di-good':dm==='bad'?'di-bad':'';
-        h+=`<div class="di ${dcls}">📖</div>`;
-      }
+      if(dd.diary)h+='<div class="di">📖</div>';
     }
 
     // Birthday name
@@ -571,10 +500,6 @@ function renderCal(){
     // Holiday tag
     if(hol&&cur&&bdays.length===0) h+=`<span class="holiday-tag">🎌 ${esc(hol)}</span>`;
 
-    // Weather view (big, shown only in wx-mode via CSS)
-    if(cur&&wx) h+=`<div class="wx-big"><span class="wx-big-icon">${wx.icon}</span><div class="wx-temps"><span class="wx-hi">${wx.tMax}°</span><span class="wx-lo">${wx.tMin}°</span></div></div>`;
-    else if(cur&&!wx) h+='<div class="wx-big"><span class="wx-none">—</span></div>';
-
     h+='</div>';
   }
   c.innerHTML=h;
@@ -584,21 +509,6 @@ function renderCal(){
 }
 
 function updateStats(){
-  if(wxMode){
-    const keys=Object.keys(weatherData);
-    if(keys.length>0){
-      const temps=Object.values(weatherData);
-      const hi=Math.max(...temps.map(w=>w.tMax)),lo=Math.min(...temps.map(w=>w.tMin));
-      const hasRain=temps.some(w=>[51,53,55,61,63,65,66,67,80,81,82].includes(w.code));
-      const hasSnow=temps.some(w=>[71,73,75,77,85,86].includes(w.code));
-      let summary=`<span>🌡️ Week: <b style="color:#e74c3c">${hi}°C</b> / <b style="color:#3498db">${lo}°C</b></span>`;
-      if(hasRain)summary+='<span>🌧️ Rain expected</span>';
-      if(hasSnow)summary+='<span>❄️ Snow expected</span>';
-      if(lo<=0)summary+='<span>🥶 Below freezing</span>';
-      $('stats').innerHTML=summary;
-    } else { $('stats').innerHTML='<span>No weather data — only shows 7 days from today</span>'; }
-    return;
-  }
   const ent=Object.values(calData),m=ent.filter(e=>e.marked).length,g=ent.filter(e=>e.isGoal).length,d=ent.filter(e=>e.diary).length;
   $('stats').innerHTML=m+g+d===0?'Tap any day to start tracking':`<span>✕ ${m} marked</span><span>⭐ ${g} goals</span><span>📖 ${d} diary entries</span>`;
 }
@@ -626,82 +536,6 @@ async function loadAndRender(){
 /* ═══════════════ DAY MODAL ═══════════════ */
 function buildCP(){const cpk=$('cpk');cpk.innerHTML='';Object.entries(MC).forEach(([n,c])=>{const b=document.createElement('button');b.className='cdot'+(modalColor===n?' act':'');b.style.background=c;b.onclick=()=>{modalColor=n;buildCP()};cpk.appendChild(b)})}
 function toggleCP(){$('cpk').classList.toggle('hidden',!$('chk-mark').checked)}
-
-/* ═══════════════ DIARY MOOD (per-line sentiment) ═══════════════ */
-function setDiaryMood(m){
-  diaryMood=m;
-  document.querySelectorAll('.diary-mood').forEach(b=>b.classList.remove('act'));
-  $('dm-'+m).classList.add('act');
-  // Update mood for current line
-  const ta=$('inp-diary');
-  const lines=ta.value.split('\n');
-  const pos=ta.selectionStart;
-  let lineIdx=ta.value.substring(0,pos).split('\n').length-1;
-  while(diaryLineMoods.length<=lineIdx)diaryLineMoods.push({mood:'neutral'});
-  diaryLineMoods[lineIdx].mood=m;
-  diaryPreviewUpdate();
-}
-
-function diaryPreviewUpdate(){
-  const raw=$('inp-diary').value;
-  const prev=$('diary-preview');
-  if(!raw.trim()){prev.innerHTML='';return}
-  const lines=raw.split('\n');
-  // Grow moods array to match lines
-  while(diaryLineMoods.length<lines.length)diaryLineMoods.push({mood:diaryMood});
-  diaryLineMoods.length=lines.length;
-  // Current line gets current mood
-  const ta=$('inp-diary');
-  const curLine=ta.value.substring(0,ta.selectionStart).split('\n').length-1;
-  diaryLineMoods[curLine].mood=diaryMood;
-
-  prev.innerHTML=lines.map((l,i)=>{
-    if(!l.trim())return'';
-    const m=diaryLineMoods[i]?.mood||'neutral';
-    const cls='dl-'+m;
-    const dotColor=m==='good'?'#27ae60':m==='bad'?'#e74c3c':'#999';
-    return `<div class="${cls}"><span class="dl-dot" style="background:${dotColor}"></span>${esc(l)}</div>`;
-  }).join('');
-}
-
-// Encode diary: prepend + for good, - for bad, nothing for neutral
-function encodeDiary(){
-  const raw=$('inp-diary').value;
-  if(!raw.trim())return'';
-  return raw.split('\n').map((l,i)=>{
-    if(!l.trim())return'';
-    const m=diaryLineMoods[i]?.mood||'neutral';
-    if(m==='good')return'+'+l;
-    if(m==='bad')return'-'+l;
-    return '~'+l;
-  }).filter(l=>l).join('\n');
-}
-
-// Decode diary: parse prefixes back to plain text + moods
-function decodeDiary(encoded){
-  if(!encoded)return{text:'',moods:[]};
-  const lines=encoded.split('\n');
-  const text=[],moods=[];
-  lines.forEach(l=>{
-    if(l.startsWith('+')){ moods.push({mood:'good'}); text.push(l.slice(1)); }
-    else if(l.startsWith('-')){ moods.push({mood:'bad'}); text.push(l.slice(1)); }
-    else if(l.startsWith('~')){ moods.push({mood:'neutral'}); text.push(l.slice(1)); }
-    else { moods.push({mood:'neutral'}); text.push(l); }
-  });
-  return{text:text.join('\n'),moods};
-}
-
-// Get overall mood of a diary entry for cell indicator
-function diaryOverallMood(encoded){
-  if(!encoded)return null;
-  const lines=encoded.split('\n');
-  let g=0,b=0;
-  lines.forEach(l=>{if(l.startsWith('+'))g++;else if(l.startsWith('-'))b++});
-  if(g>0&&b>0)return'mixed';
-  if(g>0)return'good';
-  if(b>0)return'bad';
-  return null;
-}
 
 function openModal(key,data){
   modalKey=key;
@@ -735,17 +569,7 @@ function openModal(key,data){
 
   const dd=data||{};
   $('chk-mark').checked=dd.marked||false;$('chk-goal').checked=dd.isGoal||false;
-  $('inp-note').value=dd.note||'';
-  modalColor=dd.markColor||'red';
-
-  // Decode diary with moods
-  const decoded=decodeDiary(dd.diary||'');
-  $('inp-diary').value=decoded.text;
-  diaryLineMoods=decoded.moods;
-  diaryMood='good';
-  setDiaryMood('good');
-  diaryPreviewUpdate();
-
+  $('inp-note').value=dd.note||'';$('inp-diary').value=dd.diary||'';modalColor=dd.markColor||'red';
   buildCP();toggleCP();$('modal-ov').classList.remove('hidden');
 }
 
@@ -753,8 +577,7 @@ function closeModal(){$('modal-ov').classList.add('hidden');modalKey=null}
 
 async function saveModal(){
   if(!modalKey)return;
-  const encodedDiary=encodeDiary();
-  const data={marked:$('chk-mark').checked,markColor:modalColor,isGoal:$('chk-goal').checked,note:$('inp-note').value.trim(),diary:encodedDiary};
+  const data={marked:$('chk-mark').checked,markColor:modalColor,isGoal:$('chk-goal').checked,note:$('inp-note').value.trim(),diary:$('inp-diary').value.trim()};
   const empty=!data.marked&&!data.isGoal&&!data.note&&!data.diary;
   if(empty)delete calData[modalKey];else calData[modalKey]=data;
   closeModal();renderCal();
