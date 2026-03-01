@@ -198,39 +198,7 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
 
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-thumb{background:var(--border,#888);border-radius:3px}
-
-/* ═══════════════ MONTH/YEAR PICKER ═══════════════ */
-.month-title{cursor:pointer;position:relative;transition:opacity .15s}
-.month-title:hover{opacity:.75}
-.month-title::after{content:' ▾';font-size:clamp(14px,2.5vw,20px);color:var(--txt2);font-family:var(--b-font)}
-.picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1001;backdrop-filter:blur(4px);animation:fadeIn .2s}
-.picker{background:var(--card-bg);border:2px solid var(--border);border-radius:18px;padding:22px;display:flex;gap:16px;box-shadow:var(--shadow);animation:mIn .25s ease;max-width:380px;width:90%}
-.picker-col{display:flex;flex-direction:column;gap:4px}
-.picker-col-label{font-size:11px;color:var(--txt2);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;font-family:var(--b-font)}
-.picker-months{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;flex:1}
-.picker-mo{padding:8px 6px;border:1.5px solid transparent;border-radius:9px;background:rgba(128,128,128,.08);color:var(--txt);font-size:13px;cursor:pointer;font-family:var(--b-font);font-weight:600;text-align:center;transition:all .12s}
-.picker-mo:hover{background:rgba(128,128,128,.18)}
-.picker-mo.act{background:var(--accent);color:#fff;border-color:var(--accent)}
-.picker-years{display:flex;flex-direction:column;gap:3px;max-height:240px;overflow-y:auto;padding-right:4px;min-width:70px}
-.picker-yr{padding:6px 14px;border:1.5px solid transparent;border-radius:9px;background:rgba(128,128,128,.08);color:var(--txt);font-size:13px;cursor:pointer;font-family:var(--b-font);font-weight:600;text-align:center;transition:all .12s}
-.picker-yr:hover{background:rgba(128,128,128,.18)}
-.picker-yr.act{background:var(--accent);color:#fff;border-color:var(--accent)}
-.picker-years::-webkit-scrollbar{width:4px}
-.picker-years::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-
-/* ═══════════════ BULK MARK MODE ═══════════════ */
-.bulk-active{outline:2px solid var(--accent);outline-offset:-2px}
-.bulk-bar{width:100%;max-width:840px;display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 14px;background:var(--card-bg);border:1.5px solid var(--accent);border-radius:14px;margin-bottom:8px;z-index:10;animation:slideIn .25s ease}
-.bulk-label{font-size:13px;color:var(--accent);font-weight:700;font-family:var(--b-font)}
-.bulk-dots{display:flex;gap:5px}
-.bulk-dot{width:22px;height:22px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;transition:transform .1s}
-.bulk-dot:hover{transform:scale(1.15)}
-.bulk-dot.act{border-color:var(--txt);transform:scale(1.2)}
-.bulk-done{padding:4px 14px;border:1.5px solid var(--accent);border-radius:10px;background:transparent;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--b-font);transition:all .12s}
-.bulk-done:hover{background:var(--accent);color:#fff}
-.cell.bulk-hover{outline:2px dashed var(--accent);outline-offset:-2px;z-index:2}
-
-@media(max-width:480px){body{padding:8px 4px 24px}.cell{min-height:58px;padding:3px}.modal{padding:20px 16px 16px}.top-bar-right{gap:4px}.dd-btn{padding:4px 8px;font-size:11px}.icon-btn{width:28px;height:28px;font-size:13px}.picker{flex-direction:column;gap:10px}.picker-months{grid-template-columns:repeat(4,1fr)}.picker-years{flex-direction:row;flex-wrap:wrap;max-height:none;overflow:visible}}
+@media(max-width:480px){body{padding:8px 4px 24px}.cell{min-height:58px;padding:3px}.modal{padding:20px 16px 16px}.top-bar-right{gap:4px}.dd-btn{padding:4px 8px;font-size:11px}.icon-btn{width:28px;height:28px;font-size:13px}}
 </style>
 </head>
 <body>
@@ -239,7 +207,6 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
 <div class="top-bar">
   <button class="btn-today" onclick="goToday()">● Today</button>
   <div class="top-bar-right">
-    <button class="icon-btn" id="bulk-toggle" onclick="toggleBulkMode()" title="Bulk Mark Mode">✕</button>
     <button class="icon-btn" id="wx-toggle" onclick="toggleWxView()" title="Weather View">🌤️</button>
     <button class="icon-btn" onclick="openBdayManager()" title="Birthday Manager">🎂</button>
     <div class="dd-wrap">
@@ -249,19 +216,11 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
   </div>
 </div>
 
-<div id="bulk-bar" class="bulk-bar hidden">
-  <span class="bulk-label">✕ Bulk Mark Mode</span>
-  <div class="bulk-dots" id="bulk-dots"></div>
-  <button class="bulk-done" onclick="toggleBulkMode()">Done</button>
-</div>
-
 <div class="month-header">
   <button class="nav-arrow" onclick="prevMonth()">‹</button>
-  <div class="month-title" onclick="openPicker()"><h1 id="m-name"></h1><p id="y-label"></p></div>
+  <div class="month-title"><h1 id="m-name"></h1><p id="y-label"></p></div>
   <button class="nav-arrow" onclick="nextMonth()">›</button>
 </div>
-
-<div id="picker-ov" class="picker-overlay hidden" onclick="if(event.target===this)closePicker()"></div>
 
 <div class="calendar-grid" id="cal-grid">
   <div class="day-headers">
@@ -272,7 +231,7 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
 </div>
 
 <div class="stats" id="stats"></div>
-<div class="hint">Click month name to jump · ✕ bulk mark · 🎂 birthdays · 🌤️ weather view</div>
+<div class="hint">Theme changes daily · 🎂 manage birthdays · 🌤️ toggle weather view</div>
 
 <!-- DAY EDITOR MODAL -->
 <div id="modal-ov" class="modal-overlay hidden" onclick="closeModal()">
@@ -615,12 +574,7 @@ function renderCal(){
     h+='</div>';
   }
   c.innerHTML=h;
-  c.querySelectorAll('.cell.cur').forEach(el=>{
-    el.addEventListener('click',()=>{
-      if(bulkMode) bulkToggleCell(el.dataset.k);
-      else openModal(el.dataset.k,calData[el.dataset.k]);
-    });
-  });
+  c.querySelectorAll('.cell.cur').forEach(el=>{el.addEventListener('click',()=>openModal(el.dataset.k,calData[el.dataset.k]))});
   const g=$('cal-grid');g.style.animation='none';g.offsetHeight;g.style.animation='slideIn .35s ease';
   updateStats();
 }
@@ -649,98 +603,7 @@ function updateStats(){
 function prevMonth(){if(curMonth===0){curMonth=11;curYear--}else curMonth--;loadAndRender()}
 function nextMonth(){if(curMonth===11){curMonth=0;curYear++}else curMonth++;loadAndRender()}
 function goToday(){const t=new Date();curYear=t.getFullYear();curMonth=t.getMonth();loadAndRender()}
-
-/* ═══════════════ MONTH/YEAR PICKER ═══════════════ */
-function openPicker(){
-  const ov=$('picker-ov');
-  let h='<div class="picker"><div class="picker-col" style="flex:1"><div class="picker-col-label">Month</div><div class="picker-months">';
-  MO.forEach((m,i)=>{
-    h+=`<button class="picker-mo${i===curMonth?' act':''}" data-m="${i}">${m.slice(0,3)}</button>`;
-  });
-  h+='</div></div><div class="picker-col"><div class="picker-col-label">Year</div><div class="picker-years" id="picker-yrs">';
-  const curYr=new Date().getFullYear();
-  for(let y=curYr+5;y>=2020;y--){
-    h+=`<button class="picker-yr${y===curYear?' act':''}" data-y="${y}">${y}</button>`;
-  }
-  h+='</div></div></div>';
-  ov.innerHTML=h;
-  ov.classList.remove('hidden');
-
-  ov.querySelectorAll('.picker-mo').forEach(b=>{
-    b.onclick=()=>{
-      curMonth=parseInt(b.dataset.m);
-      ov.querySelectorAll('.picker-mo').forEach(x=>x.classList.remove('act'));
-      b.classList.add('act');
-      $('m-name').textContent=MO[curMonth];
-    };
-  });
-  ov.querySelectorAll('.picker-yr').forEach(b=>{
-    b.onclick=()=>{
-      curYear=parseInt(b.dataset.y);
-      ov.querySelectorAll('.picker-yr').forEach(x=>x.classList.remove('act'));
-      b.classList.add('act');
-      $('y-label').textContent=curYear;
-    };
-  });
-
-  // Click outside picker closes and loads
-  setTimeout(()=>{
-    const actY=ov.querySelector('.picker-yr.act');
-    if(actY)actY.scrollIntoView({block:'center',behavior:'instant'});
-  },50);
-}
-
-function closePicker(){
-  $('picker-ov').classList.add('hidden');
-  loadAndRender();
-}
-
-/* ═══════════════ BULK MARK MODE ═══════════════ */
-let bulkMode=false, bulkColor='red';
-
-function toggleBulkMode(){
-  bulkMode=!bulkMode;
-  $('bulk-toggle').classList.toggle('bulk-active',bulkMode);
-  $('bulk-bar').classList.toggle('hidden',!bulkMode);
-  if(bulkMode) buildBulkDots();
-  renderCal();
-}
-
-function buildBulkDots(){
-  const el=$('bulk-dots');el.innerHTML='';
-  Object.entries(MC).forEach(([n,c])=>{
-    const b=document.createElement('button');
-    b.className='bulk-dot'+(bulkColor===n?' act':'');
-    b.style.background=c;
-    b.onclick=()=>{bulkColor=n;buildBulkDots()};
-    el.appendChild(b);
-  });
-}
-
-async function bulkToggleCell(key){
-  const existing=calData[key];
-  if(existing&&existing.marked){
-    // Unmark
-    existing.marked=false;
-    existing.markColor='red';
-    const empty=!existing.marked&&!existing.isGoal&&!existing.note&&!existing.diary;
-    if(empty)delete calData[key];
-    try{
-      if(empty) await sb.from('calendar_app_entries').delete().eq('user_id',UID).eq('entry_date',key);
-      else await sb.from('calendar_app_entries').upsert({user_id:UID,entry_date:key,is_marked:false,mark_color:'red',is_goal:existing.isGoal||false,note:existing.note||null},{onConflict:'user_id,entry_date'});
-    }catch(e){console.error('Bulk:',e)}
-  } else {
-    // Mark
-    if(!calData[key]) calData[key]={marked:false,markColor:'red',isGoal:false,note:'',diary:''};
-    calData[key].marked=true;
-    calData[key].markColor=bulkColor;
-    try{
-      await sb.from('calendar_app_entries').upsert({user_id:UID,entry_date:key,is_marked:true,mark_color:bulkColor,is_goal:calData[key].isGoal||false,note:calData[key].note||null},{onConflict:'user_id,entry_date'});
-    }catch(e){console.error('Bulk:',e)}
-  }
-  renderCal();
-}
-document.addEventListener('keydown',e=>{if(!$('modal-ov').classList.contains('hidden')||!$('bday-ov').classList.contains('hidden')||!$('picker-ov').classList.contains('hidden'))return;if(e.key==='ArrowLeft')prevMonth();if(e.key==='ArrowRight')nextMonth()});
+document.addEventListener('keydown',e=>{if(!$('modal-ov').classList.contains('hidden')||!$('bday-ov').classList.contains('hidden'))return;if(e.key==='ArrowLeft')prevMonth();if(e.key==='ArrowRight')nextMonth()});
 
 /* ═══════════════ LOAD DATA ═══════════════ */
 async function loadAndRender(){
@@ -900,7 +763,7 @@ async function saveModal(){
   }catch(err){console.error('Save:',err)}
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeBdayManager();closePicker()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeBdayManager()}});
 
 /* ═══════════════ BOOT ═══════════════ */
 document.addEventListener('DOMContentLoaded',async()=>{
