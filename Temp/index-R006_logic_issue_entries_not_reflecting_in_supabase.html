@@ -749,17 +749,16 @@ function closeModal(){$('modal-ov').classList.add('hidden');modalKey=null}
 
 async function saveModal(){
   if(!modalKey)return;
-  const key=modalKey;  // save before close clears it
   const encodedDiary=encodeDiary();
   const data={marked:$('chk-mark').checked,markColor:modalColor,isGoal:$('chk-goal').checked,note:$('inp-note').value.trim(),diary:encodedDiary};
   const empty=!data.marked&&!data.isGoal&&!data.note&&!data.diary;
-  if(empty)delete calData[key];else calData[key]=data;
+  if(empty)delete calData[modalKey];else calData[modalKey]=data;
   closeModal();renderCal();
   try{
-    if(data.marked||data.isGoal||data.note){await sb.from('calendar_app_entries').upsert({user_id:UID,entry_date:key,is_marked:data.marked,mark_color:data.markColor,is_goal:data.isGoal,note:data.note||null},{onConflict:'user_id,entry_date'})}
-    else{await sb.from('calendar_app_entries').delete().eq('user_id',UID).eq('entry_date',key)}
-    if(data.diary){await sb.from('calendar_app_diary').upsert({user_id:UID,entry_date:key,content:data.diary},{onConflict:'user_id,entry_date'})}
-    else{await sb.from('calendar_app_diary').delete().eq('user_id',UID).eq('entry_date',key)}
+    if(data.marked||data.isGoal||data.note){await sb.from('calendar_app_entries').upsert({user_id:UID,entry_date:modalKey,is_marked:data.marked,mark_color:data.markColor,is_goal:data.isGoal,note:data.note||null},{onConflict:'user_id, entry_date'})}
+    else{await sb.from('calendar_app_entries').delete().eq('user_id',UID).eq('entry_date',modalKey)}
+    if(data.diary){await sb.from('calendar_app_diary').upsert({user_id:UID,entry_date:modalKey,content:data.diary},{onConflict:'user_id, entry_date'})}
+    else{await sb.from('calendar_app_diary').delete().eq('user_id',UID).eq('entry_date',modalKey)}
   }catch(err){console.error('Save:',err)}
 }
 
