@@ -327,7 +327,7 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
       <select id="bday-day"><option value="">Day</option></select>
       <select id="bday-month"><option value="">Month</option></select>
       <input type="number" id="bday-year" placeholder="Year (optional)" min="1900" max="2030" style="width:110px" />
-      <button class="bday-add-btn" id="bday-add-btn" onclick="addBday()">Add</button>
+      <button class="bday-add-btn" onclick="addBday()">Add</button>
     </div>
     <div id="bday-msg" style="margin-top:8px;font-size:13px;color:var(--accent)"></div>
   </div>
@@ -456,7 +456,7 @@ function openBdayManager() {
   $('bday-ov').classList.remove('hidden');
   renderBdayList();
 }
-function closeBdayManager() { $('bday-ov').classList.add('hidden'); cancelEdit(); }
+function closeBdayManager() { $('bday-ov').classList.add('hidden'); }
 
 function renderBdayList() {
   const list = $('bday-list');
@@ -479,37 +479,10 @@ function renderBdayList() {
         <span class="bday-row-date">${dateStr}</span>
       </div>
       <div class="bday-row-actions">
-        <button onclick="editBday('${b.id}')" title="Edit">✏️</button>
         <button onclick="deleteBday('${b.id}')" title="Delete">🗑️</button>
       </div>
     </div>`;
   }).join('');
-}
-
-let editingBdayId = null;
-
-function editBday(id) {
-  const b = birthdays.find(x => x.id === id);
-  if (!b) return;
-  const d = new Date(b.birth_date + 'T00:00:00');
-  $('bday-name').value = b.person_name;
-  $('bday-day').value = d.getDate();
-  $('bday-month').value = d.getMonth() + 1;
-  $('bday-year').value = yearKnown(b) ? d.getFullYear() : '';
-  editingBdayId = id;
-  $('bday-add-btn').textContent = 'Save';
-  $('bday-msg').textContent = 'Editing — change fields and hit Save';
-  $('bday-msg').style.color = 'var(--goal)';
-}
-
-function cancelEdit() {
-  editingBdayId = null;
-  $('bday-name').value = '';
-  $('bday-day').value = '';
-  $('bday-month').value = '';
-  $('bday-year').value = '';
-  $('bday-add-btn').textContent = 'Add';
-  $('bday-msg').textContent = '';
 }
 
 async function addBday() {
@@ -518,35 +491,22 @@ async function addBday() {
   const month = $('bday-month').value;
   const year = $('bday-year').value.trim();
   $('bday-msg').textContent = '';
-  $('bday-msg').style.color = 'var(--accent)';
   if (!name || !day || !month) return ($('bday-msg').textContent = 'Fill in name, day, and month');
   const y = year ? parseInt(year) : 1900;
   const m = String(parseInt(month)).padStart(2, '0');
   const d = String(parseInt(day)).padStart(2, '0');
   const date = `${y}-${m}-${d}`;
-
-  if (editingBdayId) {
-    // Update existing
-    try {
-      const { data, error } = await sb.from('calendar_app_birthdays').update({ person_name: name, birth_date: date }).eq('id', editingBdayId).select();
-      if (error) throw error;
-      const idx = birthdays.findIndex(b => b.id === editingBdayId);
-      if (idx >= 0) birthdays[idx] = data[0];
-      cancelEdit();
-      renderBdayList();
-      renderCal();
-    } catch (e) { $('bday-msg').textContent = e.message; }
-  } else {
-    // Add new
-    try {
-      const { data, error } = await sb.from('calendar_app_birthdays').insert({ user_id: UID, person_name: name, birth_date: date }).select();
-      if (error) throw error;
-      birthdays.push(data[0]);
-      cancelEdit();
-      renderBdayList();
-      renderCal();
-    } catch (e) { $('bday-msg').textContent = e.message; }
-  }
+  try {
+    const { data, error } = await sb.from('calendar_app_birthdays').insert({ user_id: UID, person_name: name, birth_date: date }).select();
+    if (error) throw error;
+    birthdays.push(data[0]);
+    $('bday-name').value = '';
+    $('bday-day').value = '';
+    $('bday-month').value = '';
+    $('bday-year').value = '';
+    renderBdayList();
+    renderCal();
+  } catch (e) { $('bday-msg').textContent = e.message; }
 }
 
 async function deleteBday(id) {
