@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Caveat:wght@400;600;700&family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600&family=DM+Serif+Display&family=Nunito:wght@400;600;700&family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600&family=Abril+Fatface&family=Quicksand:wght@400;600;700&family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@400;600&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 /* ═══════════════ THEMES ═══════════════ */
 [data-theme="0"]{--bg:linear-gradient(145deg,#fdf6e3,#f5e6c8,#ede0c8);--card-bg:#fffdf7;--border:#d4c5a9;--h-font:'Playfair Display',serif;--b-font:'Caveat',cursive;--txt:#2d3436;--txt2:#636e72;--accent:#d63031;--goal:#00b894;--note:#00b894;--diary:#6c5ce7;--today-bg:#2ecc71;--wknd:#d63031;--btn:linear-gradient(135deg,#00b894,#00cec9);--btn-sh:rgba(0,184,148,.4);--input-bg:#fff9ee;--pattern:none;--shadow:0 8px 40px rgba(0,0,0,.08);--cell-hover:rgba(214,48,49,.05);--pulse:rgba(46,204,113,.4)}
@@ -24,30 +25,6 @@
 body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(--txt);display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px;transition:background .5s ease}
 .hidden{display:none!important}
 .pattern-overlay{position:fixed;inset:0;background:var(--pattern);pointer-events:none;z-index:0}
-
-/* ═══════════════ LOGIN SCREEN ═══════════════ */
-.login-overlay{position:fixed;inset:0;background:var(--bg,linear-gradient(145deg,#0a0a1a,#1a1a3e,#0d0d2b));display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(4px)}
-.login-box{background:var(--card-bg,#12122e);border:2px solid var(--border,#2a2a5e);border-radius:20px;padding:36px 30px 28px;width:90%;max-width:380px;box-shadow:var(--shadow,0 20px 60px rgba(0,0,0,.4));display:flex;flex-direction:column;gap:14px;animation:mIn .3s ease}
-.login-icon{font-size:48px;text-align:center;line-height:1}
-.login-box h2{font-size:26px;color:var(--txt,#e0e0ff);font-family:var(--h-font,serif);font-weight:900;text-align:center;margin-bottom:2px}
-.login-box p{font-size:13px;color:var(--txt2,#8888bb);text-align:center;margin-bottom:4px}
-.login-tabs{display:flex;gap:6px;background:rgba(128,128,128,.1);border-radius:10px;padding:4px}
-.login-tab{flex:1;padding:7px;border:none;border-radius:7px;background:transparent;color:var(--txt2,#8888bb);font-size:13px;cursor:pointer;font-family:var(--b-font,sans-serif);font-weight:600;transition:all .15s}
-.login-tab.act{background:var(--card-bg,#12122e);color:var(--txt,#e0e0ff);box-shadow:0 2px 8px rgba(0,0,0,.2)}
-.login-box input{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border,#2a2a5e);background:var(--input-bg,#1a1a3e);color:var(--txt,#e0e0ff);font-size:15px;font-family:var(--b-font,sans-serif);outline:none;transition:border-color .15s}
-.login-box input:focus{border-color:var(--accent,#ff2d95)}
-.login-box input::placeholder{color:var(--txt2,#8888bb);opacity:.7}
-.login-btn{width:100%;padding:12px;border:none;border-radius:12px;background:var(--btn,linear-gradient(135deg,#ff2d95,#ff6b6b));color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--b-font,sans-serif);box-shadow:0 4px 15px var(--btn-sh,rgba(255,45,149,.4));transition:transform .12s,opacity .15s}
-.login-btn:hover{transform:scale(1.02)}
-.login-btn:active{transform:scale(.98)}
-.login-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
-.login-divider{display:flex;align-items:center;gap:10px;color:var(--txt2,#8888bb);font-size:12px}
-.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border,#2a2a5e)}
-.google-btn{background:#fff!important;color:#3c4043!important;border:1.5px solid #dadce0!important;box-shadow:0 2px 8px rgba(0,0,0,.12)!important;display:flex;align-items:center;justify-content:center;font-weight:600}
-.google-btn:hover{background:#f8f9fa!important;box-shadow:0 4px 12px rgba(0,0,0,.15)!important}
-.login-error{font-size:13px;text-align:center;min-height:18px;font-weight:600}
-.login-error.err{color:#e74c3c}
-.login-error.ok{color:#27ae60}
 
 /* ═══════════════ TOP BAR ═══════════════ */
 .top-bar{width:100%;max-width:840px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;position:relative;z-index:20}
@@ -95,16 +72,31 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 .cell.cur:hover{transform:scale(1.03);z-index:2;background:var(--cell-hover)!important}
 .cell.cur:active{transform:scale(.97)}
 .cell.om{opacity:.22;cursor:default;pointer-events:none}
+
+/* Weekend cells: darker bg */
 .cell.we{background:color-mix(in srgb,var(--wknd) 6%,transparent)}
 .cell.we .dnum{color:var(--wknd)}
+
+/* Holiday cells */
 .cell.holiday .dnum{color:var(--wknd)!important}
 .holiday-tag{position:absolute;bottom:1px;left:2px;font-size:7px;color:var(--wknd);font-weight:700;opacity:.8;max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;z-index:4}
-.cell.birthday{background:linear-gradient(135deg,rgba(255,182,193,.12),rgba(255,215,0,.12))!important;border-image:linear-gradient(135deg,#ff6b6b,#feca57,#48dbfb,#ff9ff3,#54a0ff,#5f27cd) 1;border-width:2px;border-style:solid;}
+
+/* Birthday cells — confetti border */
+.cell.birthday{
+  background:linear-gradient(135deg,rgba(255,182,193,.12),rgba(255,215,0,.12))!important;
+  border-image:linear-gradient(135deg,#ff6b6b,#feca57,#48dbfb,#ff9ff3,#54a0ff,#5f27cd) 1;
+  border-width:2px;border-style:solid;
+}
 .bday-icon{position:absolute;top:1px;right:2px;font-size:12px;z-index:5}
 .bday-name{position:absolute;bottom:1px;left:2px;font-size:clamp(6px,1.2vw,9px);color:#e84393;font-weight:700;max-width:85%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;z-index:5}
+
+/* Today: green live dot */
 .today-dot{position:absolute;top:4px;left:4px;width:8px;height:8px;background:#2ecc71;border-radius:50%;z-index:6;animation:livePulse 1.8s ease-in-out infinite;box-shadow:0 0 6px rgba(46,204,113,.6)}
 @keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+
+/* Weather icon */
 .wx-icon{position:absolute;top:2px;right:3px;font-size:clamp(16px,3vw,22px);z-index:4;opacity:1;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.15))}
+
 .dnum{font-size:clamp(13px,3vw,22px);font-weight:700;font-family:var(--h-font);color:var(--txt);display:flex;align-items:center;justify-content:center;line-height:1;position:relative;z-index:3;width:fit-content}
 [data-theme="6"] .dnum{letter-spacing:1px}
 .xm{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.75;pointer-events:none;z-index:1}
@@ -139,7 +131,11 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 .btn-save{width:100%;padding:11px 0;margin-top:6px;border-radius:12px;border:none;background:var(--btn);color:#fff;font-size:18px;font-family:var(--b-font);cursor:pointer;font-weight:700;box-shadow:0 4px 15px var(--btn-sh);transition:transform .12s}
 .btn-save:hover{transform:scale(1.02)}
 .btn-save:active{transform:scale(.98)}
+
+/* Birthday info in modal */
 .bday-info{background:linear-gradient(135deg,rgba(255,182,193,.15),rgba(255,215,0,.15));border:1.5px solid rgba(255,107,107,.25);border-radius:10px;padding:8px 12px;font-size:14px;color:var(--txt);display:flex;align-items:center;gap:8px}
+
+/* Diary mood picker */
 .diary-mood-bar{display:flex;align-items:center;gap:6px;margin-bottom:8px}
 .diary-mood-label{font-size:12px;color:var(--txt2);margin-right:2px}
 .diary-mood{width:30px;height:30px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:transform .12s,border-color .15s}
@@ -148,12 +144,15 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 .diary-mood.good{background:rgba(107,203,119,.2)}
 .diary-mood.neutral{background:rgba(128,128,128,.2)}
 .diary-mood.bad{background:rgba(255,107,107,.2)}
+
 .diary-preview{margin-top:8px;border-radius:10px;padding:10px 12px;min-height:20px;font-size:13px;line-height:1.7;background:color-mix(in srgb,var(--input-bg) 80%,transparent);border:1px solid color-mix(in srgb,var(--border) 50%,transparent)}
 .diary-preview:empty{display:none}
 .diary-preview .dl-good{color:#27ae60;font-weight:500}
 .diary-preview .dl-bad{color:#e74c3c;font-weight:500}
 .diary-preview .dl-neutral{color:var(--txt2)}
 .diary-preview .dl-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+/* Diary cell indicator with mood color */
 .di{position:absolute;bottom:2px;right:3px;font-size:10px;z-index:3}
 .di-mixed{color:#ffd93d}
 .di-good{color:#27ae60}
@@ -182,9 +181,18 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 
 /* ═══════════════ WEATHER VIEW ═══════════════ */
 .wx-view-active{outline:2px solid var(--accent);outline-offset:-2px}
+
 body.wx-mode .cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
 body.wx-mode .cell .dnum{font-size:clamp(12px,2.5vw,18px)}
-body.wx-mode .cell .xm,body.wx-mode .cell .gb,body.wx-mode .cell .np,body.wx-mode .cell .di,body.wx-mode .cell .bday-icon,body.wx-mode .cell .bday-name,body.wx-mode .cell .holiday-tag,body.wx-mode .cell .wx-icon{display:none!important}
+body.wx-mode .cell .xm,
+body.wx-mode .cell .gb,
+body.wx-mode .cell .np,
+body.wx-mode .cell .di,
+body.wx-mode .cell .bday-icon,
+body.wx-mode .cell .bday-name,
+body.wx-mode .cell .holiday-tag,
+body.wx-mode .cell .wx-icon{display:none!important}
+
 body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-items:center;gap:0;z-index:5}
 .wx-big{display:none!important}
 .wx-big-icon{font-size:clamp(18px,4vw,30px);line-height:1.1}
@@ -192,6 +200,7 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
 .wx-hi{color:#e74c3c}
 .wx-lo{color:#3498db}
 .wx-none{font-size:clamp(8px,1.5vw,11px);color:var(--txt2);opacity:.5}
+
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-thumb{background:var(--border,#888);border-radius:3px}
 
@@ -229,31 +238,8 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
 @media(max-width:480px){body{padding:8px 4px 24px}.cell{min-height:58px;padding:3px}.modal{padding:20px 16px 16px}.top-bar-right{gap:4px}.dd-btn{padding:4px 8px;font-size:11px}.icon-btn{width:28px;height:28px;font-size:13px}.picker{flex-direction:column;gap:10px}.picker-months{grid-template-columns:repeat(4,1fr)}.picker-years{flex-direction:row;flex-wrap:wrap;max-height:none;overflow:visible}}
 </style>
 </head>
-
 <body>
 <div class="pattern-overlay"></div>
-
-<!-- ═══════════════ LOGIN SCREEN ═══════════════ -->
-<div id="login-screen" class="login-overlay">
-  <div class="login-box">
-    <div class="login-icon">📅</div>
-    <h2>My Calendar</h2>
-    <p id="login-subtitle">Sign in to access your calendar</p>
-    <div class="login-tabs">
-      <button class="login-tab act" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
-      <button class="login-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
-    </div>
-    <input type="email" id="login-email" placeholder="Email address" autocomplete="email" />
-    <input type="password" id="login-password" placeholder="Password" autocomplete="current-password" />
-    <button class="login-btn" id="login-btn" onclick="handleAuth()">Sign In</button>
-    <div class="login-divider"><span>or</span></div>
-    <button class="login-btn google-btn" onclick="signInWithGoogle()">
-      <svg width="18" height="18" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:8px"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.93 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
-      Continue with Google
-    </button>
-    <div class="login-error" id="login-error"></div>
-  </div>
-</div>
 
 <div class="top-bar">
   <button class="btn-today" onclick="goToday()">● Today</button>
@@ -265,7 +251,6 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
       <button class="dd-btn" onclick="toggleDD('theme-dd',event)"><span id="t-emoji"></span> <span id="t-name"></span> ▾</button>
       <div id="theme-dd" class="dd-panel hidden"></div>
     </div>
-    <button class="icon-btn" onclick="signOut()" title="Sign Out">🚪</button>
   </div>
 </div>
 
@@ -356,109 +341,25 @@ const sb = window.supabase.createClient(
   'https://wylxvmkcrexwfpjpbhyy.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5bHh2bWtjcmV4d2ZwanBiaHl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2MzkxMDYsImV4cCI6MjA4NDIxNTEwNn0.6Bxo42hx4jwlJGWnfjiTpiDUsYfc1QLTN3YtrU1efak'
 );
-
-/* UID is now dynamic — set after login */
-let UID = null;
-
-/* ═══════════════ AUTH ═══════════════ */
-let loginTab = 'signin';
-
-function switchTab(tab) {
-  loginTab = tab;
-  document.getElementById('tab-signin').classList.toggle('act', tab === 'signin');
-  document.getElementById('tab-signup').classList.toggle('act', tab === 'signup');
-  document.getElementById('login-btn').textContent = tab === 'signin' ? 'Sign In' : 'Create Account';
-  document.getElementById('login-subtitle').textContent = tab === 'signin' ? 'Sign in to your calendar' : 'Create your calendar account';
-  document.getElementById('login-error').textContent = '';
-  document.getElementById('login-error').className = 'login-error';
-}
-
-async function handleAuth() {
-  const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  const errEl = document.getElementById('login-error');
-  const btn = document.getElementById('login-btn');
-
-  errEl.textContent = '';
-  errEl.className = 'login-error';
-
-  if (!email || !password) {
-    errEl.textContent = 'Please enter your email and password';
-    errEl.className = 'login-error err';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = '...';
-
-  try {
-    let result;
-    if (loginTab === 'signin') {
-      result = await sb.auth.signInWithPassword({ email, password });
-    } else {
-      result = await sb.auth.signUp({ email, password });
-      if (!result.error && result.data?.user && !result.data?.session) {
-        errEl.textContent = '✓ Check your email to confirm your account!';
-        errEl.className = 'login-error ok';
-        btn.disabled = false;
-        btn.textContent = 'Create Account';
-        return;
-      }
-    }
-    if (result.error) throw result.error;
-    // onAuthStateChange will handle the rest
-  } catch (e) {
-    errEl.textContent = e.message;
-    errEl.className = 'login-error err';
-    btn.disabled = false;
-    btn.textContent = loginTab === 'signin' ? 'Sign In' : 'Create Account';
-  }
-}
-
-async function signInWithGoogle() {
-  const errEl = document.getElementById('login-error');
-  errEl.textContent = '';
-  errEl.className = 'login-error';
-  try {
-    const { error } = await sb.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.href }
-    });
-    if (error) throw error;
-  } catch (e) {
-    errEl.textContent = e.message;
-    errEl.className = 'login-error err';
-  }
-}
-
-async function signOut() {
-  await sb.auth.signOut();
-}
-
-function showLoginScreen() {
-  document.getElementById('login-screen').style.display = 'flex';
-}
-
-function hideLoginScreen() {
-  document.getElementById('login-screen').style.display = 'none';
-}
+const UID='default-user';
 
 /* ═══════════════ CONSTANTS ═══════════════ */
 const MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MC={red:'#d63031',pink:'#e84393',teal:'#00b894',cyan:'#00cec9',orange:'#e17055',purple:'#6c5ce7',yellow:'#fdcb6e'};
 const TH=[{name:'Parchment Journal',emoji:'📜'},{name:'Midnight Tokyo',emoji:'🌃'},{name:'Forest Morning',emoji:'🌿'},{name:'Ocean Breeze',emoji:'🌊'},{name:'Sunset Amber',emoji:'🌅'},{name:'Lavender Dusk',emoji:'🪻'},{name:'Carbon Night',emoji:'🖤'}];
+
 let curYear=new Date().getFullYear(),curMonth=new Date().getMonth();
 let calData={},modalKey=null,modalColor='red',manualTheme=-1,wxMode=false;
 let birthdays=[];
-let diaryMood='good';
-let diaryLineMoods=[];
-let holidays={};
-let weatherData={};
+let diaryMood='good';       // current ink color
+let diaryLineMoods=[];      // mood per line [{mood}]
+let holidays={};        // {'MM-DD': 'Holiday Name'}
+let weatherData={};     // {'YYYY-MM-DD': {icon, tempMax, tempMin, code}}
 
 function $(id){return document.getElementById(id)}
 
-/* ═══════════════ JAPAN HOLIDAYS ═══════════════ */
+/* ═══════════════ JAPAN HOLIDAYS (static 2025–2026) ═══════════════ */
 const JP_HOLIDAYS_STATIC = {
   '2025-01-01':'New Year','2025-01-13':'Coming of Age','2025-02-11':'Foundation Day',
   '2025-02-23':'Emperor\'s Birthday','2025-02-24':'Holiday (observed)','2025-03-20':'Vernal Equinox',
@@ -473,8 +374,11 @@ const JP_HOLIDAYS_STATIC = {
   '2026-08-11':'Mountain Day','2026-09-21':'Respect for Aged','2026-09-23':'Autumnal Equinox',
   '2026-10-12':'Sports Day','2026-11-03':'Culture Day','2026-11-23':'Labor Thanksgiving'
 };
+
+// Copy static as baseline
 Object.assign(holidays, JP_HOLIDAYS_STATIC);
 
+// Try Nager.Date API to refresh
 async function refreshHolidays() {
   try {
     const year = new Date().getFullYear();
@@ -484,17 +388,23 @@ async function refreshHolidays() {
       const data = await res.json();
       data.forEach(h => { holidays[h.date] = h.localName || h.name; });
     }
+    console.log('✅ Holidays refreshed from API');
   } catch (e) { console.warn('Holiday API failed, using static:', e.message); }
 }
 
 function getHoliday(dateStr) { return holidays[dateStr] || null; }
 
-/* ═══════════════ WEATHER ═══════════════ */
+/* ═══════════════ WEATHER (Open-Meteo) ═══════════════ */
 const WX_ICONS = {
-  0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',
-  51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',
-  66:'🌧️',67:'🌧️',71:'❄️',73:'❄️',75:'❄️',77:'❄️',
-  80:'🌧️',81:'🌧️',82:'🌧️',85:'❄️',86:'❄️',95:'⛈️',96:'⛈️',99:'⛈️'
+  0:'☀️', 1:'🌤️', 2:'⛅', 3:'☁️',
+  45:'🌫️', 48:'🌫️',
+  51:'🌦️', 53:'🌦️', 55:'🌧️',
+  61:'🌧️', 63:'🌧️', 65:'🌧️',
+  66:'🌧️', 67:'🌧️',
+  71:'❄️', 73:'❄️', 75:'❄️', 77:'❄️',
+  80:'🌧️', 81:'🌧️', 82:'🌧️',
+  85:'❄️', 86:'❄️',
+  95:'⛈️', 96:'⛈️', 99:'⛈️'
 };
 
 async function loadWeather() {
@@ -511,6 +421,7 @@ async function loadWeather() {
       if (tMin <= 0) icon = '🥶';
       weatherData[days.time[i]] = { icon, tMax: Math.round(tMax), tMin: Math.round(tMin), code };
     }
+    console.log('✅ Weather loaded');
   } catch (e) { console.warn('Weather failed:', e.message); }
 }
 
@@ -540,7 +451,11 @@ function yearKnown(b) {
   return new Date(b.birth_date + 'T00:00:00').getFullYear() !== 1900;
 }
 
-function openBdayManager() { $('bday-ov').classList.remove('hidden'); renderBdayList(); }
+/* Birthday Manager */
+function openBdayManager() {
+  $('bday-ov').classList.remove('hidden');
+  renderBdayList();
+}
 function closeBdayManager() { $('bday-ov').classList.add('hidden'); cancelEdit(); }
 
 function renderBdayList() {
@@ -609,20 +524,27 @@ async function addBday() {
   const m = String(parseInt(month)).padStart(2, '0');
   const d = String(parseInt(day)).padStart(2, '0');
   const date = `${y}-${m}-${d}`;
+
   if (editingBdayId) {
+    // Update existing
     try {
       const { data, error } = await sb.from('calendar_app_birthdays').update({ person_name: name, birth_date: date }).eq('id', editingBdayId).select();
       if (error) throw error;
       const idx = birthdays.findIndex(b => b.id === editingBdayId);
       if (idx >= 0) birthdays[idx] = data[0];
-      cancelEdit(); renderBdayList(); renderCal();
+      cancelEdit();
+      renderBdayList();
+      renderCal();
     } catch (e) { $('bday-msg').textContent = e.message; }
   } else {
+    // Add new
     try {
       const { data, error } = await sb.from('calendar_app_birthdays').insert({ user_id: UID, person_name: name, birth_date: date }).select();
       if (error) throw error;
       birthdays.push(data[0]);
-      cancelEdit(); renderBdayList(); renderCal();
+      cancelEdit();
+      renderBdayList();
+      renderCal();
     } catch (e) { $('bday-msg').textContent = e.message; }
   }
 }
@@ -631,11 +553,12 @@ async function deleteBday(id) {
   try {
     await sb.from('calendar_app_birthdays').delete().eq('id', id);
     birthdays = birthdays.filter(b => b.id !== id);
-    renderBdayList(); renderCal();
+    renderBdayList();
+    renderCal();
   } catch (e) { console.error('Delete bday:', e); }
 }
 
-/* ═══════════════ WEATHER VIEW ═══════════════ */
+/* ═══════════════ WEATHER VIEW TOGGLE ═══════════════ */
 function toggleWxView(){
   wxMode=!wxMode;
   document.body.classList.toggle('wx-mode',wxMode);
@@ -648,7 +571,6 @@ function toggleWxView(){
 function autoTheme(){const n=new Date(),s=new Date(n.getFullYear(),0,0);return Math.floor((n-s)/864e5)%TH.length}
 function activeTheme(){return manualTheme===-1?autoTheme():manualTheme}
 function applyTheme(i){document.body.setAttribute('data-theme',i);$('t-emoji').textContent=TH[i].emoji;$('t-name').textContent=TH[i].name}
-
 function buildThemeDD(){
   const dd=$('theme-dd');dd.innerHTML='';
   let b=document.createElement('button');b.className='dd-opt'+(manualTheme===-1?' active':'');b.textContent='🔄 Auto (daily rotation)';
@@ -657,7 +579,6 @@ function buildThemeDD(){
   TH.forEach((t,i)=>{let b=document.createElement('button');b.className='dd-opt'+(manualTheme===i?' active':'');b.textContent=t.emoji+' '+t.name;
   b.onclick=()=>{manualTheme=i;applyTheme(i);buildThemeDD();saveThemePref();closeAllDD()};dd.appendChild(b)});
 }
-
 async function saveThemePref(){await sb.from('calendar_app_preferences').upsert({user_id:UID,theme_pref:manualTheme},{onConflict:'user_id'})}
 async function loadThemePref(){const{data}=await sb.from('calendar_app_preferences').select('theme_pref').eq('user_id',UID).single();manualTheme=data?.theme_pref??-1;buildThemeDD()}
 
@@ -688,18 +609,30 @@ function renderCal(){
     const bdays=cur?getBdaysForDate(curMonth,day):[];
     const wx=cur?weatherData[key]:null;
     const today=isToday(day)&&cur;
+
     let cls='cell';
     if(cur)cls+=' cur';else cls+=' om';
     if(we&&cur)cls+=' we';
     if(lr)cls+=' lr';
     if(hol&&cur)cls+=' holiday';
     if(bdays.length>0&&cur)cls+=' birthday';
+
     let dcls='dnum';
+
     h+=`<div class="${cls}" ${cur?`data-k="${key}"`:''}>`;
+
+    // Today green dot
     if(today) h+='<div class="today-dot"></div>';
+
+    // Weather icon (top-right, but birthday icon takes priority)
     if(wx&&cur&&bdays.length===0) h+=`<span class="wx-icon">${wx.icon}</span>`;
+
+    // Birthday icon (top-right)
     if(bdays.length>0&&cur) h+='<span class="bday-icon">🎂</span>';
+
+    // Day number
     h+=`<div class="${dcls}">${day}</div>`;
+
     if(cur&&dd){
       if(dd.marked)h+=xSvg(MC[dd.markColor]||MC.red);
       if(dd.isGoal)h+='<div class="gb">★ GOAL</div>';
@@ -714,13 +647,20 @@ function renderCal(){
         h+=`<div class="di ${dcls}">📖</div>`;
       }
     }
+
+    // Birthday name
     if(bdays.length>0&&cur){
       const bname=bdays.map(b=>b.person_name).join(', ');
       h+=`<span class="bday-name">${esc(bname)}</span>`;
     }
+
+    // Holiday tag
     if(hol&&cur&&bdays.length===0) h+=`<span class="holiday-tag">🎌 ${esc(hol)}</span>`;
+
+    // Weather view (big, shown only in wx-mode via CSS)
     if(cur&&wx) h+=`<div class="wx-big"><span class="wx-big-icon">${wx.icon}</span><div class="wx-temps"><span class="wx-hi">${wx.tMax}°</span><span class="wx-lo">${wx.tMin}°</span></div></div>`;
     else if(cur&&!wx) h+='<div class="wx-big"><span class="wx-none">—</span></div>';
+
     h+='</div>';
   }
   c.innerHTML=h;
@@ -763,23 +703,46 @@ function goToday(){const t=new Date();curYear=t.getFullYear();curMonth=t.getMont
 function openPicker(){
   const ov=$('picker-ov');
   let h='<div class="picker"><div class="picker-col" style="flex:1"><div class="picker-col-label">Month</div><div class="picker-months">';
-  MO.forEach((m,i)=>{h+=`<button class="picker-mo${i===curMonth?' act':''}" data-m="${i}">${m.slice(0,3)}</button>`;});
+  MO.forEach((m,i)=>{
+    h+=`<button class="picker-mo${i===curMonth?' act':''}" data-m="${i}">${m.slice(0,3)}</button>`;
+  });
   h+='</div></div><div class="picker-col"><div class="picker-col-label">Year</div><div class="picker-years" id="picker-yrs">';
   const curYr=new Date().getFullYear();
-  for(let y=curYr+5;y>=2020;y--){h+=`<button class="picker-yr${y===curYear?' act':''}" data-y="${y}">${y}</button>`;}
+  for(let y=curYr+5;y>=2020;y--){
+    h+=`<button class="picker-yr${y===curYear?' act':''}" data-y="${y}">${y}</button>`;
+  }
   h+='</div></div></div>';
   ov.innerHTML=h;
   ov.classList.remove('hidden');
+
   ov.querySelectorAll('.picker-mo').forEach(b=>{
-    b.onclick=()=>{curMonth=parseInt(b.dataset.m);ov.querySelectorAll('.picker-mo').forEach(x=>x.classList.remove('act'));b.classList.add('act');$('m-name').textContent=MO[curMonth];};
+    b.onclick=()=>{
+      curMonth=parseInt(b.dataset.m);
+      ov.querySelectorAll('.picker-mo').forEach(x=>x.classList.remove('act'));
+      b.classList.add('act');
+      $('m-name').textContent=MO[curMonth];
+    };
   });
   ov.querySelectorAll('.picker-yr').forEach(b=>{
-    b.onclick=()=>{curYear=parseInt(b.dataset.y);ov.querySelectorAll('.picker-yr').forEach(x=>x.classList.remove('act'));b.classList.add('act');$('y-label').textContent=curYear;};
+    b.onclick=()=>{
+      curYear=parseInt(b.dataset.y);
+      ov.querySelectorAll('.picker-yr').forEach(x=>x.classList.remove('act'));
+      b.classList.add('act');
+      $('y-label').textContent=curYear;
+    };
   });
-  setTimeout(()=>{const actY=ov.querySelector('.picker-yr.act');if(actY)actY.scrollIntoView({block:'center',behavior:'instant'});},50);
+
+  // Click outside picker closes and loads
+  setTimeout(()=>{
+    const actY=ov.querySelector('.picker-yr.act');
+    if(actY)actY.scrollIntoView({block:'center',behavior:'instant'});
+  },50);
 }
 
-function closePicker(){ $('picker-ov').classList.add('hidden'); loadAndRender(); }
+function closePicker(){
+  $('picker-ov').classList.add('hidden');
+  loadAndRender();
+}
 
 /* ═══════════════ BULK MARK MODE ═══════════════ */
 let bulkMode=false, bulkColor='red';
@@ -806,7 +769,9 @@ function buildBulkDots(){
 async function bulkToggleCell(key){
   const existing=calData[key];
   if(existing&&existing.marked){
-    existing.marked=false;existing.markColor='red';
+    // Unmark
+    existing.marked=false;
+    existing.markColor='red';
     const empty=!existing.marked&&!existing.isGoal&&!existing.note&&!existing.diary;
     if(empty)delete calData[key];
     try{
@@ -814,15 +779,16 @@ async function bulkToggleCell(key){
       else await sb.from('calendar_app_entries').upsert({user_id:UID,entry_date:key,is_marked:false,mark_color:'red',is_goal:existing.isGoal||false,note:existing.note||null},{onConflict:'user_id,entry_date'});
     }catch(e){console.error('Bulk:',e)}
   } else {
+    // Mark
     if(!calData[key]) calData[key]={marked:false,markColor:'red',isGoal:false,note:'',diary:''};
-    calData[key].marked=true;calData[key].markColor=bulkColor;
+    calData[key].marked=true;
+    calData[key].markColor=bulkColor;
     try{
       await sb.from('calendar_app_entries').upsert({user_id:UID,entry_date:key,is_marked:true,mark_color:bulkColor,is_goal:calData[key].isGoal||false,note:calData[key].note||null},{onConflict:'user_id,entry_date'});
     }catch(e){console.error('Bulk:',e)}
   }
   renderCal();
 }
-
 document.addEventListener('keydown',e=>{if(!$('modal-ov').classList.contains('hidden')||!$('bday-ov').classList.contains('hidden')||!$('picker-ov').classList.contains('hidden'))return;if(e.key==='ArrowLeft')prevMonth();if(e.key==='ArrowRight')nextMonth()});
 
 /* ═══════════════ LOAD DATA ═══════════════ */
@@ -843,11 +809,14 @@ async function loadAndRender(){
 function buildCP(){const cpk=$('cpk');cpk.innerHTML='';Object.entries(MC).forEach(([n,c])=>{const b=document.createElement('button');b.className='cdot'+(modalColor===n?' act':'');b.style.background=c;b.onclick=()=>{modalColor=n;buildCP()};cpk.appendChild(b)})}
 function toggleCP(){$('cpk').classList.toggle('hidden',!$('chk-mark').checked)}
 
+/* ═══════════════ DIARY MOOD (per-line sentiment) ═══════════════ */
 function setDiaryMood(m){
   diaryMood=m;
   document.querySelectorAll('.diary-mood').forEach(b=>b.classList.remove('act'));
   $('dm-'+m).classList.add('act');
+  // Update mood for current line
   const ta=$('inp-diary');
+  const lines=ta.value.split('\n');
   const pos=ta.selectionStart;
   let lineIdx=ta.value.substring(0,pos).split('\n').length-1;
   while(diaryLineMoods.length<=lineIdx)diaryLineMoods.push({mood:'neutral'});
@@ -860,11 +829,14 @@ function diaryPreviewUpdate(){
   const prev=$('diary-preview');
   if(!raw.trim()){prev.innerHTML='';return}
   const lines=raw.split('\n');
+  // Grow moods array to match lines
   while(diaryLineMoods.length<lines.length)diaryLineMoods.push({mood:diaryMood});
   diaryLineMoods.length=lines.length;
+  // Current line gets current mood
   const ta=$('inp-diary');
   const curLine=ta.value.substring(0,ta.selectionStart).split('\n').length-1;
   diaryLineMoods[curLine].mood=diaryMood;
+
   prev.innerHTML=lines.map((l,i)=>{
     if(!l.trim())return'';
     const m=diaryLineMoods[i]?.mood||'neutral';
@@ -874,6 +846,7 @@ function diaryPreviewUpdate(){
   }).join('');
 }
 
+// Encode diary: prepend + for good, - for bad, nothing for neutral
 function encodeDiary(){
   const raw=$('inp-diary').value;
   if(!raw.trim())return'';
@@ -886,6 +859,7 @@ function encodeDiary(){
   }).filter(l=>l).join('\n');
 }
 
+// Decode diary: parse prefixes back to plain text + moods
 function decodeDiary(encoded){
   if(!encoded)return{text:'',moods:[]};
   const lines=encoded.split('\n');
@@ -899,6 +873,7 @@ function decodeDiary(encoded){
   return{text:text.join('\n'),moods};
 }
 
+// Get overall mood of a diary entry for cell indicator
 function diaryOverallMood(encoded){
   if(!encoded)return null;
   const lines=encoded.split('\n');
@@ -915,6 +890,8 @@ function openModal(key,data){
   const d=new Date(key+'T00:00:00');
   $('m-title').textContent=`${d.getDate()} ${MO[d.getMonth()]}`;
   $('m-day').textContent=`${DN[d.getDay()]}, ${d.getFullYear()}`;
+
+  // Birthday info
   const bdays=getBdaysForDate(d.getMonth(),d.getDate());
   if(bdays.length>0){
     const infos=bdays.map(b=>{
@@ -925,24 +902,32 @@ function openModal(key,data){
     }).join('<br>');
     $('modal-bday-info').innerHTML=`<div class="bday-info" style="margin-bottom:12px">${infos}</div>`;
   } else { $('modal-bday-info').innerHTML=''; }
+
+  // Holiday info
   const hol=getHoliday(key);
   if(hol){
     $('modal-holiday-info').innerHTML=`<div class="bday-info" style="margin-bottom:12px;border-color:rgba(192,57,43,.25);background:linear-gradient(135deg,rgba(231,76,60,.08),rgba(241,196,15,.08))">🎌 <b>${esc(hol)}</b></div>`;
   } else { $('modal-holiday-info').innerHTML=''; }
+
+  // Weather info
   const wx=weatherData[key];
   if(wx){
     $('modal-wx-info').innerHTML=`<div class="bday-info" style="margin-bottom:12px;border-color:rgba(52,152,219,.25);background:linear-gradient(135deg,rgba(52,152,219,.08),rgba(46,204,113,.08))">${wx.icon} <b>${wx.tMax}°C</b> / ${wx.tMin}°C</div>`;
   } else { $('modal-wx-info').innerHTML=''; }
+
   const dd=data||{};
   $('chk-mark').checked=dd.marked||false;$('chk-goal').checked=dd.isGoal||false;
   $('inp-note').value=dd.note||'';
   modalColor=dd.markColor||'red';
+
+  // Decode diary with moods
   const decoded=decodeDiary(dd.diary||'');
   $('inp-diary').value=decoded.text;
   diaryLineMoods=decoded.moods;
   diaryMood='good';
   setDiaryMood('good');
   diaryPreviewUpdate();
+
   buildCP();toggleCP();$('modal-ov').classList.remove('hidden');
 }
 
@@ -950,7 +935,7 @@ function closeModal(){$('modal-ov').classList.add('hidden');modalKey=null}
 
 async function saveModal(){
   if(!modalKey)return;
-  const key=modalKey;
+  const key=modalKey;  // save before close clears it
   const encodedDiary=encodeDiary();
   const data={marked:$('chk-mark').checked,markColor:modalColor,isGoal:$('chk-goal').checked,note:$('inp-note').value.trim(),diary:encodedDiary};
   const empty=!data.marked&&!data.isGoal&&!data.note&&!data.diary;
@@ -967,45 +952,25 @@ async function saveModal(){
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeBdayManager();closePicker()}});
 
 /* ═══════════════ BOOT ═══════════════ */
-async function bootApp() {
-  await Promise.allSettled([loadThemePref(), loadBirthdays(), loadWeather(), refreshHolidays()]);
-  applyTheme(activeTheme());
-  await loadAndRender();
-  console.log('✅ Calendar ready — user:', UID);
-}
-
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded',async()=>{
   // Populate day/month dropdowns
   const daySel=$('bday-day'), monSel=$('bday-month');
   for(let i=1;i<=31;i++){const o=document.createElement('option');o.value=i;o.textContent=i;daySel.appendChild(o)}
   MO.forEach((m,i)=>{const o=document.createElement('option');o.value=i+1;o.textContent=m;monSel.appendChild(o)});
 
-  // Apply default theme immediately (looks nice on login screen too)
-  applyTheme(autoTheme());
+  applyTheme(activeTheme());
 
-  // Check if already logged in
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    UID = session.user.id;
-    hideLoginScreen();
-    await bootApp();
-  } else {
-    showLoginScreen();
-  }
+  // Load everything in parallel
+  await Promise.allSettled([
+    loadThemePref(),
+    loadBirthdays(),
+    loadWeather(),
+    refreshHolidays()
+  ]);
 
-  // Listen for future auth changes (login / logout)
-  sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) {
-      UID = session.user.id;
-      hideLoginScreen();
-      await bootApp();
-    } else if (event === 'SIGNED_OUT') {
-      UID = null;
-      calData = {};
-      birthdays = {};
-      showLoginScreen();
-    }
-  });
+  applyTheme(activeTheme());
+  await loadAndRender();
+  console.log('✅ Calendar ready');
 });
 </script>
 </body>
