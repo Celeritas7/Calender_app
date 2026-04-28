@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(mkdir -p /tmp/design_extract)",
+      "Read(//tmp/**)",
+      "Bash(tar -xzf \"C:\\\\Users\\\\manga\\\\.claude\\\\projects\\\\D--Coding-App-generation-General-purpose-Calender-app\\\\202338ea-2477-4b17-af7d-e95f54cd55e9\\\\tool-results\\\\webfetch-1777389752184-0p0l6f.bin\")",
+      "Bash(node .claude/decode-bundle.js themes-audit-bundle.html .claude/decoded)",
+      "Bash(node .claude/extract-html.js)"
+    ]
+  }
+}
