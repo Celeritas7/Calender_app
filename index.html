@@ -1181,15 +1181,15 @@ async function loadWfTasks(){
 function tasksOn(key){return wfTasks.filter(t=>t.date===key)}
 function tasksUndated(){return wfTasks.filter(t=>!t.date)}
 function tkRow(t){
-  const d=esc(JSON.stringify([t.kind,t.board,t.itemKey,t.sid]));
-  return `<div class="tk-row${t.done?' done':''}"><button class="tk-chk${t.done?' on':''}" data-tk="${d}">${t.done?'✓':''}</button><span class="tk-t">${t.urg?'<span class="tk-urgflag">⚑ </span>':''}${esc(t.text)}${t.time?' <b>· '+t.time+'</b>':''}</span><span class="tk-src">${esc(t.src)}</span></div>`;
+  const a=s=>esc(String(s==null?'':s)).replace(/"/g,'&quot;');
+  return `<div class="tk-row${t.done?' done':''}"><button class="tk-chk${t.done?' on':''}" data-tk-kind="${a(t.kind)}" data-tk-board="${a(t.board)}" data-tk-item="${a(t.itemKey)}" data-tk-sid="${a(t.sid)}">${t.done?'✓':''}</button><span class="tk-t">${t.urg?'<span class="tk-urgflag">⚑ </span>':''}${esc(t.text)}${t.time?' <b>· '+t.time+'</b>':''}</span><span class="tk-src">${esc(t.src)}</span></div>`;
 }
 document.addEventListener('click',e=>{
   const b=e.target.closest('.tk-chk');
-  if(!b||!b.dataset.tk)return;
-  const[k,bd,ik,sid]=JSON.parse(b.dataset.tk);
-  toggleWfTask(k,bd,ik,sid);
-});
+  if(!b||b.dataset.tkSid===undefined)return;
+  e.stopPropagation();e.preventDefault();
+  toggleWfTask(b.dataset.tkKind,b.dataset.tkBoard,b.dataset.tkItem,b.dataset.tkSid);
+},true);
 async function toggleWfTask(kind,board,itemKey,sid){
   const t=wfTasks.find(x=>x.kind===kind&&x.board===board&&x.itemKey===itemKey&&x.sid===sid);
   if(!t)return;
