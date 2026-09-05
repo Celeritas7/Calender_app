@@ -37,7 +37,7 @@ if not defined PY (
   echo.
   echo Could not find Python automatically.
   echo Open "Anaconda Prompt", cd to this folder, and run:
-  echo     python -m http.server 5181 --directory "%ROOT%"
+  echo     python -m http.server 5161 --directory "%ROOT%"
   echo.
   pause & goto :eof
 )
@@ -45,13 +45,13 @@ if not defined PY (
 echo.
 echo   My Calendar - local server
 echo   Python:  %PY%
-echo   Serving: %ROOT%    Open: http://localhost:5181/
+echo   Serving: %ROOT%    Open: http://localhost:5161/
 echo   Print a month with the printer button in the top bar.
 echo   (Close this window to stop.)
 echo.
 
-start "" "http://localhost:5181/"
-"%PY%" -m http.server 5181 --directory "%ROOT%"
+start "" "http://localhost:5161/"
+"%PY%" -m http.server 5161 --directory "%ROOT%"
 
 echo.
 echo Server stopped.
