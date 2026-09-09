@@ -402,18 +402,3 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
 }
 
 @media(max-width:480px){body{padding:8px 4px 24px}.cell{min-height:58px;padding:3px}.modal{padding:20px 16px 16px}.top-bar-right{gap:4px}.dd-btn{padding:4px 8px;font-size:11px}.icon-btn{width:28px;height:28px;font-size:13px}.picker{flex-direction:column;gap:10px}.picker-months{grid-template-columns:repeat(4,1fr)}.picker-years{flex-direction:row;flex-wrap:wrap;max-height:none;overflow:visible}}
-
-/* ═══════════════ BRAND / LOGO ═══════════════ */
-.month-title-wrap{display:flex;align-items:center;gap:14px;justify-content:center}
-.top-bar-left{display:flex;align-items:center;gap:10px}
-.brand-mark{width:26px;height:26px;border-radius:7px;flex:none;display:block;opacity:.9}
-.login-icon svg.login-mark{width:64px;height:64px;border-radius:16px;display:block;margin:0 auto}
-#splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:9999;transition:opacity .5s ease}
-#splash.gone{opacity:0;pointer-events:none}
-#splash .sp-mark{width:96px;height:96px;border-radius:24px;display:block;animation:spIn .5s ease both}
-#splash .sp-name{font-family:var(--h-font);font-weight:900;font-size:30px;letter-spacing:-.8px;color:var(--txt);animation:spIn .5s .1s ease both}
-@keyframes spIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
-.install-btn{font-size:18px;font-weight:700;color:var(--accent)}
-.install-btn[hidden]{display:none}
-@media (display-mode:standalone){.install-btn{display:none!important}}
-@media print{.brand-mark,#splash,.install-btn{display:none!important}.month-title-wrap{display:block}}
