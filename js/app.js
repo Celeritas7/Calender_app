@@ -118,6 +118,18 @@ const MC={red:'#d63031',pink:'#e84393',teal:'#00b894',cyan:'#00cec9',orange:'#e1
 const TH=[{name:'Newsprint',emoji:'📰'},{name:'Linen',emoji:'🪷'},{name:'Terminal Green',emoji:'🟢'},{name:'Botanical Sketch',emoji:'🌾'},{name:'Concrete',emoji:'🧱'},{name:'Plum Velvet',emoji:'🍷'},{name:'Solar Flare',emoji:'🌞'},{name:'Parchment Journal',emoji:'📜'},{name:'Midnight Tokyo',emoji:'🌃'},{name:'Forest Morning',emoji:'🌿'},{name:'Ocean Breeze',emoji:'🌊'},{name:'Sunset Amber',emoji:'🌅'},{name:'Lavender Dusk',emoji:'🪻'},{name:'Carbon Night',emoji:'🖤'},{name:'Paper White',emoji:'⬜'}];
 let curYear=new Date().getFullYear(),curMonth=new Date().getMonth();
 let calData={},modalKey=null,modalColor='red',manualTheme=-1,wxMode=false;
+/* ── local mirror: entries are written to THIS DEVICE first, cloud second ── */
+const CD_KEY='calapp_caldata';
+function cdKey(){return CD_KEY+':'+(UID||'anon')}
+function saveLocalCal(){try{const all=loadLocalCal()||{};Object.assign(all,calData);Object.keys(all).forEach(k=>{if(!calData[k]&&k.slice(0,7)===`${curYear}-${String(curMonth+1).padStart(2,'0')}`)delete all[k]});localStorage.setItem(cdKey(),JSON.stringify(all))}catch(e){}}
+function loadLocalCal(){try{const s=JSON.parse(localStorage.getItem(cdKey())||'null');return s&&typeof s==='object'?s:null}catch(e){return null}}
+/* ── pending-sync queue: days written locally but not confirmed by the cloud ── */
+const PQ_KEY='calapp_pending';
+function pqKey(){return PQ_KEY+':'+(UID||'anon')}
+function pqLoad(){try{const o=JSON.parse(localStorage.getItem(pqKey())||'{}');return o&&typeof o==='object'?o:{}}catch(e){return{}}}
+function pqSave(o){try{localStorage.setItem(pqKey(),JSON.stringify(o))}catch(e){}}
+function pqMark(k){const o=pqLoad();o[k]=1;pqSave(o)}
+function pqClear(k){const o=pqLoad();delete o[k];pqSave(o)}
 let birthdays=[];
 let diaryMood='good';
 let diaryLineMoods=[];
@@ -529,18 +541,14 @@ async function bulkToggleCell(key){
     existing.marked=false;existing.markColor='red';
     const empty=!existing.marked&&!existing.isGoal&&!existing.note&&!existing.diary;
     if(empty)delete calData[key];
-    try{
-      if(empty) await sb.from('calendar_app_entries').delete().eq('user_id',UID).eq('entry_date',key);
-      else await sb.from('calendar_app_entries').upsert({user_id:UID,entry_date:key,is_marked:false,mark_color:'red',is_goal:existing.isGoal||false,note:existing.note||null},{onConflict:'user_id,entry_date'});
-    }catch(e){console.error('Bulk:',e)}
   } else {
     if(!calData[key]) calData[key]={marked:false,markColor:'red',isGoal:false,note:'',diary:''};
     calData[key].marked=true;calData[key].markColor=bulkColor;
-    try{
-      await sb.from('calendar_app_entries').upsert({user_id:UID,entry_date:key,is_marked:true,mark_color:bulkColor,is_goal:calData[key].isGoal||false,note:calData[key].note||null},{onConflict:'user_id,entry_date'});
-    }catch(e){console.error('Bulk:',e)}
   }
-  renderCal();
+  pqMark(key);saveLocalCal();renderCal();
+  const r=await pushDay(key,calData[key]||null);
+  if(r.ok)pqClear(key);
+  else{console.error('Bulk save failed:',r.msg);flashToast('⚠️ Not synced — '+r.msg)}
 }
 
 document.addEventListener('keydown',e=>{if(!$('modal-ov').classList.contains('hidden')||!$('bday-ov').classList.contains('hidden')||!$('picker-ov').classList.contains('hidden'))return;if(e.key==='ArrowLeft')prevMonth();if(e.key==='ArrowRight')nextMonth()});
@@ -549,15 +557,45 @@ document.addEventListener('keydown',e=>{if(!$('modal-ov').classList.contains('hi
 async function loadAndRender(){
   $('toast').classList.remove('hidden');
   const s=`${curYear}-${String(curMonth+1).padStart(2,'0')}-01`,last=daysIn(curYear,curMonth),e=`${curYear}-${String(curMonth+1).padStart(2,'0')}-${last}`;
-  calData={};
-  try{
-    const{data:cal}=await sb.from('calendar_app_entries').select('entry_date,is_marked,mark_color,is_goal,note').eq('user_id',UID).gte('entry_date',s).lte('entry_date',e);
-    const{data:diary}=await sb.from('calendar_app_diary').select('entry_date,content').eq('user_id',UID).gte('entry_date',s).lte('entry_date',e);
-    (cal||[]).forEach(r=>{calData[r.entry_date]={marked:r.is_marked,markColor:r.mark_color||'red',isGoal:r.is_goal,note:r.note||'',diary:''}});
-    (diary||[]).forEach(r=>{if(!calData[r.entry_date])calData[r.entry_date]={marked:false,markColor:'red',isGoal:false,note:'',diary:''};calData[r.entry_date].diary=r.content||''});
-  }catch(err){console.error('Load:',err)}
+  const local=loadLocalCal()||{};
+  calData={};Object.keys(local).forEach(k=>{if(k>=s&&k<=e)calData[k]=local[k]});
+  if(!GUEST)try{
+    const{data:cal,error:e1}=await sb.from('calendar_app_entries').select('entry_date,is_marked,mark_color,is_goal,note').eq('user_id',UID).gte('entry_date',s).lte('entry_date',e);
+    const{data:diary,error:e2}=await sb.from('calendar_app_diary').select('entry_date,content').eq('user_id',UID).gte('entry_date',s).lte('entry_date',e);
+    if(e1||e2)throw(e1||e2);
+    const cloud={};
+    (cal||[]).forEach(r=>{cloud[r.entry_date]={marked:r.is_marked,markColor:r.mark_color||'red',isGoal:r.is_goal,note:r.note||'',diary:''}});
+    (diary||[]).forEach(r=>{if(!cloud[r.entry_date])cloud[r.entry_date]={marked:false,markColor:'red',isGoal:false,note:'',diary:''};cloud[r.entry_date].diary=r.content||''});
+    /* days still waiting to sync must survive the cloud copy, or a failed save vanishes */
+    const pend=pqLoad();
+    Object.keys(local).forEach(k=>{if(k>=s&&k<=e&&pend[k])cloud[k]=local[k]});
+    calData=cloud;saveLocalCal();
+  }catch(err){console.error('Load:',err);if(typeof flashToast==='function')flashToast('⚠️ Offline — showing this device\u2019s copy')}
   $('toast').classList.add('hidden');renderCal();
+  flushPending();
 }
+
+/* one day → cloud. Returns {ok, msg} so the caller can tell the user the truth. */
+async function pushDay(key,data){
+  if(GUEST)return{ok:true};
+  if(!UID)return{ok:false,msg:'not signed in'};
+  let err=null;const t=(r)=>{if(r&&r.error&&!err)err=r.error};
+  if(data&&(data.marked||data.isGoal||data.note)){t(await sb.from('calendar_app_entries').upsert({user_id:UID,entry_date:key,is_marked:!!data.marked,mark_color:data.markColor||'red',is_goal:!!data.isGoal,note:data.note||null},{onConflict:'user_id,entry_date'}))}
+  else{t(await sb.from('calendar_app_entries').delete().eq('user_id',UID).eq('entry_date',key))}
+  if(data&&data.diary){t(await sb.from('calendar_app_diary').upsert({user_id:UID,entry_date:key,content:data.diary},{onConflict:'user_id,entry_date'}))}
+  else{t(await sb.from('calendar_app_diary').delete().eq('user_id',UID).eq('entry_date',key))}
+  return err?{ok:false,msg:err.message||err.code||'cloud rejected the write'}:{ok:true};
+}
+
+async function flushPending(){
+  if(GUEST||!UID)return;
+  const keys=Object.keys(pqLoad());if(!keys.length)return;
+  const all=loadLocalCal()||{};let n=0,fail=null;
+  for(const k of keys){const r=await pushDay(k,all[k]||null);if(r.ok){pqClear(k);n++}else if(!fail)fail=r.msg}
+  if(n)flashToast('☁️ Synced '+n+(n===1?' day':' days'));
+  else if(fail)flashToast('⚠️ '+keys.length+' day(s) not synced — '+fail);
+}
+addEventListener('online',()=>flushPending());
 
 /* ═══════════════ DAY MODAL ═══════════════ */
 function buildCP(){const cpk=$('cpk');cpk.innerHTML='';Object.entries(MC).forEach(([n,c])=>{const b=document.createElement('button');b.className='cdot'+(modalColor===n?' act':'');b.style.background=c;b.onclick=()=>{modalColor=n;buildCP()};cpk.appendChild(b)})}
@@ -677,13 +715,12 @@ async function saveModal(){
   const data={marked:$('chk-mark').checked,markColor:modalColor,isGoal:$('chk-goal').checked,note:$('inp-note').value.trim(),diary:encodedDiary};
   const empty=!data.marked&&!data.isGoal&&!data.note&&!data.diary;
   if(empty)delete calData[key];else calData[key]=data;
+  pqMark(key);saveLocalCal();
   closeModal();renderCal();
-  try{
-    if(data.marked||data.isGoal||data.note){await sb.from('calendar_app_entries').upsert({user_id:UID,entry_date:key,is_marked:data.marked,mark_color:data.markColor,is_goal:data.isGoal,note:data.note||null},{onConflict:'user_id,entry_date'})}
-    else{await sb.from('calendar_app_entries').delete().eq('user_id',UID).eq('entry_date',key)}
-    if(data.diary){await sb.from('calendar_app_diary').upsert({user_id:UID,entry_date:key,content:data.diary},{onConflict:'user_id,entry_date'})}
-    else{await sb.from('calendar_app_diary').delete().eq('user_id',UID).eq('entry_date',key)}
-  }catch(err){console.error('Save:',err)}
+  if(GUEST){pqClear(key);flashToast('👤 Saved on this device only (preview mode)');return}
+  const r=await pushDay(key,empty?null:data);
+  if(r.ok){pqClear(key);flashToast('✓ Saved to cloud')}
+  else{console.error('Save failed:',r.msg);flashToast('⚠️ Not synced — '+r.msg)}
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeBdayManager();closePicker();closeSukkiri()}});
@@ -708,10 +745,10 @@ let wfTasks=[];
 function wfLegacyId(t){let s=String(t||''),h=5381;for(let i=0;i<s.length;i++){h=((h*33)^s.charCodeAt(i))>>>0}return 'l_'+h.toString(36)}
 async function loadWfTasks(){
   try{
-    const{data:inv}=await sb.from('weekly_focus_inventory').select('apps,study,office');
+    const{data:inv}=await sb.from('weekly_focus_inventory').select('apps,study,office').eq('user_id',UID);
     wfNames={};
     (inv||[]).forEach(r=>['apps','study','office'].forEach(k=>(r[k]||[]).forEach(it=>{if(it&&it.id)wfNames[it.id]=it.name||it.id})));
-    const{data:rows}=await sb.from('weekly_focus_entries').select('board_id,item_key,payload');
+    const{data:rows}=await sb.from('weekly_focus_entries').select('board_id,item_key,payload').eq('user_id',UID);
     wfRows={};wfTasks=[];
     (rows||[]).forEach(r=>{
       wfRows[r.board_id+'||'+r.item_key]=r.payload||{};
@@ -776,7 +813,7 @@ function renderNoDate(){
   const open=list.filter(t=>!t.done),done=list.filter(t=>t.done);
   el.innerHTML=`<h3>📋 No date yet</h3><div class="nd-sub">Undated tasks from Weekly Focus — give them a date there, or tick them off here.</div><div class="nd-list">${open.concat(done).map(tkRow).join('')}</div>`;
 }
-function flashToast(msg){const t=$('toast');t.textContent=msg;t.classList.remove('hidden');setTimeout(()=>{t.classList.add('hidden');t.textContent='Loading...'},1400)}
+function flashToast(msg,ms){const t=$('toast');t.textContent=msg;t.classList.remove('hidden');clearTimeout(flashToast._t);flashToast._t=setTimeout(()=>{t.classList.add('hidden');t.textContent='Loading...'},ms||(/⚠/.test(msg)?4000:1400))}
 function buildTaskDD(){
   const dd=$('task-dd');if(!dd)return;
   dd.innerHTML=`<button class="dd-opt" id="tk-show">${tkStyle.show?'✅':'⬜'} Show tasks on calendar</button>

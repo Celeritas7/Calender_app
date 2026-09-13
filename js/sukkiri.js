@@ -18,6 +18,15 @@ const SK_ICONS={
   glass:'<path d="M5 2.6h14L17 11l-4 3.4V19h3v2.4H8V19h3v-4.6L7 11 5 2.6zm2.6 2.4l.8 3.4h7.2l.8-3.4H7.6z"/>'
 };
 const SK_ICON_IDS=Object.keys(SK_ICONS);
+/* digital "routine shower" — same cycle engine, different shelf */
+const SK_ROUTINES=[
+  {name:'Drive space clear-out',every:30},
+  {name:'Folder tidy — Downloads · Desktop',every:14},
+  {name:'Google Keep triage',every:7},
+  {name:'Photos cull',every:30},
+  {name:'Inbox zero',every:7},
+  {name:'Password · backup check',every:90}
+];
 function skIconSvg(id,color,extra){
   const p=SK_ICONS[id];if(!p)return '';
   return `<svg viewBox="0 0 24 24" ${extra||''} style="fill:${color||'currentColor'}">${p}</svg>`;
@@ -35,8 +44,10 @@ function skDefaults(){
       {id:'g5',label:'Non-burnable',short:'不燃 NON',icon:'trash',days:[5],weeks:[1,3],color:'#7f8c8d'}
     ],
     cycles:[
-      {id:'c1',name:'Bathroom deep clean',every:14,anchor,color:'#8e44ad'},
-      {id:'c2',name:'Fridge & kitchen',every:28,anchor,color:'#16a085'}
+      {id:'c1',name:'Bathroom deep clean',every:14,anchor,color:'#8e44ad',kind:'home'},
+      {id:'c2',name:'Fridge & kitchen',every:28,anchor,color:'#16a085',kind:'home'},
+      {id:'c3',name:'Drive space clear-out',every:30,anchor,color:'#2980b9',kind:'digital'},
+      {id:'c4',name:'Google Keep triage',every:7,anchor,color:'#16a085',kind:'digital'}
     ],
     overrides:{},done:{},away:[]
   };
@@ -61,7 +72,7 @@ function skMigrate(){
     if(/large|bulky|粗大/.test(s))return 'box';
     return 'bottle';};
   (sk.garbage||[]).forEach(g=>{if(!g.icon||!SK_ICONS[g.icon])g.icon=guess(g.label||g.short)});
-  (sk.cycles||[]).forEach((c,i)=>{if(!c.color)c.color=SK_COLORS[(i+4)%SK_COLORS.length]});
+  (sk.cycles||[]).forEach((c,i)=>{if(!c.color)c.color=SK_COLORS[(i+4)%SK_COLORS.length];if(!c.kind)c.kind='home'});
 }
 try{const s=JSON.parse(localStorage.getItem(SK_KEY)||'null');if(s)sk=Object.assign(skDefaults(),s)}catch(e){}
 skMigrate();
@@ -165,7 +176,7 @@ function skCellBodyHtml(key){
     const cl=!o.done&&clash.length;
     const tag=o.mode==='due'?'':`<b class="sk-shift">${o.mode==='after'?'+1w':'−1w'}</b>`;
     const ttl=`${o.cycle.name} · every ${o.cycle.every} days${o.reason?' · blocked on '+o.due+' ('+o.reason+')':''}${cl?' — CLASHES with '+clash.length+' open task'+(clash.length>1?'s':'')+': '+clash.map(t=>t.text).join(', '):''}`;
-    h+=`<div class="sk-cy${o.done?' done':''}${o.mode!=='due'?' moved':''}${cl?' clash':''}" style="--sk-c:${c}" title="${esc(ttl)}">${cl?'<b class="sk-cw">⚠</b>':'<i class="sk-dot"></i>'}<span>${esc(o.cycle.name)}</span>${tag}</div>`;
+    h+=`<div class="sk-cy${o.done?' done':''}${o.mode!=='due'?' moved':''}${cl?' clash':''}" style="--sk-c:${c}" title="${esc(ttl)}">${cl?'<b class="sk-cw">⚠</b>':'<i class="sk-dot'+(o.cycle.kind==='digital'?' dig':'')+'"></i>'}<span>${esc(o.cycle.name)}</span>${tag}</div>`;
   });
   skGhostFor(key).forEach(o=>{h+=`<div class="sk-ghost" style="--sk-c:${o.cycle.color||'#8e44ad'}" title="Originally due here — moved (${esc(o.reason||'manual')})"><span>${esc(o.cycle.name)}</span></div>`});
   return h;
@@ -221,8 +232,13 @@ function renderSukkiriSettings(){
   sk.garbage.forEach(g=>{h+=`<div class="sk-g"><div class="sk-g-h"><input class="sk-in" data-gl="${g.id}" value="${esc(g.label)}" placeholder="Category"><input type="color" data-gc="${g.id}" value="${g.color}" title="Colour"><button class="sk-del" data-gx="${g.id}" title="Remove">✕</button></div><div class="sk-chips sk-ics"><span class="sk-dim" style="margin-right:4px">mark</span>${icBtns(g)}</div><div class="sk-chips">${wdBtns(g)}</div><div class="sk-chips"><span class="sk-dim" style="margin-right:4px">week</span>${wkBtns(g)}</div></div>`});
   h+=`<button class="sk-add" id="sk-gadd">+ Add category</button></div>
 <div class="msec"><span class="msec-t">🧹 Cleaning cycles</span><div class="sk-dim" style="margin-bottom:8px">Anchor = the day the cycle starts counting from. Blocked days auto-move the phase one week earlier.</div>`;
-  sk.cycles.forEach(c=>{h+=`<div class="sk-c"><input type="color" data-cc="${c.id}" value="${c.color||'#8e44ad'}" title="Colour"><input class="sk-in" data-cn="${c.id}" value="${esc(c.name)}" placeholder="What to clean"><span class="sk-dim">every</span><input class="sk-in sk-in-n" type="number" min="1" max="365" data-ce="${c.id}" value="${c.every}"><span class="sk-dim">days from</span><input class="sk-in" type="date" data-ca="${c.id}" value="${c.anchor}"><button class="sk-del" data-cx="${c.id}" title="Remove">✕</button></div>`});
+  const cycRow=(c,ph)=>`<div class="sk-c"><input type="color" data-cc="${c.id}" value="${c.color||'#8e44ad'}" title="Colour"><input class="sk-in" data-cn="${c.id}" value="${esc(c.name)}" placeholder="${ph}"><span class="sk-dim">every</span><input class="sk-in sk-in-n" type="number" min="1" max="365" data-ce="${c.id}" value="${c.every}"><span class="sk-dim">days from</span><input class="sk-in" type="date" data-ca="${c.id}" value="${c.anchor}"><button class="sk-del" data-cx="${c.id}" title="Remove">✕</button></div>`;
+  sk.cycles.filter(c=>c.kind!=='digital').forEach(c=>{h+=cycRow(c,'What to clean')});
   h+=`<button class="sk-add" id="sk-cadd">+ Add cycle</button></div>
+<div class="msec"><span class="msec-t">💻 Routine shower — digital</span><div class="sk-dim" style="margin-bottom:8px">Drive space, folders, Keep notes — same engine as cleaning: a blocked day moves the routine one week earlier.</div>`;
+  sk.cycles.filter(c=>c.kind==='digital').forEach(c=>{h+=cycRow(c,'What to tidy')});
+  h+=`<div class="sk-chips">${SK_ROUTINES.map((r,i)=>`<button class="sk-chip" data-rp="${i}">+ ${esc(r.name)}</button>`).join('')}</div>
+<button class="sk-add" id="sk-radd">+ Add blank routine</button></div>
 <div class="msec"><span class="msec-t">⚠ What counts as a blocked day</span><div class="sk-row sk-wrap">
 <label class="cbl"><input type="checkbox" data-bk="urg"${sk.block.urg?' checked':''}><span>⚑ Urgent task</span></label>
 <label class="cbl"><input type="checkbox" data-bk="any"${sk.block.any?' checked':''}><span>Any open task</span></label>
@@ -247,7 +263,10 @@ function renderSukkiriSettings(){
   ov.querySelectorAll('[data-ce]').forEach(i=>i.onchange=()=>{cById(i.dataset.ce).every=Math.max(1,+i.value||1);commit()});
   ov.querySelectorAll('[data-ca]').forEach(i=>i.onchange=()=>{cById(i.dataset.ca).anchor=i.value;commit()});
   ov.querySelectorAll('[data-cx]').forEach(b=>b.onclick=()=>{sk.cycles=sk.cycles.filter(c=>c.id!==b.dataset.cx);commit();renderSukkiriSettings()});
-  $('sk-cadd').onclick=()=>{sk.cycles.push({id:skId(),name:'',every:14,anchor:skNextDow(0),color:SK_COLORS[(sk.cycles.length+4)%SK_COLORS.length]});commit();renderSukkiriSettings();const last=ov.querySelectorAll('[data-cn]');last[last.length-1].focus()};
+  const addCycle=(o)=>{sk.cycles.push(Object.assign({id:skId(),name:'',every:14,anchor:skNextDow(0),color:SK_COLORS[(sk.cycles.length+4)%SK_COLORS.length],kind:'home'},o));commit();renderSukkiriSettings()};
+  $('sk-cadd').onclick=()=>{addCycle({});const l=ov.querySelectorAll('[data-cn]');l[l.length-1].focus()};
+  $('sk-radd').onclick=()=>{addCycle({kind:'digital'});const l=ov.querySelectorAll('[data-cn]');l[l.length-1].focus()};
+  ov.querySelectorAll('[data-rp]').forEach(b=>b.onclick=()=>{const r=SK_ROUTINES[+b.dataset.rp];addCycle({kind:'digital',name:r.name,every:r.every})});
 }
 
 /* ── print ── */
