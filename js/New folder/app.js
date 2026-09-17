@@ -352,48 +352,22 @@ function firstDay(y,m){const d=new Date(y,m,1).getDay();return d===0?6:d-1}
 
 /* ═══════════════ MONTHLY PRINTOUT ═══════════════ */
 const PO_KEY='calapp_print_opts';
-function getPrintOpts(){let o={holidays:1,weather:1,notes:1,diary:1,goals:1,marks:1,bdays:1,tasks:1,sukkiri:1,fs:8,ch:.85,mm:12};try{Object.assign(o,JSON.parse(localStorage.getItem(PO_KEY)||'{}'))}catch(e){}return o}
-function togglePrintOpts(){const p=$('pr-opts');if(p.classList.toggle('open')){const o=getPrintOpts();p.querySelectorAll('input[data-po]').forEach(i=>{i.checked=!!o[i.dataset.po]});$('pr-mm').value=o.mm||12;$('pr-fs').value=o.fs;$('pr-fs-v').textContent=o.fs+'px';$('pr-ch').value=o.ch;$('pr-ch-v').textContent=o.ch+'in';
+function getPrintOpts(){let o={holidays:1,weather:1,notes:1,diary:1,goals:1,marks:1,bdays:1,tasks:1,sukkiri:1,fs:8,ch:.85};try{Object.assign(o,JSON.parse(localStorage.getItem(PO_KEY)||'{}'))}catch(e){}return o}
+function togglePrintOpts(){const p=$('pr-opts');if(p.classList.toggle('open')){const o=getPrintOpts();p.querySelectorAll('input[data-po]').forEach(i=>{i.checked=!!o[i.dataset.po]});$('pr-fs').value=o.fs;$('pr-fs-v').textContent=o.fs+'px';$('pr-ch').value=o.ch;$('pr-ch-v').textContent=o.ch+'in';
   $('pr-fs').oninput=e=>{$('pr-fs-v').textContent=e.target.value+'px'};
   $('pr-ch').oninput=e=>{$('pr-ch-v').textContent=e.target.value+'in'};}}
-function collectPrintOpts(){const o={};$('pr-opts').querySelectorAll('input[data-po]').forEach(i=>{o[i.dataset.po]=i.checked?1:0});o.fs=parseFloat($('pr-fs').value);o.ch=parseFloat($('pr-ch').value);o.mm=+$('pr-mm').value||12;localStorage.setItem(PO_KEY,JSON.stringify(o));$('pr-opts').classList.remove('open');return o}
-function doPrint(){printMonth(collectPrintOpts())}
-function doPrintMulti(){printMulti(collectPrintOpts())}
-/* N months on one A3 landscape sheet — [cols, rows, type-scale] per count */
-const PR_MM={2:[2,1,2.4],3:[3,1,2],4:[2,2,1.7],6:[3,2,1.35],12:[4,3,1]};
-function printMulti(o){o=o||getPrintOpts();
-  const n=PR_MM[o.mm]?+o.mm:12,[cols,rows,k]=PR_MM[n];
-  /* calData only holds the month on screen — other months come from this device's local mirror */
-  const all=Object.assign({},loadLocalCal()||{},calData);
-  let h='<div class="pr-multi" style="--cols:'+cols+';--rows:'+rows+';--k:'+k+'">';
-  for(let i=0;i<n;i++){const d=new Date(curYear,curMonth+i,1),y=d.getFullYear(),m=d.getMonth();h+='<div class="pr-mm"><div class="pr-mm-h">'+MO[m]+'<span>'+y+'</span></div>'+prMonthGrid(y,m,o,all)+'</div>'}
-  h+='</div>';
-  const ps=$('print-sheet');ps.style.setProperty('--pr-fs',(o.fs||8)+'px');ps.classList.add('multi');ps.innerHTML=h;
-  const st=document.createElement('style');st.id='pr-page';st.textContent='@page{size:A3 landscape;margin:0.3in}';document.head.appendChild(st);
-  skOccCache.from='';
-  window.print();
-  st.remove();ps.classList.remove('multi');skOccCache.from='';
-}
+function doPrint(){const o={};$('pr-opts').querySelectorAll('input[data-po]').forEach(i=>{o[i.dataset.po]=i.checked?1:0});o.fs=parseFloat($('pr-fs').value);o.ch=parseFloat($('pr-ch').value);localStorage.setItem(PO_KEY,JSON.stringify(o));$('pr-opts').classList.remove('open');printMonth(o)}
 function printMonth(o){o=o||getPrintOpts();
-  const h='<div class="pr-h"><div class="pr-mo">'+MO[curMonth]+'</div><div class="pr-yr">'+curYear+'</div></div>'+prMonthGrid(curYear,curMonth,o);
-  const ps=document.getElementById('print-sheet');
-  ps.style.setProperty('--pr-fs',(o.fs||8)+'px');
-  ps.style.setProperty('--pr-cellmin',(o.ch||.85)+'in');
-  ps.innerHTML=h;
-  window.print();
-}
-/* one month's 7×6 grid, shared by the single-month and multi-month sheets */
-function prMonthGrid(y,mo,o,src){src=src||calData;
-  const dim=daysIn(y,mo),fd=firstDay(y,mo),pDim=daysIn(y,mo===0?11:mo-1);
-  let h='<div class="pr-cal">';
+  const dim=daysIn(curYear,curMonth),fd=firstDay(curYear,curMonth),pDim=daysIn(curYear,curMonth===0?11:curMonth-1);
+  let h='<div class="pr-h"><div class="pr-mo">'+MO[curMonth]+'</div><div class="pr-yr">'+curYear+'</div></div><div class="pr-cal">';
   ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach((d,i)=>{h+='<div class="pr-hdr'+(i>=5?' wk':'')+'">'+d+'</div>'});
   for(let i=0;i<42;i++){
     let day,cur;
     if(i<fd){day=pDim-fd+i+1;cur=false}else if(i<fd+dim){day=i-fd+1;cur=true}else{day=i-fd-dim+1;cur=false}
     const we=i%7>=5;
-    const key=cur?y+'-'+String(mo+1).padStart(2,'0')+'-'+String(day).padStart(2,'0'):null;
+    const key=cur?curYear+'-'+String(curMonth+1).padStart(2,'0')+'-'+String(day).padStart(2,'0'):null;
     const hol=key?getHoliday(key):null;
-    const dd=key?src[key]:null,wx=key?weatherData[key]:null,bdays=cur?getBdaysForDate(mo,day):[];
+    const dd=key?calData[key]:null,wx=key?weatherData[key]:null,bdays=cur?getBdaysForDate(curMonth,day):[];
     const skf=cur&&o.sukkiri&&typeof skCellFlags==='function'?skCellFlags(key):null;
     let inner='<span class="pr-d">'+day+'</span>';
     if(cur){
@@ -412,7 +386,11 @@ function prMonthGrid(y,mo,o,src){src=src||calData;
     }
     h+='<div class="pr-cell'+(we?' we':'')+(cur?'':' om')+(hol?' hol':'')+(skf?' sk-clean'+(skf.clash?' sk-clash':'')+(skf.urg?' sk-urgclash':''):'')+'"'+(skf?' style="--sk-c:'+skf.color+'"':'')+'>'+inner+'</div>';
   }
-  return h+'</div>';
+  const ps=document.getElementById('print-sheet');
+  ps.style.setProperty('--pr-fs',(o.fs||8)+'px');
+  ps.style.setProperty('--pr-cellmin',(o.ch||.85)+'in');
+  ps.innerHTML=h+'</div>';
+  window.print();
 }
 
 function isToday(d){const t=new Date();return d===t.getDate()&&curMonth===t.getMonth()&&curYear===t.getFullYear()}

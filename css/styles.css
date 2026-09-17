@@ -375,6 +375,7 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
 .pr-opts .pr-t{font-size:13px;font-weight:700;color:var(--txt2);margin-bottom:6px;font-family:var(--h-font)}
 .pr-opts label{display:flex;align-items:center;gap:8px;font-size:14px;padding:4px 0;cursor:pointer;color:var(--txt)}
 .pr-opts input{accent-color:var(--accent)}
+.pr-opts .pr-sel{flex:1;padding:6px 8px;border-radius:8px;border:1.5px solid var(--border);background:var(--card-bg);color:var(--txt);font-family:var(--b-font);font-size:13px}
 .pr-opts .pr-go{margin-top:10px;width:100%;padding:9px;border:none;border-radius:10px;background:var(--btn);color:#fff;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--b-font);box-shadow:0 4px 15px var(--btn-sh)}
 .pr-hol{margin-top:auto;padding-top:2px;width:100%;font-size:var(--pr-fs,8px);color:var(--wknd);font-weight:700;opacity:.85;line-height:1.2;overflow-wrap:anywhere}
 .pr-task{font-size:var(--pr-fs,8px);line-height:1.25;color:var(--txt);font-weight:600;overflow-wrap:anywhere}
@@ -394,6 +395,20 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
 .ts-row.done{color:#999;text-decoration:line-through}
 .ts-meta{color:#888;font-size:10px;margin-left:auto;white-space:nowrap;padding-left:8px}
 .ts-nd{margin-top:16px;border-top:3px solid #111;padding-top:8px}
+/* multi-month sheet: N months tiled on one A3 landscape page; months fill the page height, cells share it equally */
+#print-sheet.multi .pr-multi{--k:1;display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));grid-template-rows:repeat(var(--rows),minmax(0,1fr));gap:.22in .26in;height:calc(297mm - .75in);width:100%}
+#print-sheet.multi .pr-mm{display:flex;flex-direction:column;min-height:0}
+#print-sheet.multi .pr-mm-h{font-family:var(--h-font);font-weight:900;font-size:calc(var(--pr-fs,8px) * 2.2 * var(--k,1));line-height:1.1;margin-bottom:3px;color:var(--txt);letter-spacing:-.02em}
+#print-sheet.multi .pr-mm-h span{font-weight:600;color:var(--txt2);margin-left:6px;font-size:.7em;letter-spacing:0}
+#print-sheet.multi .pr-cal{flex:1;min-height:0;grid-template-rows:auto repeat(6,minmax(0,1fr));border-width:1.5px}
+#print-sheet.multi .pr-hdr{padding:2px 3px;font-size:calc((var(--pr-fs,8px) + 1px) * var(--k,1));border-bottom-width:1.5px}
+#print-sheet.multi .pr-cell{min-height:0;padding:calc(2px * var(--k,1)) calc(3px * var(--k,1));overflow:hidden}
+#print-sheet.multi .pr-d{font-size:calc((var(--pr-fs,8px) + 2px) * var(--k,1))}
+#print-sheet.multi .pr-wx{top:2px;right:3px;font-size:calc(var(--pr-fs,8px) * var(--k,1))}
+#print-sheet.multi .pr-x line{stroke-width:calc(2 * var(--k,1))}
+#print-sheet.multi .pr-body{margin-top:1px}
+#print-sheet.multi .pr-sk-wm svg{max-width:.3in;max-height:.3in}
+
 @page{size:A4 portrait;margin:0.35in}
 @media print{
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
