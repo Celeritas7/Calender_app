@@ -97,7 +97,7 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 .cell{min-height:clamp(64px,12vw,106px);padding:4px 5px 5px;border-right:1px solid color-mix(in srgb,var(--border) 30%,transparent);border-bottom:1px solid color-mix(in srgb,var(--border) 30%,transparent);position:relative;overflow:visible;cursor:pointer;transition:transform .12s,background .12s;display:flex;flex-direction:column;align-items:flex-start;min-width:0}
 .cell:nth-child(7n){border-right:none}
 .cell.lr{border-bottom:none}
-.cell.cur:hover{transform:scale(1.03);z-index:2;background:var(--cell-hover)!important}
+.cell.cur:hover{z-index:2;background:var(--cell-hover)!important;outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:-2px}
 .cell.cur:active{transform:scale(.97)}
 .cell.om{opacity:.22;cursor:default;pointer-events:none}
 .cell.we{background:color-mix(in srgb,var(--wknd) 6%,transparent)}

@@ -2,10 +2,18 @@
 const sb = window.supabase.createClient(
   'https://wylxvmkcrexwfpjpbhyy.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5bHh2bWtjcmV4d2ZwanBiaHl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2MzkxMDYsImV4cCI6MjA4NDIxNTEwNn0.6Bxo42hx4jwlJGWnfjiTpiDUsYfc1QLTN3YtrU1efak'
+  ,{ global: { headers: { 'x-akatsuki-app': 'cal' } } }
 );
 
 /* UID is now dynamic — set after login */
 let UID = null;
+
+/* ── Akatsuki hub (step 1: Sukkiri link) ── */
+const AK_BUILD='mycal-v5';
+const calHub = CalHub(sb, { uid: () => UID });
+window.cal = { supabase: sb, hub: calHub };
+console.log('[ak] cal build', AK_BUILD);
+let calHubWatching=false;
 
 /* ── Guest / preview mode: no account, local-only, all cloud calls no-op ── */
 let GUEST = false;
@@ -606,6 +614,7 @@ async function pushDay(key,data){
   else{t(await sb.from('calendar_app_entries').delete().eq('user_id',UID).eq('entry_date',key))}
   if(data&&data.diary){t(await sb.from('calendar_app_diary').upsert({user_id:UID,entry_date:key,content:data.diary},{onConflict:'user_id,entry_date'}))}
   else{t(await sb.from('calendar_app_diary').delete().eq('user_id',UID).eq('entry_date',key))}
+  if(!err){try{await calHub.dayMark(key,data)}catch(e){console.warn('[ak] dayMark failed',e.code||'',e.message)}}
   return err?{ok:false,msg:err.message||err.code||'cloud rejected the write'}:{ok:true};
 }
 
@@ -891,6 +900,7 @@ async function bootApp() {
   buildTaskDD();
   await loadAndRender();
   renderNoDate();
+  if(!calHubWatching&&!GUEST){calHubWatching=true;calHub.watch(r=>{skApplyRemote(r);skOccCache.from='';if(typeof renderCal==='function')renderCal()})}
   console.log('✅ Calendar ready — user:', UID);
 }
 

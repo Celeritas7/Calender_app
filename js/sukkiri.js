@@ -77,16 +77,23 @@ function skMigrate(){
 try{const s=JSON.parse(localStorage.getItem(SK_KEY)||'null');if(s)sk=Object.assign(skDefaults(),s)}catch(e){}
 skMigrate();
 
+/* Akatsuki step 1 — Sukkiri's half (home cycles + garbage) comes from the hub.
+   Calendar keeps its own digital cycles; garbage is replaced only when Sukkiri has rules. */
+function skApplyRemote(r){
+  if(!r)return;
+  sk.cycles=[...(sk.cycles||[]).filter(c=>c.kind==='digital'),...(r.cycles||[])];
+  if(r.garbage)sk.garbage=r.garbage;
+  skMigrate();
+  try{localStorage.setItem(SK_KEY,JSON.stringify(sk))}catch(e){}
+}
 async function loadSukkiri(){
-  try{
-    const{data}=await sb.from('calendar_app_sukkiri').select('payload').eq('user_id',UID).maybeSingle();
-    if(data&&data.payload){sk=Object.assign(skDefaults(),data.payload);skMigrate();localStorage.setItem(SK_KEY,JSON.stringify(sk))}
-  }catch(e){/* table optional — localStorage is the fallback */}
+  try{const r=await calHub.pullSukkiri();if(r)skApplyRemote(r)}
+  catch(e){console.warn('[ak] pullSukkiri failed — keeping local',e.code||'',e.message)}
 }
 async function saveSukkiri(){
   try{localStorage.setItem(SK_KEY,JSON.stringify(sk))}catch(e){}
   if(typeof renderCal==='function')renderCal();
-  try{await sb.from('calendar_app_sukkiri').upsert({user_id:UID,payload:sk,updated_at:new Date().toISOString()},{onConflict:'user_id'})}catch(e){}
+  try{await calHub.syncSukkiri(sk)}catch(e){console.warn('[ak] syncSukkiri failed',e.code||'',e.message)}
 }
 
 /* ── garbage ── */
@@ -110,14 +117,19 @@ function skBlockedReason(key){
 /* ── cleaning occurrences ──
    due = ideal date from the cycle. If blocked and no manual choice → auto 1 week EARLIER.
    Manual options (kept): due / earlier / later / skip. */
+/* Sukkiri weekend-only: push a date forward to the next Sat/Sun. The hub payload doesn't
+   carry `wk` yet, so home cycles default to weekend-only (matches Sukkiri today). */
+function skWkShift(k){const d=new Date(k+'T00:00').getDay();return d===0||d===6?k:skAdd(k,6-d)}
+function skIsWk(c){return c.wk!=null?!!c.wk:c.kind==='home'}
 function skOccurrences(fromKey,toKey){
   const out=[];
   sk.cycles.forEach(c=>{
     if(!c.anchor||!c.every)return;
-    let due=c.anchor;
+    const wk=skIsWk(c),step=d=>wk?skWkShift(skAdd(d,c.every)):skAdd(d,c.every);
+    let due=wk?skWkShift(c.anchor):c.anchor;
     /* rewind so we start before the window */
-    while(skAdd(due,0)>fromKey)due=skAdd(due,-c.every);
-    for(let i=0;i<200&&due<=toKey;i++,due=skAdd(due,c.every)){
+    while(skAdd(due,0)>fromKey)due=wk?skWkShift(skAdd(due,-c.every-6)):skAdd(due,-c.every);
+    for(let i=0;i<200&&due<=toKey;i++,due=step(due)){
       const ok=c.id+'|'+due,ov=sk.overrides[ok];
       let at=due,mode='due',reason=skBlockedReason(due);
       if(ov==='skip'){mode='skip'}
