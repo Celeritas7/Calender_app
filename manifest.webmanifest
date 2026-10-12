@@ -2,7 +2,7 @@
   "name": "My Calendar",
   "short_name": "Calendar",
   "description": "Calendar with weather, garbage days, cleaning cycles, diary, notes, birthdays, tasks and holidays.",
-  "id": "/",
+  "id": "/Calender_app/",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

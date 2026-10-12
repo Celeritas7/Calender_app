@@ -79,8 +79,11 @@ skMigrate();
 
 /* Akatsuki step 1 — Sukkiri's half (home cycles + garbage) comes from the hub.
    Calendar keeps its own digital cycles; garbage is replaced only when Sukkiri has rules. */
+const SK_APP_URL='http://localhost:8091';
+let skGarbRemote=false; /* true when Sukkiri supplied garbage rules → read-only here */
 function skApplyRemote(r){
   if(!r)return;
+  skGarbRemote=!!r.garbage;
   sk.cycles=[...(sk.cycles||[]).filter(c=>c.kind==='digital'),...(r.cycles||[])];
   if(r.garbage)sk.garbage=r.garbage;
   skMigrate();
@@ -117,10 +120,9 @@ function skBlockedReason(key){
 /* ── cleaning occurrences ──
    due = ideal date from the cycle. If blocked and no manual choice → auto 1 week EARLIER.
    Manual options (kept): due / earlier / later / skip. */
-/* Sukkiri weekend-only: push a date forward to the next Sat/Sun. The hub payload doesn't
-   carry `wk` yet, so home cycles default to weekend-only (matches Sukkiri today). */
+/* Sukkiri weekend-preferred: push a date forward to the next Sat/Sun. `wk` comes from the hub cycle row. */
 function skWkShift(k){const d=new Date(k+'T00:00').getDay();return d===0||d===6?k:skAdd(k,6-d)}
-function skIsWk(c){return c.wk!=null?!!c.wk:c.kind==='home'}
+function skIsWk(c){return !!c.wk}
 function skOccurrences(fromKey,toKey){
   const out=[];
   sk.cycles.forEach(c=>{
@@ -241,12 +243,18 @@ function renderSukkiriSettings(){
 <div class="sk-row"><label class="cbl"><input type="checkbox" id="sk-show"${sk.show?' checked':''}><span>Show on calendar</span></label><label class="cbl"><input type="checkbox" id="sk-wm"${sk.wm?' checked':''}><span>Garbage watermark</span></label></div>
 <div class="msec"><span class="msec-t">🗑 Garbage collection</span><div class="sk-dim" style="margin-bottom:8px">Pick weekdays. Leave week numbers empty for every week, or choose e.g. 2 + 4 for 2nd & 4th.</div>`;
   const icBtns=(g)=>SK_ICON_IDS.map(i=>`<button class="sk-ic${g.icon===i?' on':''}" data-gi="${g.id}" data-i="${i}" title="${i}">${skIconSvg(i,g.icon===i?g.color:'currentColor')}</button>`).join('');
+  const skLink=`<a class="sk-add" href="${SK_APP_URL}" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Edit in Sukkiri ↗</a>`;
+  const roRow=(c,txt)=>`<div class="sk-c" style="opacity:.85"><span style="width:14px;height:14px;border-radius:50%;flex:none;background:${c.color||'#8e44ad'}"></span><span style="flex:1;min-width:0">${esc(c.name||'')}</span><span class="sk-dim">${txt}</span></div>`;
+  if(skGarbRemote){sk.garbage.forEach(g=>{h+=roRow(g,`${g.days.map(d=>SK_WD[d]).join(' ')}${g.weeks.length?' · wk '+g.weeks.join('+'):''}`)});h+=skLink+'</div>'}
+  else{
   sk.garbage.forEach(g=>{h+=`<div class="sk-g"><div class="sk-g-h"><input class="sk-in" data-gl="${g.id}" value="${esc(g.label)}" placeholder="Category"><input type="color" data-gc="${g.id}" value="${g.color}" title="Colour"><button class="sk-del" data-gx="${g.id}" title="Remove">✕</button></div><div class="sk-chips sk-ics"><span class="sk-dim" style="margin-right:4px">mark</span>${icBtns(g)}</div><div class="sk-chips">${wdBtns(g)}</div><div class="sk-chips"><span class="sk-dim" style="margin-right:4px">week</span>${wkBtns(g)}</div></div>`});
-  h+=`<button class="sk-add" id="sk-gadd">+ Add category</button></div>
-<div class="msec"><span class="msec-t">🧹 Cleaning cycles</span><div class="sk-dim" style="margin-bottom:8px">Anchor = the day the cycle starts counting from. Blocked days auto-move the phase one week earlier.</div>`;
+  h+=`<button class="sk-add" id="sk-gadd">+ Add category</button></div>`;
+  }
+  h+=`
+<div class="msec"><span class="msec-t">🧹 Cleaning cycles</span><div class="sk-dim" style="margin-bottom:8px">Managed in Sukkiri — shown here read-only. Blocked days auto-move the phase one week earlier.</div>`;
   const cycRow=(c,ph)=>`<div class="sk-c"><input type="color" data-cc="${c.id}" value="${c.color||'#8e44ad'}" title="Colour"><input class="sk-in" data-cn="${c.id}" value="${esc(c.name)}" placeholder="${ph}"><span class="sk-dim">every</span><input class="sk-in sk-in-n" type="number" min="1" max="365" data-ce="${c.id}" value="${c.every}"><span class="sk-dim">days from</span><input class="sk-in" type="date" data-ca="${c.id}" value="${c.anchor}"><button class="sk-del" data-cx="${c.id}" title="Remove">✕</button></div>`;
-  sk.cycles.filter(c=>c.kind!=='digital').forEach(c=>{h+=cycRow(c,'What to clean')});
-  h+=`<button class="sk-add" id="sk-cadd">+ Add cycle</button></div>
+  sk.cycles.filter(c=>c.kind!=='digital').forEach(c=>{h+=roRow(c,`every ${c.every}d · from ${c.anchor||'—'}${c.wk?' · weekends':''}`)});
+  h+=skLink+`</div>
 <div class="msec"><span class="msec-t">💻 Routine shower — digital</span><div class="sk-dim" style="margin-bottom:8px">Drive space, folders, Keep notes — same engine as cleaning: a blocked day moves the routine one week earlier.</div>`;
   sk.cycles.filter(c=>c.kind==='digital').forEach(c=>{h+=cycRow(c,'What to tidy')});
   h+=`<div class="sk-chips">${SK_ROUTINES.map((r,i)=>`<button class="sk-chip" data-rp="${i}">+ ${esc(r.name)}</button>`).join('')}</div>
@@ -270,13 +278,12 @@ function renderSukkiriSettings(){
   ov.querySelectorAll('[data-gd]').forEach(b=>b.onclick=()=>{const g=gById(b.dataset.gd),d=+b.dataset.d;g.days=g.days.includes(d)?g.days.filter(x=>x!==d):g.days.concat(d);commit();renderSukkiriSettings()});
   ov.querySelectorAll('[data-gw]').forEach(b=>b.onclick=()=>{const g=gById(b.dataset.gw),w=+b.dataset.w;g.weeks=g.weeks.includes(w)?g.weeks.filter(x=>x!==w):g.weeks.concat(w).sort();commit();renderSukkiriSettings()});
   ov.querySelectorAll('[data-gx]').forEach(b=>b.onclick=()=>{sk.garbage=sk.garbage.filter(g=>g.id!==b.dataset.gx);commit();renderSukkiriSettings()});
-  $('sk-gadd').onclick=()=>{sk.garbage.push({id:skId(),label:'',short:'',icon:SK_ICON_IDS[sk.garbage.length%SK_ICON_IDS.length],days:[],weeks:[],color:SK_COLORS[sk.garbage.length%SK_COLORS.length]});commit();renderSukkiriSettings();const last=ov.querySelectorAll('[data-gl]');last[last.length-1].focus()};
+  if($('sk-gadd'))$('sk-gadd').onclick=()=>{sk.garbage.push({id:skId(),label:'',short:'',icon:SK_ICON_IDS[sk.garbage.length%SK_ICON_IDS.length],days:[],weeks:[],color:SK_COLORS[sk.garbage.length%SK_COLORS.length]});commit();renderSukkiriSettings();const last=ov.querySelectorAll('[data-gl]');last[last.length-1].focus()};
   ov.querySelectorAll('[data-cn]').forEach(i=>i.oninput=()=>{cById(i.dataset.cn).name=i.value;commit()});
   ov.querySelectorAll('[data-ce]').forEach(i=>i.onchange=()=>{cById(i.dataset.ce).every=Math.max(1,+i.value||1);commit()});
   ov.querySelectorAll('[data-ca]').forEach(i=>i.onchange=()=>{cById(i.dataset.ca).anchor=i.value;commit()});
   ov.querySelectorAll('[data-cx]').forEach(b=>b.onclick=()=>{sk.cycles=sk.cycles.filter(c=>c.id!==b.dataset.cx);commit();renderSukkiriSettings()});
   const addCycle=(o)=>{sk.cycles.push(Object.assign({id:skId(),name:'',every:14,anchor:skNextDow(0),color:SK_COLORS[(sk.cycles.length+4)%SK_COLORS.length],kind:'home'},o));commit();renderSukkiriSettings()};
-  $('sk-cadd').onclick=()=>{addCycle({});const l=ov.querySelectorAll('[data-cn]');l[l.length-1].focus()};
   $('sk-radd').onclick=()=>{addCycle({kind:'digital'});const l=ov.querySelectorAll('[data-cn]');l[l.length-1].focus()};
   ov.querySelectorAll('[data-rp]').forEach(b=>b.onclick=()=>{const r=SK_ROUTINES[+b.dataset.rp];addCycle({kind:'digital',name:r.name,every:r.every})});
 }
