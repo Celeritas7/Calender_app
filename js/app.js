@@ -376,7 +376,26 @@ async function loadThemePref(){const{data}=await sb.from('calendar_app_preferenc
 
 /* ═══════════════ DROPDOWN ═══════════════ */
 function toggleDD(id,e){e.stopPropagation();const el=$(id),was=el.classList.contains('hidden');closeAllDD();if(was)el.classList.remove('hidden')}
-function closeAllDD(){document.querySelectorAll('.dd-panel').forEach(p=>p.classList.add('hidden'))}
+function closeAllDD(){document.querySelectorAll('.dd-panel').forEach(p=>p.classList.add('hidden'));const m=$('more-btn');if(m)m.setAttribute('aria-expanded','false')}
+
+/* phone "⋯" menu — the toolbar buttons that don't fit, as labelled rows */
+function toggleMoreMenu(e){
+  e.stopPropagation();
+  const dd=$('more-dd'),open=dd.classList.contains('hidden');
+  closeAllDD();if(!open)return;
+  const items=[
+    ['🎂','Birthdays',()=>openBdayManager()],
+    ['📋','Weekly Focus tasks',()=>$('task-dd').classList.remove('hidden')],
+    [$('t-emoji').textContent||'🎨','Theme · '+$('t-name').textContent,()=>$('theme-dd').classList.remove('hidden')],
+    ['🖨️','Print…',()=>togglePrintOpts()],
+    ...($('install-btn').hidden?[]:[['⤓','Install app',()=>installApp()]]),
+    ['🚪','Sign out',()=>signOut()]
+  ];
+  dd.innerHTML='';
+  items.forEach(([ic,label,fn])=>{const b=document.createElement('button');b.className='dd-opt';b.setAttribute('role','menuitem');
+    b.innerHTML=`<span class="dd-ic" aria-hidden="true">${ic}</span>${esc(label)}`;b.onclick=()=>{closeAllDD();fn()};dd.appendChild(b)});
+  dd.classList.remove('hidden');$('more-btn').setAttribute('aria-expanded','true');
+}
 document.addEventListener('click',closeAllDD);
 
 /* ═══════════════ CALENDAR RENDERING ═══════════════ */

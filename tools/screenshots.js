@@ -82,6 +82,12 @@ async function openApp(browser, base, viewport) {
         if (close) await page.evaluate(f => window[f](), close);
         else await page.evaluate(() => $('picker-ov').classList.add('hidden'));
       }
+      if (await page.isVisible('#more-btn')) {   // phone toolbar menu
+        await page.click('#more-btn');
+        await page.waitForTimeout(150);
+        await page.screenshot({ path: path.join(OUT, `${vpName}-more-menu.png`) });
+        await page.evaluate(() => closeAllDD());
+      }
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       report.push(`${vpName}: horizontal overflow ${overflow}px, page errors ${errors.length}${errors.length ? ' — ' + errors.join(' | ') : ''}`);
       await page.close();

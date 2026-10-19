@@ -73,7 +73,7 @@ Kept as-is: the year-range and "{Month} has only {n} days" messages.
 
 ---
 
-## Phase 2 — Phone layout
+## Phase 2 — Phone layout — ✅ done
 
 **Goal:** the app fits a 360–430 px screen with no sideways scroll.
 
@@ -83,7 +83,22 @@ Kept as-is: the year-range and "{Month} has only {n} days" messages.
 - Month title smaller with the year beside it; the lone ▾ becomes part of the title button.
 - Calendar grid visible without scrolling on a 844 px-tall phone.
 
-**Design review:** `design-critique` at 390 px; `accessibility-review` for touch targets and reflow.
+**Result:** no horizontal scroll at 320 / 360 / 390 / 430 px (was 47 px over at 390).
+Grid top moved from y=435 to y=190 on phone (whole month visible on an 844 px screen) and
+from ~474 to 194 on desktop, where the garbage cards now sit four across. Every visible
+phone control is ≥ 44 px. ⋯ menu holds Birthdays, Weekly Focus tasks, Theme, Print,
+Install (when offered) and Sign out; their dropdowns open as full-width sheets.
+
+**Design review (`design-critique`, with touch-target and reflow checks) — done.**
+No blocking findings. Applied: garbage strip shows exactly today + tomorrow with a fade
+on the right edge while more cards are off-screen (the third card used to show as a
+cut-off sliver). Deferred:
+- Day editor: 44 px Sukkiri buttons make each cleaning block ~130 px tall → Phase 4
+  (one-row buttons, sticky Save).
+- Print panel checkbox rows are 28 px tall → Phase 4 (print panel sections).
+- Sukkiri settings chips (weekday / week / icon) are dense → Phase 4.
+- "Weekly Focus tasks" menu item opens display settings, not a list → rename in Phase 5.
+- Desktop toolbar stays 34 px (pointer input; passes WCAG 2.5.8).
 
 ---
 

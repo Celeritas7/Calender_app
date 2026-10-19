@@ -52,21 +52,26 @@
 <div class="top-bar">
   <div class="top-bar-left"><svg class="brand-mark" width="26" height="26" viewBox="0 0 100 100" role="img" aria-label="My Calendar"><rect x="4.5" y="4.5" width="28" height="28" rx="7" fill="#e84393"/><rect x="36" y="4.5" width="28" height="28" rx="7" fill="#e17055"/><rect x="67.5" y="4.5" width="28" height="28" rx="7" fill="#fdcb6e"/><rect x="4.5" y="36" width="28" height="28" rx="7" fill="#6c5ce7"/><rect x="36" y="36" width="28" height="28" rx="7" fill="#c8102e"/><rect x="67.5" y="36" width="28" height="28" rx="7" fill="#27ae60"/><rect x="4.5" y="67.5" width="28" height="28" rx="7" fill="#00b894"/><rect x="36" y="67.5" width="28" height="28" rx="7" fill="#00cec9"/><rect x="67.5" y="67.5" width="28" height="28" rx="7" fill="#3498db"/></svg><button class="btn-today" onclick="goToday()">● Today</button></div>
   <div class="top-bar-right">
-    <button class="icon-btn" id="bulk-toggle" onclick="toggleBulkMode()" title="Bulk Mark Mode">✕</button>
-    <button class="icon-btn" id="wx-toggle" onclick="toggleWxView()" title="Weather View">🌤️</button>
-    <button class="icon-btn" onclick="openBdayManager()" title="Birthday Manager">🎂</button>
-    <button class="icon-btn" onclick="openSukkiri()" title="Sukkiri — garbage days & cleaning cycles">🧹</button>
-    <button class="icon-btn" onclick="togglePrintOpts()" title="Print This Month">🖨️</button>
-    <div class="dd-wrap">
-      <button class="icon-btn" onclick="toggleDD('task-dd',event)" title="Weekly Focus Tasks">📋</button>
+    <button class="icon-btn" id="bulk-toggle" onclick="toggleBulkMode()" title="Bulk Mark Mode" aria-label="Bulk mark mode">✕</button>
+    <button class="icon-btn" id="wx-toggle" onclick="toggleWxView()" title="Weather View" aria-label="Weather view">🌤️</button>
+    <button class="icon-btn ov-item" onclick="openBdayManager()" title="Birthday Manager" aria-label="Birthdays">🎂</button>
+    <button class="icon-btn" onclick="openSukkiri()" title="Sukkiri — garbage days & cleaning cycles" aria-label="Sukkiri: garbage days and cleaning cycles">🧹</button>
+    <button class="icon-btn ov-item" onclick="togglePrintOpts()" title="Print This Month" aria-label="Print">🖨️</button>
+    <div class="dd-wrap ov-item">
+      <button class="icon-btn" onclick="toggleDD('task-dd',event)" title="Weekly Focus Tasks" aria-label="Weekly Focus tasks">📋</button>
       <div id="task-dd" class="dd-panel hidden" onclick="event.stopPropagation()" style="min-width:230px"></div>
     </div>
-    <div class="dd-wrap">
+    <div class="dd-wrap ov-item">
       <button class="dd-btn" onclick="toggleDD('theme-dd',event)"><span id="t-emoji"></span> <span id="t-name"></span> ▾</button>
       <div id="theme-dd" class="dd-panel hidden"></div>
     </div>
-    <button class="icon-btn install-btn" id="install-btn" onclick="installApp()" title="Install app" hidden>⤓</button>
-    <button class="icon-btn" onclick="signOut()" title="Sign Out">🚪</button>
+    <button class="icon-btn install-btn ov-item" id="install-btn" onclick="installApp()" title="Install app" aria-label="Install app" hidden>⤓</button>
+    <button class="icon-btn ov-item" onclick="signOut()" title="Sign Out" aria-label="Sign out">🚪</button>
+    <!-- phone only: the ov-item buttons above live in this menu instead -->
+    <div class="dd-wrap more-wrap">
+      <button class="icon-btn" id="more-btn" onclick="toggleMoreMenu(event)" title="More" aria-label="More options" aria-haspopup="menu" aria-expanded="false">⋯</button>
+      <div id="more-dd" class="dd-panel hidden" role="menu" onclick="event.stopPropagation()"></div>
+    </div>
   </div>
 </div>
 <script>

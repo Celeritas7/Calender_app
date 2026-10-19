@@ -434,3 +434,38 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
 .install-btn[hidden]{display:none}
 @media (display-mode:standalone){.install-btn{display:none!important}}
 @media print{.brand-mark,#splash,.install-btn{display:none!important}.month-title-wrap{display:block}}
+
+/* ═══════════════ LAYOUT — header + phone (Phase 2) ═══════════════ */
+/* month and year on one line, the ▾ beside them instead of on its own row */
+.month-title{display:flex;align-items:baseline;justify-content:center;gap:.35em;flex-wrap:wrap}
+.month-title h1{font-size:clamp(30px,7.5vw,54px)}
+.month-title p{font-size:clamp(17px,3.8vw,26px)}
+.month-header{margin-bottom:8px}
+.dd-ic{display:inline-block;width:1.6em;text-align:center}
+.more-wrap{display:none}
+.icon-btn{color:var(--txt)}  /* text glyphs (✕ ⋯ ⤓) follow the theme instead of browser black */
+
+@media (max-width:599px){
+  /* toolbar: daily actions stay, the rest move into the ⋯ menu */
+  .top-bar{margin-bottom:2px}
+  .top-bar-right{gap:6px}
+  .icon-btn{width:44px;height:44px;font-size:18px}
+  .icon-btn.ov-item,.dd-wrap.ov-item>.icon-btn,.dd-wrap.ov-item>.dd-btn{display:none}
+  .dd-wrap.ov-item{display:contents}  /* button hidden; its panel opens as a fixed sheet */
+  .more-wrap{display:block}
+  .btn-today{min-height:44px;padding:0 14px}
+  /* dropdowns open as a sheet under the toolbar so they work from the ⋯ menu too */
+  .dd-panel{position:fixed;top:60px;left:8px;right:8px;max-height:calc(100vh - 80px);overflow-y:auto}
+  .dd-panel .dd-opt{min-height:44px;font-size:15px}
+  /* 44px touch targets */
+  .nav-arrow{min-width:44px;min-height:44px;font-size:36px;padding:0 8px}
+  .modal-x{width:44px;height:44px;top:6px;right:6px}
+  .diary-mood{width:44px;height:44px;font-size:18px}
+  .cbl{min-height:44px}
+  .sk-b{min-height:44px;padding:4px 14px;font-size:13px}
+  .bday-row-actions button{min-width:44px;min-height:44px}
+  .bulk-dot{width:32px;height:32px}
+  .bulk-done{min-height:44px}
+  /* the hint names toolbar icons that now live in the ⋯ menu */
+  .hint{display:none}
+}
