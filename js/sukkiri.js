@@ -80,10 +80,14 @@ skMigrate();
 /* Akatsuki step 1 — Sukkiri's half (home cycles + garbage) comes from the hub.
    Calendar keeps its own digital cycles; garbage is replaced only when Sukkiri has rules. */
 /* Where "Edit in Sukkiri" points: a saved URL (localStorage calapp_sukkiri_url), else the
-   local dev server when running on localhost, else nothing — never a dead localhost link. */
+   local dev server when running on localhost, else the Sukkiri repo's GitHub Pages site on
+   this same github.io origin (Celeritas7/Sukkiri), else nothing — never a dead localhost link. */
 function skAppUrl(){
   try{const u=localStorage.getItem('calapp_sukkiri_url');if(u)return u}catch(e){}
-  return /^(localhost|127\.0\.0\.1)$/.test(location.hostname||'')?'http://localhost:8091':'';
+  const host=location.hostname||'';
+  if(/^(localhost|127\.0\.0\.1)$/.test(host))return 'http://localhost:8091';
+  if(/\.github\.io$/.test(host))return location.origin+'/Sukkiri/';
+  return '';
 }
 let skGarbRemote=false; /* true when Sukkiri supplied garbage rules → read-only here */
 function skApplyRemote(r){

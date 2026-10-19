@@ -59,9 +59,9 @@ guest mode; unit tests pass; no blocking design findings open.
 Regression tests for all nine live in `tests/phase1.test.js`. Screenshots are
 byte-identical to `tools/baseline/` (behaviour-only phase). Notes:
 
-- The Sukkiri link now uses `localStorage.calapp_sukkiri_url` if set, the localhost dev
-  server only when the calendar itself runs on localhost, and otherwise shows plain text.
-  Set the deployed Sukkiri URL once it is known.
+- The Sukkiri link uses `localStorage.calapp_sukkiri_url` if set; the localhost dev server
+  when the calendar runs on localhost; `<origin>/Sukkiri/` (the Celeritas7/Sukkiri Pages
+  site) when the calendar runs on github.io; otherwise plain text.
 - Bug 3 also gives password managers a real `<form>` to work with.
 
 **Design review (`ux-copy`) — done.** No blocking findings. Applied:

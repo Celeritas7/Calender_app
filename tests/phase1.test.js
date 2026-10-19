@@ -159,9 +159,11 @@ test('online holiday names stay in English', async () => {
   assert.equal(app.run(`getHoliday('2026-10-12')`), 'Sports Day');
 });
 
-test('the Sukkiri link is not a localhost URL off localhost', () => {
+test('the Sukkiri link points at the Sukkiri Pages site, never at localhost when deployed', () => {
   const app = loadApp();
-  app.sandbox.location = { hostname: 'celeritas7.github.io', href: 'https://celeritas7.github.io/Calender_app/' };
+  app.sandbox.location = { hostname: 'celeritas7.github.io', origin: 'https://celeritas7.github.io', href: 'https://celeritas7.github.io/Calender_app/' };
+  assert.equal(app.run('skAppUrl()'), 'https://celeritas7.github.io/Sukkiri/');
+  app.sandbox.location = { hostname: 'calendar.example.com', origin: 'https://calendar.example.com', href: 'https://calendar.example.com/' };
   assert.equal(app.run('skAppUrl()'), '');
   app.sandbox.location = { hostname: 'localhost', href: 'http://localhost:8080/' };
   assert.equal(app.run('skAppUrl()'), 'http://localhost:8091');
