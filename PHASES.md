@@ -64,10 +64,12 @@ byte-identical to `tools/baseline/` (behaviour-only phase). Notes:
   Set the deployed Sukkiri URL once it is known.
 - Bug 3 also gives password managers a real `<form>` to work with.
 
-**Design review:** `ux-copy` on the new validation and error messages only:
-"Fill in name, day, and month" · "Enter a year between 1901 and {year}, or leave it empty" ·
-"{Month} has only {n} days[ in {year}]" · "Not saved — check your connection and try again" ·
-"Not deleted — {reason}" · "Edit these in the Sukkiri app".
+**Design review (`ux-copy`) — done.** No blocking findings. Applied:
+- Missing-fields message names only what is missing ("Add a month", "Add a day and month").
+- Save/delete failures show "Not saved / Not deleted — check your connection and try again";
+  raw Supabase/Postgres errors go to the console only.
+- "Edit these in the Sukkiri app" → "Change these in the Sukkiri app".
+Kept as-is: the year-range and "{Month} has only {n} days" messages.
 
 ---
 

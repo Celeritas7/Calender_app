@@ -298,7 +298,14 @@ async function addBday() {
   const year = $('bday-year').value.trim();
   $('bday-msg').textContent = '';
   $('bday-msg').style.color = 'var(--accent)';
-  if (!name || !day || !month) return ($('bday-msg').textContent = 'Fill in name, day, and month');
+  if (!name || !day || !month) {
+    /* name only what is missing: "Add a month", "Add a day and month", "Add a name and a day" */
+    const parts = [];
+    if (!name) parts.push('a name');
+    if (!day && !month && name) parts.push('a day and month');
+    else { if (!day) parts.push('a day'); if (!month) parts.push('a month'); }
+    return ($('bday-msg').textContent = 'Add ' + (parts.length > 2 ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] : parts.join(' and ')));
+  }
   const thisYear = new Date().getFullYear();
   if (year && !(+year >= 1901 && +year <= thisYear)) return ($('bday-msg').textContent = `Enter a year between 1901 and ${thisYear}, or leave it empty`);
   const y = year ? parseInt(year) : 1900;
@@ -320,13 +327,13 @@ async function addBday() {
       const { data, error } = await q;
       if (error) throw error;
       row = data && data[0];
-      if (!row) throw new Error('Not saved — check your connection and try again');
+      if (!row) throw new Error('empty insert/update result');
     }
     const idx = birthdays.findIndex(b => b.id === row.id);
     if (idx >= 0) birthdays[idx] = row; else birthdays.push(row);
     if (GUEST) saveGuestBdays();
     cancelEdit(); renderBdayList(); renderCal();
-  } catch (e) { $('bday-msg').textContent = e.message; }
+  } catch (e) { console.error('Save bday:', e); $('bday-msg').textContent = 'Not saved — check your connection and try again'; }
 }
 
 async function deleteBday(id) {
@@ -338,7 +345,7 @@ async function deleteBday(id) {
     birthdays = birthdays.filter(b => b.id !== id);
     if (GUEST) saveGuestBdays();
     renderBdayList(); renderCal();
-  } catch (e) { console.error('Delete bday:', e); $('bday-msg').textContent = 'Not deleted — ' + e.message; }
+  } catch (e) { console.error('Delete bday:', e); $('bday-msg').textContent = 'Not deleted — check your connection and try again'; }
 }
 
 /* ═══════════════ WEATHER VIEW ═══════════════ */

@@ -168,3 +168,24 @@ test('the Sukkiri link is not a localhost URL off localhost', () => {
   app.store.calapp_sukkiri_url = 'https://example.org/sukkiri/';
   assert.equal(app.run('skAppUrl()'), 'https://example.org/sukkiri/');
 });
+
+test('the missing-fields message names only what is missing', async () => {
+  const app = loadApp();
+  const msg = async (n, d, m) => { app.el('bday-name').value = n; app.el('bday-day').value = d; app.el('bday-month').value = m; app.el('bday-year').value = ''; await app.run('addBday()'); return app.el('bday-msg').textContent; };
+  assert.equal(await msg('', '', ''), 'Add a name, a day and a month');
+  assert.equal(await msg('Aki', '', ''), 'Add a day and month');
+  assert.equal(await msg('Aki', '3', ''), 'Add a month');
+  assert.equal(await msg('', '3', '4'), 'Add a name');
+});
+
+test('server errors show friendly copy, not the raw database message', async () => {
+  const app = loadApp();
+  app.run('GUEST=false;UID="u1"');
+  app.run(`sb.from=()=>({insert:()=>({select:async()=>({data:null,error:{message:'new row violates row-level security policy'}})}),
+                         delete:()=>({eq:async()=>({error:{message:'permission denied for table'}})})})`);
+  fillBday(app, 'Ken', 10, 10, 1980);
+  await app.run('addBday()');
+  assert.equal(app.el('bday-msg').textContent, 'Not saved — check your connection and try again');
+  await app.run(`deleteBday('x')`);
+  assert.equal(app.el('bday-msg').textContent, 'Not deleted — check your connection and try again');
+});

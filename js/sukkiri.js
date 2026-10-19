@@ -250,7 +250,7 @@ function renderSukkiriSettings(){
   const icBtns=(g)=>SK_ICON_IDS.map(i=>`<button class="sk-ic${g.icon===i?' on':''}" data-gi="${g.id}" data-i="${i}" title="${i}">${skIconSvg(i,g.icon===i?g.color:'currentColor')}</button>`).join('');
   const skUrl=skAppUrl();
   const skLink=skUrl?`<a class="sk-add" href="${esc(skUrl)}" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Edit in Sukkiri ↗</a>`
-    :`<div class="sk-dim" style="text-align:center;margin-top:6px">Edit these in the Sukkiri app</div>`;
+    :`<div class="sk-dim" style="text-align:center;margin-top:6px">Change these in the Sukkiri app</div>`;
   const roRow=(c,txt)=>`<div class="sk-c" style="opacity:.85"><span style="width:14px;height:14px;border-radius:50%;flex:none;background:${c.color||'#8e44ad'}"></span><span style="flex:1;min-width:0">${esc(c.name||'')}</span><span class="sk-dim">${txt}</span></div>`;
   if(skGarbRemote){sk.garbage.forEach(g=>{h+=roRow(g,`${g.days.map(d=>SK_WD[d]).join(' ')}${g.weeks.length?' · wk '+g.weeks.join('+'):''}`)});h+=skLink+'</div>'}
   else{
