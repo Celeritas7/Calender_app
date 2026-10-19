@@ -1,0 +1,92 @@
+/* Screenshot set for design review.
+ *
+ *   node tools/screenshots.js [label]        → tools/shots/<label>/*.png   (label defaults to "current")
+ *
+ * Needs Playwright (npm i -D playwright, or a global install on NODE_PATH).
+ * Serves the repo itself on a free port, runs the app in guest mode with a stubbed
+ * Supabase client (no network writes), and pins the clock so every run shows the
+ * same month. Weather and holiday APIs are blocked so cells are deterministic.
+ */
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const { chromium } = require('playwright');
+
+const ROOT = path.resolve(__dirname, '..');
+const LABEL = process.argv[2] || 'current';
+const OUT = path.join(__dirname, 'shots', LABEL);
+const FIXED_NOW = new Date('2026-10-19T09:00:00+09:00');
+const THEMES = [[0, 'newsprint'], [2, 'terminal'], [6, 'solar'], [7, 'parchment'], [8, 'tokyo']];
+const VIEWPORTS = [['desk', { width: 1280, height: 900 }], ['phone', { width: 390, height: 844 }]];
+
+const SUPABASE_STUB = `(function(){
+  const res={data:null,error:null};
+  function ch(){const c=new Proxy(function(){},{get(_,k){if(k==='then')return r=>Promise.resolve(res).then(r);return ()=>c},apply(){return c}});return c}
+  window.supabase={createClient(){return {from:()=>ch(),rpc:()=>ch(),channel:()=>ch(),removeChannel(){},
+    auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange(){return {data:{subscription:{unsubscribe(){}}}}},
+      signOut:async()=>({}),signInWithPassword:async()=>({error:{message:'stub'}}),signUp:async()=>({error:{message:'stub'}})}}}};
+})();`;
+
+const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
+function serve() {
+  const srv = http.createServer((req, res) => {
+    const p = path.join(ROOT, decodeURIComponent(req.url.split('?')[0]).replace(/^\/+/, '') || 'index.html');
+    if (!p.startsWith(ROOT) || !fs.existsSync(p) || fs.statSync(p).isDirectory()) { res.writeHead(404); return res.end(); }
+    res.writeHead(200, { 'Content-Type': TYPES[path.extname(p)] || 'application/octet-stream' });
+    fs.createReadStream(p).pipe(res);
+  });
+  return new Promise(r => srv.listen(0, '127.0.0.1', () => r(srv)));
+}
+
+async function openApp(browser, base, viewport) {
+  const page = await browser.newPage({ viewport, deviceScaleFactor: 1, serviceWorkers: 'block' });
+  await page.clock.setFixedTime(FIXED_NOW);
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.route('**/supabase-js@*/**', r => r.fulfill({ contentType: 'text/javascript', body: SUPABASE_STUB }));
+  await page.route(/open-meteo|date\.nager/, r => r.abort());
+  await page.goto(base + '/index.html', { waitUntil: 'load' });
+  await page.waitForTimeout(900);
+  return { page, errors };
+}
+
+(async () => {
+  fs.mkdirSync(OUT, { recursive: true });
+  const srv = await serve();
+  const base = 'http://127.0.0.1:' + srv.address().port;
+  const browser = await chromium.launch();
+  const report = [];
+  try {
+    for (const [vpName, vp] of VIEWPORTS) {
+      const { page, errors } = await openApp(browser, base, vp);
+      await page.screenshot({ path: path.join(OUT, `${vpName}-login.png`) });
+      await page.evaluate(() => enterGuest());
+      await page.waitForTimeout(1200);
+      for (const [idx, name] of THEMES) {
+        await page.evaluate(i => applyTheme(i), idx);
+        await page.waitForTimeout(250);
+        await page.screenshot({ path: path.join(OUT, `${vpName}-main-${name}.png`), fullPage: true });
+      }
+      await page.evaluate(() => applyTheme(7));
+      await page.evaluate(() => { const k = dk(11); openModal(k, calData[k]); });
+      await page.waitForTimeout(300);
+      await page.screenshot({ path: path.join(OUT, `${vpName}-day-editor.png`) });
+      await page.evaluate(() => closeModal());
+      for (const [fn, close, shot] of [['openBdayManager', 'closeBdayManager', 'birthdays'], ['openSukkiri', 'closeSukkiri', 'sukkiri'], ['openPicker', null, 'picker'], ['togglePrintOpts', 'togglePrintOpts', 'print']]) {
+        await page.evaluate(f => window[f](), fn);
+        await page.waitForTimeout(300);
+        await page.screenshot({ path: path.join(OUT, `${vpName}-${shot}.png`) });
+        if (close) await page.evaluate(f => window[f](), close);
+        else await page.evaluate(() => $('picker-ov').classList.add('hidden'));
+      }
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      report.push(`${vpName}: horizontal overflow ${overflow}px, page errors ${errors.length}${errors.length ? ' — ' + errors.join(' | ') : ''}`);
+      await page.close();
+    }
+  } finally {
+    await browser.close();
+    srv.close();
+  }
+  console.log(`Saved to ${path.relative(ROOT, OUT)}/`);
+  report.forEach(l => console.log('  ' + l));
+})().catch(e => { console.error(e); process.exit(1); });

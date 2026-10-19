@@ -1,3 +1,4 @@
+-- ⚠ SUPERSEDED by schema_R004_live_rls.sql — historical reference only, do not run.
 DROP TABLE IF EXISTS calendar_app_entries CASCADE;
 DROP TABLE IF EXISTS calendar_app_diary CASCADE;
 DROP TABLE IF EXISTS calendar_app_preferences CASCADE;

@@ -6,10 +6,13 @@ re-do work from an earlier one.
 
 ## Review loop (every phase)
 
-1. **Build** — Claude Code implements the phase on `claude/phase-N-<name>`, runs
-   `tools/screenshots.js` (added in Phase 0) at 1280 px and 390 px across five themes
-   (Newsprint 0, Terminal Green 2, Solar Flare 6, Midnight Tokyo 8, Parchment 7), and commits.
-2. **Design review** — Claude design receives the before/after screenshots and this
+1. **Build** — Claude Code implements the phase as one commit (on a branch named for the
+   phase where the session allows; otherwise on the session's branch), runs `npm test`
+   and `npm run shots -- phase-N` (→ `tools/shots/phase-N/`, git-ignored) at 1280 px and
+   390 px across five themes (Newsprint 0, Terminal Green 2, Solar Flare 6, Parchment 7,
+   Midnight Tokyo 8), and commits.
+2. **Design review** — Claude design receives the before (`tools/baseline/`, or the
+   previous phase's set) and after screenshots and this
    phase's checklist, runs the named skill, and returns findings ranked
    blocking / should-fix / nice-to-have.
 3. **Fix & re-review** — Claude Code fixes blocking and should-fix items, re-shoots,
@@ -21,7 +24,7 @@ guest mode; unit tests pass; no blocking design findings open.
 
 ---
 
-## Phase 0 — Foundation (no visible change)
+## Phase 0 — Foundation (no visible change) — ✅ done
 
 **Goal:** make later phases reviewable and safe.
 
@@ -29,7 +32,9 @@ guest mode; unit tests pass; no blocking design findings open.
 - Pin `@supabase/supabase-js` to an exact version in `index.html` and `sw.js`.
 - Add `sql/schema_R004_rls.sql` that matches the live database (RLS enabled, per-user policies); mark R003 as superseded.
 - Add `tools/screenshots.js` (Playwright) and commit baseline PNGs under `tools/baseline/`.
-- Add unit tests (plain Node, no framework needed) for `encodeDiary`/`decodeDiary`, `diaryOverallMood`, `skOccurrences`, `skGarbageOn`, `calcAge`, `firstDay`, `daysIn`.
+  The script serves the repo, runs guest mode with a stubbed Supabase client, pins the
+  clock to 19 Oct 2026 and reports horizontal overflow + page errors per viewport.
+- Add unit tests (`npm test`, Node's built-in runner; `tests/harness.js` loads the browser scripts into a vm) for `encodeDiary`/`decodeDiary`, `diaryOverallMood`, `skOccurrences`, `skGarbageOn`, `calcAge`, `firstDay`, `daysIn`.
 
 **Design review:** none. Baseline screenshots are handed to design as the reference set.
 

@@ -1,3 +1,4 @@
+-- ⚠ SUPERSEDED by schema_R004_live_rls.sql — historical reference only, do not run.
 -- ═══════════════════════════════════════════════════════════════
 -- CALENDAR APP — Schema (No Auth version)
 --

@@ -1,3 +1,4 @@
+-- ⚠ SUPERSEDED by schema_R004_live_rls.sql — historical reference only, do not run.
 -- ═══════════════════════════════════════════════════════════════
 -- CALENDAR APP — Supabase Schema
 -- Paste this into Supabase SQL Editor and click Run

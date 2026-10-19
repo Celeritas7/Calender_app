@@ -1,2 +1,9 @@
 docs/
-sql/
+node_modules/
+tools/shots/
+
+# old snapshots and local tooling output — kept out of the repo
+Temp/
+Attempt/
+.claude/decoded/
+js/New folder/

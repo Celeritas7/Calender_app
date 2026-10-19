@@ -9,7 +9,7 @@ const sb = window.supabase.createClient(
 let UID = null;
 
 /* ── Akatsuki hub (step 1: Sukkiri link) ── */
-const AK_BUILD='mycal-v5';
+const AK_BUILD='mycal-v6';
 const calHub = CalHub(sb, { uid: () => UID });
 window.cal = { supabase: sb, hub: calHub };
 console.log('[ak] cal build', AK_BUILD);
