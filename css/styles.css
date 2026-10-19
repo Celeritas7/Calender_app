@@ -42,6 +42,7 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 .login-box p{font-size:13px;color:var(--txt2,#8888bb);text-align:center;margin-bottom:4px}
 .login-tabs{display:flex;gap:6px;background:rgba(128,128,128,.1);border-radius:10px;padding:4px}
 .login-tab{flex:1;padding:7px;border:none;border-radius:7px;background:transparent;color:var(--txt2,#8888bb);font-size:13px;cursor:pointer;font-family:var(--b-font,sans-serif);font-weight:600;transition:all .15s}
+.login-form{display:contents}
 .login-tab.act{background:var(--card-bg,#12122e);color:var(--txt,#e0e0ff);box-shadow:0 2px 8px rgba(0,0,0,.2)}
 .login-box input{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border,#2a2a5e);background:var(--input-bg,#1a1a3e);color:var(--txt,#e0e0ff);font-size:15px;font-family:var(--b-font,sans-serif);outline:none;transition:border-color .15s}
 .login-box input:focus{border-color:var(--accent,#ff2d95)}

@@ -9,8 +9,10 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 
 function fakeElement(id) {
+  let value = '';
   return {
-    id, value: '', textContent: '', innerHTML: '', checked: false, hidden: false, title: '',
+    get value() { return value; }, set value(v) { value = v == null ? '' : String(v); },  // inputs coerce like the DOM
+    id, textContent: '', innerHTML: '', checked: false, hidden: false, title: '',
     selectionStart: 0, style: { setProperty() {} }, dataset: {},
     classList: { _s: new Set(), add(c) { this._s.add(c); }, remove(c) { this._s.delete(c); },
       toggle(c, on) { const v = on === undefined ? !this._s.has(c) : on; v ? this._s.add(c) : this._s.delete(c); return v; },

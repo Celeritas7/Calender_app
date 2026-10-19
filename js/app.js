@@ -170,7 +170,7 @@ async function refreshHolidays() {
       const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${y}/JP`);
       if (!res.ok) continue;
       const data = await res.json();
-      data.forEach(h => { holidays[h.date] = h.localName || h.name; });
+      data.forEach(h => { holidays[h.date] = h.name || h.localName; });  /* English, matching the offline list */
     }
   } catch (e) { console.warn('Holiday API failed, using static:', e.message); }
 }
@@ -203,7 +203,13 @@ async function loadWeather() {
 }
 
 /* ═══════════════ BIRTHDAYS ═══════════════ */
+/* preview mode keeps birthdays on this device only */
+const BD_KEY='calapp_bdays_guest';
+function loadGuestBdays(){try{const a=JSON.parse(localStorage.getItem(BD_KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function saveGuestBdays(){try{localStorage.setItem(BD_KEY,JSON.stringify(birthdays))}catch(e){}}
+
 async function loadBirthdays() {
+  if (GUEST) { birthdays = loadGuestBdays(); return; }
   try {
     const { data } = await sb.from('calendar_app_birthdays').select('*').eq('user_id', UID);
     birthdays = data || [];
@@ -293,34 +299,46 @@ async function addBday() {
   $('bday-msg').textContent = '';
   $('bday-msg').style.color = 'var(--accent)';
   if (!name || !day || !month) return ($('bday-msg').textContent = 'Fill in name, day, and month');
+  const thisYear = new Date().getFullYear();
+  if (year && !(+year >= 1901 && +year <= thisYear)) return ($('bday-msg').textContent = `Enter a year between 1901 and ${thisYear}, or leave it empty`);
   const y = year ? parseInt(year) : 1900;
+  /* unknown year (stored as 1900) still allows 29 February */
+  const maxDay = daysIn(year ? y : 2000, parseInt(month) - 1);
+  if (+day > maxDay) return ($('bday-msg').textContent = `${MO[parseInt(month) - 1]} has only ${maxDay} days${year ? ' in ' + y : ''}`);
   const m = String(parseInt(month)).padStart(2, '0');
   const d = String(parseInt(day)).padStart(2, '0');
   const date = `${y}-${m}-${d}`;
-  if (editingBdayId) {
-    try {
-      const { data, error } = await sb.from('calendar_app_birthdays').update({ person_name: name, birth_date: date }).eq('id', editingBdayId).select();
+  try {
+    let row;
+    if (GUEST) {
+      row = editingBdayId ? Object.assign({}, birthdays.find(b => b.id === editingBdayId), { person_name: name, birth_date: date })
+                          : { id: 'local_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), user_id: 'guest', person_name: name, birth_date: date };
+    } else {
+      const q = editingBdayId
+        ? sb.from('calendar_app_birthdays').update({ person_name: name, birth_date: date }).eq('id', editingBdayId).select()
+        : sb.from('calendar_app_birthdays').insert({ user_id: UID, person_name: name, birth_date: date }).select();
+      const { data, error } = await q;
       if (error) throw error;
-      const idx = birthdays.findIndex(b => b.id === editingBdayId);
-      if (idx >= 0) birthdays[idx] = data[0];
-      cancelEdit(); renderBdayList(); renderCal();
-    } catch (e) { $('bday-msg').textContent = e.message; }
-  } else {
-    try {
-      const { data, error } = await sb.from('calendar_app_birthdays').insert({ user_id: UID, person_name: name, birth_date: date }).select();
-      if (error) throw error;
-      birthdays.push(data[0]);
-      cancelEdit(); renderBdayList(); renderCal();
-    } catch (e) { $('bday-msg').textContent = e.message; }
-  }
+      row = data && data[0];
+      if (!row) throw new Error('Not saved — check your connection and try again');
+    }
+    const idx = birthdays.findIndex(b => b.id === row.id);
+    if (idx >= 0) birthdays[idx] = row; else birthdays.push(row);
+    if (GUEST) saveGuestBdays();
+    cancelEdit(); renderBdayList(); renderCal();
+  } catch (e) { $('bday-msg').textContent = e.message; }
 }
 
 async function deleteBday(id) {
   try {
-    await sb.from('calendar_app_birthdays').delete().eq('id', id);
+    if (!GUEST) {
+      const { error } = await sb.from('calendar_app_birthdays').delete().eq('id', id);
+      if (error) throw error;
+    }
     birthdays = birthdays.filter(b => b.id !== id);
+    if (GUEST) saveGuestBdays();
     renderBdayList(); renderCal();
-  } catch (e) { console.error('Delete bday:', e); }
+  } catch (e) { console.error('Delete bday:', e); $('bday-msg').textContent = 'Not deleted — ' + e.message; }
 }
 
 /* ═══════════════ WEATHER VIEW ═══════════════ */
@@ -581,7 +599,14 @@ async function bulkToggleCell(key){
   else{console.error('Bulk save failed:',r.msg);flashToast('⚠️ Not synced — '+r.msg)}
 }
 
-document.addEventListener('keydown',e=>{if(!$('modal-ov').classList.contains('hidden')||!$('bday-ov').classList.contains('hidden')||!$('picker-ov').classList.contains('hidden'))return;if(e.key==='ArrowLeft')prevMonth();if(e.key==='ArrowRight')nextMonth()});
+/* ← → change month only on the bare calendar — never while typing or with a panel open */
+function isTypingTarget(t){return !!t&&(/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName||'')||t.isContentEditable)}
+function anyPanelOpen(){return ['modal-ov','bday-ov','picker-ov','sk-ov'].some(id=>{const el=$(id);return el&&!el.classList.contains('hidden')})||$('pr-opts').classList.contains('open')}
+document.addEventListener('keydown',e=>{
+  if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
+  if(e.altKey||e.ctrlKey||e.metaKey||isTypingTarget(e.target)||anyPanelOpen())return;
+  if(e.key==='ArrowLeft')prevMonth();else nextMonth();
+});
 
 /* ═══════════════ LOAD DATA ═══════════════ */
 async function loadAndRender(){
@@ -632,15 +657,36 @@ addEventListener('online',()=>flushPending());
 function buildCP(){const cpk=$('cpk');cpk.innerHTML='';Object.entries(MC).forEach(([n,c])=>{const b=document.createElement('button');b.className='cdot'+(modalColor===n?' act':'');b.style.background=c;b.onclick=()=>{modalColor=n;buildCP()};cpk.appendChild(b)})}
 function toggleCP(){$('cpk').classList.toggle('hidden',!$('chk-mark').checked)}
 
-function setDiaryMood(m){
+/* highlight the ink button without touching any line */
+function showDiaryMood(m){
   diaryMood=m;
   document.querySelectorAll('.diary-mood').forEach(b=>b.classList.remove('act'));
   $('dm-'+m).classList.add('act');
+}
+/* ink button: recolour the caret's line and use this ink for new lines */
+function setDiaryMood(m){
+  showDiaryMood(m);
   const ta=$('inp-diary');
-  const pos=ta.selectionStart;
-  let lineIdx=ta.value.substring(0,pos).split('\n').length-1;
-  while(diaryLineMoods.length<=lineIdx)diaryLineMoods.push({mood:'neutral'});
+  const lineIdx=ta.value.substring(0,ta.selectionStart).split('\n').length-1;
+  while(diaryLineMoods.length<=lineIdx)diaryLineMoods.push({mood:diaryMood});
   diaryLineMoods[lineIdx].mood=m;
+  diaryLines=ta.value.split('\n');
+  diaryPreviewUpdate();
+}
+
+/* typing: lines that already existed keep their mood; only new lines take the current ink.
+   Diff against the previous text so a line inserted mid-way doesn't shift the moods below it. */
+let diaryLines=[];
+function diaryInput(){
+  const lines=$('inp-diary').value.split('\n'),old=diaryLines;
+  let pre=0;while(pre<lines.length&&pre<old.length&&lines[pre]===old[pre])pre++;
+  let suf=0;while(suf<lines.length-pre&&suf<old.length-pre&&lines[lines.length-1-suf]===old[old.length-1-suf])suf++;
+  const oldMid=old.length-pre-suf,newMid=lines.length-pre-suf,moodAt=i=>diaryLineMoods[i]||{mood:diaryMood};
+  const mid=[];
+  for(let i=0;i<newMid;i++)mid.push(i<oldMid&&(newMid===oldMid||i===0)?moodAt(pre+i):{mood:diaryMood});
+  const keep=(from,n)=>Array.from({length:n},(_,i)=>moodAt(from+i));
+  diaryLineMoods=[...keep(0,pre),...mid,...keep(old.length-suf,suf)];
+  diaryLines=lines;
   diaryPreviewUpdate();
 }
 
@@ -649,11 +695,6 @@ function diaryPreviewUpdate(){
   const prev=$('diary-preview');
   if(!raw.trim()){prev.innerHTML='';return}
   const lines=raw.split('\n');
-  while(diaryLineMoods.length<lines.length)diaryLineMoods.push({mood:diaryMood});
-  diaryLineMoods.length=lines.length;
-  const ta=$('inp-diary');
-  const curLine=ta.value.substring(0,ta.selectionStart).split('\n').length-1;
-  diaryLineMoods[curLine].mood=diaryMood;
   prev.innerHTML=lines.map((l,i)=>{
     if(!l.trim())return'';
     const m=diaryLineMoods[i]?.mood||'neutral';
@@ -731,8 +772,9 @@ function openModal(key,data){
   const decoded=decodeDiary(dd.diary||'');
   $('inp-diary').value=decoded.text;
   diaryLineMoods=decoded.moods;
-  diaryMood='good';
-  setDiaryMood('good');
+  diaryLines=decoded.text?decoded.text.split('\n'):[];
+  /* new lines continue in the last line's ink; opening never recolours existing lines */
+  showDiaryMood(decoded.moods.length?decoded.moods[decoded.moods.length-1].mood:'good');
   diaryPreviewUpdate();
   buildCP();toggleCP();$('modal-ov').classList.remove('hidden');
 }
@@ -754,7 +796,13 @@ async function saveModal(){
   else{console.error('Save failed:',r.msg);flashToast('⚠️ Not synced — '+r.msg)}
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeBdayManager();closePicker();closeSukkiri()}});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  /* the picker applies its choice on close, so only close it when it is actually open */
+  if(!$('picker-ov').classList.contains('hidden')){closePicker();return}
+  closeModal();closeBdayManager();closeSukkiri();closeAllDD();$('pr-opts').classList.remove('open');
+  if(bulkMode)toggleBulkMode();
+});
 
 /* ═══════════════ WEEKLY FOCUS TASKS ═══════════════ */
 const TKS_KEY='calapp_task_style';
@@ -892,6 +940,8 @@ function printTaskSheet(){
   ps.classList.remove('tsheet');
 }
 
+function resetSignedOutState(){UID=null;calData={};birthdays=[]}
+
 /* ═══════════════ BOOT ═══════════════ */
 async function bootApp() {
   await Promise.allSettled([loadThemePref(), loadBirthdays(), loadWeather(), refreshHolidays(), loadWfTasks(), loadSukkiri()]);
@@ -931,9 +981,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       hideLoginScreen();
       await bootApp();
     } else if (event === 'SIGNED_OUT') {
-      UID = null;
-      calData = {};
-      birthdays = {};
+      resetSignedOutState();
       showLoginScreen();
     }
   });

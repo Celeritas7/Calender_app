@@ -1,6 +1,7 @@
 /* Screenshot set for design review.
  *
  *   node tools/screenshots.js [label]        → tools/shots/<label>/*.png   (label defaults to "current")
+ *   APP_ROOT=<dir> node tools/screenshots.js  → shoot another checkout (e.g. a git worktree of an older commit)
  *
  * Needs Playwright (npm i -D playwright, or a global install on NODE_PATH).
  * Serves the repo itself on a free port, runs the app in guest mode with a stubbed
@@ -12,9 +13,9 @@ const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = path.resolve(process.env.APP_ROOT || path.join(__dirname, '..'));
 const LABEL = process.argv[2] || 'current';
-const OUT = path.join(__dirname, 'shots', LABEL);
+const OUT = path.join(__dirname, 'shots', LABEL);   // always under this checkout's tools/
 const FIXED_NOW = new Date('2026-10-19T09:00:00+09:00');
 const THEMES = [[0, 'newsprint'], [2, 'terminal'], [6, 'solar'], [7, 'parchment'], [8, 'tokyo']];
 const VIEWPORTS = [['desk', { width: 1280, height: 900 }], ['phone', { width: 390, height: 844 }]];
@@ -46,6 +47,8 @@ async function openApp(browser, base, viewport) {
   await page.route('**/supabase-js@*/**', r => r.fulfill({ contentType: 'text/javascript', body: SUPABASE_STUB }));
   await page.route(/open-meteo|date\.nager/, r => r.abort());
   await page.goto(base + '/index.html', { waitUntil: 'load' });
+  /* freeze animations so two runs of the same code give identical images */
+  await page.addStyleTag({ content: '*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}' });
   await page.waitForTimeout(900);
   return { page, errors };
 }
@@ -87,6 +90,6 @@ async function openApp(browser, base, viewport) {
     await browser.close();
     srv.close();
   }
-  console.log(`Saved to ${path.relative(ROOT, OUT)}/`);
+  console.log(`Saved to ${path.relative(process.cwd(), OUT)}/`);
   report.forEach(l => console.log('  ' + l));
 })().catch(e => { console.error(e); process.exit(1); });

@@ -40,7 +40,7 @@ guest mode; unit tests pass; no blocking design findings open.
 
 ---
 
-## Phase 1 — Behaviour bugs
+## Phase 1 — Behaviour bugs — ✅ done
 
 **Goal:** fix every confirmed bug without changing layout.
 
@@ -56,7 +56,18 @@ guest mode; unit tests pass; no blocking design findings open.
 | 8 | Holiday names flip to Japanese when online | `refreshHolidays` use `h.name` |
 | 9 | `birthdays = {}` on sign-out | set `[]` |
 
-**Design review:** `ux-copy` on the new validation and error messages only.
+Regression tests for all nine live in `tests/phase1.test.js`. Screenshots are
+byte-identical to `tools/baseline/` (behaviour-only phase). Notes:
+
+- The Sukkiri link now uses `localStorage.calapp_sukkiri_url` if set, the localhost dev
+  server only when the calendar itself runs on localhost, and otherwise shows plain text.
+  Set the deployed Sukkiri URL once it is known.
+- Bug 3 also gives password managers a real `<form>` to work with.
+
+**Design review:** `ux-copy` on the new validation and error messages only:
+"Fill in name, day, and month" · "Enter a year between 1901 and {year}, or leave it empty" ·
+"{Month} has only {n} days[ in {year}]" · "Not saved — check your connection and try again" ·
+"Not deleted — {reason}" · "Edit these in the Sukkiri app".
 
 ---
 
