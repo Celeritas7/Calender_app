@@ -160,6 +160,97 @@ Design reviews a mock-up **before** build, then `design-critique` after.
 
 ---
 
+## Phase 7 — Weather → Health (via Akatsuki) — requested 2026-10-23, not started
+
+**Request (owner's words, condensed):** publish daily forecast data to Akatsuki so Health Log
+and Setu can use it — date, location, min/max temperature, humidity, pressure, precipitation,
+and a change summary vs the previous days. Use the current location from Akatsuki (home:
+Minami-Urawa; weekdays: Ageo). Window ≥ 3–5 days ahead, refreshed daily. Flag
+season-transition periods so Health Log can warn early. Show a small "health-risk weather"
+marker on calendar days Health Log has flagged. **Standing rule: highlight *every* period
+when people tend to get sick, not only season transitions** (see the list below).
+
+### What already exists (checked in the live hub, 2026-10-23)
+
+- Hub source `weather` (Open-Meteo) runs hourly: "here" (newest visit ≤ 2 h) + pinned places
+  every 3 h, 7 days each, into `akatsuki_cache` → view `akatsuki_weather`
+  (`key, label, place_id, class, now, days, fetched_at, expires_at`). Day fields today:
+  `date, code, tmax_c, tmin_c, precip_mm, precip_prob_pct` — **no humidity, no pressure,
+  no change summary, no risk flags.**
+- Vocab `weather.now` (R044): hub → apps, *"Read, never publish"*. It replaced the old
+  `forecast` kind; route `weather → cal forecast` is **retired**.
+- Proposed routes `hub → cal weather.now` and `hub → setu weather.now` — not yet live.
+- Places: `home` has coordinates (35.842, 139.6695). `office` has **no coordinates**; area
+  `Ageo office` (35.955, 139.576) does. `minami-urawa` place has no coordinates; area `南浦和` does.
+- Monthly climate normals (ERA5, 10 years) exist only for HND/NRT/overseas points — none for home.
+- Health Log has tables (`healthlog_symptoms`, …) but **is not registered in `akatsuki_apps`**
+  and publishes nothing yet. Route `setu → healthlog comfort.spots` already mentions
+  "risky weather is coming", so Health Log is the intended consumer.
+- The calendar fetches its own Open-Meteo forecast for a hard-coded point in **Chiba**
+  (35.79, 140.06) — the wrong place for Minami-Urawa / Ageo.
+
+### Design (follows the hub's "read, never publish" rule)
+
+The hub owns weather; apps read it. So the calendar does **not** publish forecasts — the hub
+job is extended and every app reads `akatsuki_weather`.
+
+1. **Hub (Akatsuki repo / Edge Function `weather` source)**
+   - Add `relative_humidity_2m_mean/min`, `pressure_msl_mean` (and 24 h pressure change),
+     `apparent_temperature_max`, `wind_gusts_10m_max`, `uv_index_max` to the daily fetch.
+   - Keep 7 days ahead + 2 past days (`past_days=2`) so day-to-day change can be computed.
+   - Add per-day `change` (Δ tmax, Δ tmin, Δ pressure, Δ humidity vs previous day, plus a
+     one-line summary such as "−6 °C overnight low, pressure −9 hPa").
+   - Add per-day `risk: [{id, level, reason}]` from the rules below, and a top-level
+     `season: {id, label, from, to}` for the active sickness-prone period.
+   - Location: `key=here` already follows the phone. For planning ahead, pin both
+     `place:home` and `place:office`; give `office` the Ageo office area's coordinates.
+     "Where am I that day" = weekday → office, otherwise home, unless `here` says otherwise.
+   - Add a climate point for home so monthly normals exist ("colder than normal for the week").
+   - Bump `weather.now` vocab to v2 with the new optional fields (additive, no breaking change).
+2. **Health Log** — register in `akatsuki_apps`; read `akatsuki_weather`; show early warnings;
+   write the days it flags as risky (proposed kind `health.risk_day` {date, level, reasons[]}
+   on `healthlog → cal`, or a hub doc the calendar can read).
+3. **Calendar (this repo)**
+   - Replace `loadWeather()`'s direct Open-Meteo call with a read of `akatsuki_weather`
+     (route `hub → cal weather.now` goes live); keep Open-Meteo only as an offline fallback,
+     pointed at home, not Chiba.
+   - Show the `season` band and per-day `risk` from the hub in the weather view / day editor.
+   - Show a small "health-risk weather" marker on days Health Log flagged.
+4. **Setu** — reads the same `akatsuki_weather` rows; nothing to publish.
+
+### Sickness-prone periods to flag (Saitama / Kantō) — standing rule: flag all of them
+
+Seasonal windows (shown as a `season` band; dates are typical, tune with climate normals):
+
+| Period | Typical window | Why people get sick |
+|---|---|---|
+| Late winter → spring swing (寒暖差) | late Feb – Apr | big day-to-day and day-night swings; colds, fatigue |
+| Cedar / cypress pollen (花粉) | Feb – May | hay fever, sinus and sleep problems |
+| May fatigue (五月病) + swings | May | swings after Golden Week, low energy |
+| Rainy season (梅雨) | early Jun – mid Jul | low pressure → headaches (気象病), damp, food poisoning, mould |
+| Heat (熱中症 / 夏バテ) | mid Jul – Aug | heatstroke, dehydration, AC chill, poor sleep |
+| Lingering heat + typhoons (残暑・台風) | Sep | heat plus sharp pressure drops |
+| Autumn swing (秋の寒暖差) + autumn pollen | late Sep – Nov | swings, ragweed pollen, dry air begins |
+| Dry cold / flu season (乾燥・インフル) | Dec – Feb | humidity < 40 %, flu and colds, heat shock (ヒートショック) |
+
+Day-level triggers (any season):
+- Daily max or min changes ≥ 5 °C from the previous day (≥ 7 °C = high).
+- Day–night range ≥ 10 °C.
+- Pressure falls ≥ 6 hPa in 24 h (≥ 10 hPa = high) — weather-pain / headache days.
+- Mean humidity < 40 % (dry: flu, throat) or ≥ 80 % with ≥ 25 °C (muggy).
+- Apparent max ≥ 31 °C (heat caution) / ≥ 35 °C (danger); min ≥ 25 °C (tropical night).
+- First days ≥ 3 °C below the monthly normal (first cold snap).
+- Typhoon / heavy rain days (code ≥ 95 or precip ≥ 30 mm).
+
+### Open questions before building
+
+- Which repo holds the hub's Edge Functions and SQL (R0xx files)? The hub changes live there.
+- Does the "weekdays → Ageo" rule need exceptions (holidays, away days, leave)? Proposed:
+  holidays and calendar away-days count as home.
+- Should Health Log flags reach the calendar as a stream kind (`health.risk_day`) or a doc?
+
+---
+
 ## Reference
 
 Findings numbered in this file refer to the three review passes in the session
