@@ -477,7 +477,7 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
 /* badge on the weather icon's lower-left corner; standalone (birthday days) sits under the 🎂 */
 .wx-icon .hr-mark{position:absolute;left:-6px;bottom:-5px;width:12px;height:12px;font-size:9px;box-shadow:0 0 0 1.5px var(--card-bg)}
 .cell>.hr-mark{position:absolute;top:18px;right:3px;z-index:6;width:12px;height:12px;font-size:9px;box-shadow:0 0 0 1.5px var(--card-bg)}
-body.wx-mode .cell>.hr-mark{top:3px}
+body.wx-mode .cell>.hr-mark{display:none}  /* weather view: the big icon carries the badge */
 .wx-big-icon{position:relative}
 .wx-big-icon .hr-mark{position:absolute;right:-8px;top:-2px;width:14px;height:14px;font-size:10px;box-shadow:0 0 0 1.5px var(--card-bg)}
 .wx-day{display:block}

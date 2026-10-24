@@ -198,16 +198,26 @@ const WX_AT={here:'Here',home:'Home',office:'Office'};
 function hubDayToWx(d){
   return {
     icon: WX_ICONS[d.code] || '🌤️', code: d.code,
-    tMax: Math.round(d.tmax_c), tMin: Math.round(d.tmin_c),
+    tMax: Number.isFinite(d.tmax_c)?Math.round(d.tmax_c):null, tMin: Number.isFinite(d.tmin_c)?Math.round(d.tmin_c):null,
     at: d.at || null, precipMm: d.precip_mm, precipPct: d.precip_prob_pct,
     rh: d.rh_mean_pct, pressure: d.pressure_hpa_mean, dPressure: d.pressure_d24_hpa,
     feelsMax: d.feels_max_c, change: d.change && d.change.summary || '',
     risk: Array.isArray(d.risk) ? d.risk : []
   };
 }
+/* text → safe inside a double-quoted attribute (esc() alone leaves " untouched) */
+function escAttr(v){return esc(v).replace(/"/g,'&quot;')}
+/* the "!" badge, one place for its markup: level 'watch'|'high', label for assistive tech
+   (omit the label for a purely decorative copy next to visible text) */
+function hrMark(level,label){
+  const lv=level==='high'?'high':'watch';
+  return label?`<span class="hr-mark hr-${lv}" role="img" aria-label="${escAttr(label)}" title="${escAttr(label)}">!</span>`
+              :`<span class="hr-mark hr-${lv}" aria-hidden="true">!</span>`;
+}
 function riskLevel(wx){return !wx||!wx.risk.length?null:wx.risk.some(r=>r.level==='high')?'high':'watch'}
 /* seasons overlapping [from,to] (YYYY-MM-DD strings) */
-function seasonsBetween(from,to){return wxSeasons.filter(s=>s.from<=to&&s.to>=from)}
+const ymd=v=>typeof v==='string'?v.slice(0,10):'';
+function seasonsBetween(from,to){return wxSeasons.filter(s=>ymd(s.from)&&ymd(s.to)&&ymd(s.from)<=to&&ymd(s.to)>=from)}
 
 async function loadWeather() {
   weatherData = {}; wxSeasons = []; wxAttribution = '';
@@ -534,7 +544,7 @@ function renderCal(){
     if(today) h+='<div class="today-dot"></div>';
     /* health-risk marker: a badge on the weather icon's corner, so it never collides with the date */
     const rl=cur?riskLevel(wx):null;
-    const hr=rl?(why=>`<span class="hr-mark hr-${rl}" role="img" aria-label="Health-risk weather: ${why}" title="Health-risk weather — ${why}">!</span>`)(esc(wx.risk.map(r=>r.reason).join(' · '))):'';
+    const hr=rl?hrMark(rl,'Health-risk weather: '+wx.risk.map(r=>r.reason).join(' · ')):'';
     if(wx&&cur&&bdays.length===0) h+=`<span class="wx-icon">${wx.icon}${hr}</span>`;
     else if(hr) h+=hr;
     if(bdays.length>0&&cur) h+='<span class="bday-icon">🎂</span>';
@@ -563,7 +573,7 @@ function renderCal(){
       h+=`<span class="bday-name">${esc(bname)}</span>`;
     }
     if(hol&&cur&&bdays.length===0) h+=`<span class="holiday-tag">🎌 ${esc(hol)}</span>`;
-    if(cur&&wx) h+=`<div class="wx-big"><span class="wx-big-icon">${wx.icon}${hr}</span><div class="wx-temps"><span class="wx-hi">${wx.tMax}°</span><span class="wx-lo">${wx.tMin}°</span></div></div>`;
+    if(cur&&wx) h+=`<div class="wx-big"><span class="wx-big-icon">${wx.icon}${hr}</span><div class="wx-temps"><span class="wx-hi">${wx.tMax??'—'}°</span><span class="wx-lo">${wx.tMin??'—'}°</span></div></div>`;
     else if(cur&&!wx) h+='<div class="wx-big"><span class="wx-none">—</span></div>';
     h+='</div>';
   }
@@ -583,7 +593,7 @@ function renderCal(){
 function renderWxSeason(){
   const el=$('wx-season');if(!el)return;
   const from=dk(1),to=dk(daysIn(curYear,curMonth)),list=seasonsBetween(from,to);
-  const md=s=>{const d=new Date(s+'T00:00:00');return `${d.getDate()} ${MO[d.getMonth()].slice(0,3)}`};
+  const md=s=>{const d=new Date(ymd(s)+'T00:00:00');return isNaN(d)?esc(String(s)):`${d.getDate()} ${MO[d.getMonth()].slice(0,3)}`};
   el.innerHTML=list.map(s=>`<span class="wx-season-item">🩺 <b>${esc(s.label)}</b> <span class="wx-season-dates">${md(s.from)} – ${md(s.to)}</span></span>`).join('');
   el.classList.toggle('hidden',!list.length);
   const a=$('wx-attr');if(a)a.textContent=Object.keys(weatherData).length&&wxAttribution?wxAttribution:'';
@@ -593,16 +603,16 @@ function updateStats(){
   if(wxMode){
     const keys=Object.keys(weatherData);
     if(keys.length>0){
-      const temps=Object.values(weatherData);
-      const hi=Math.max(...temps.map(w=>w.tMax)),lo=Math.min(...temps.map(w=>w.tMin));
+      const temps=Object.values(weatherData),num=a=>a.filter(Number.isFinite);
+      const hi=Math.max(...num(temps.map(w=>w.tMax))),lo=Math.min(...num(temps.map(w=>w.tMin)));
       const hasRain=temps.some(w=>[51,53,55,61,63,65,66,67,80,81,82].includes(w.code));
       const hasSnow=temps.some(w=>[71,73,75,77,85,86].includes(w.code));
       let summary=`<span>🌡️ Week: <b style="color:#e74c3c">${hi}°C</b> / <b style="color:#3498db">${lo}°C</b></span>`;
       if(hasRain)summary+='<span>🌧️ Rain expected</span>';
       if(hasSnow)summary+='<span>❄️ Snow expected</span>';
       if(lo<=0)summary+='<span>🥶 Below freezing</span>';
-      const nRisk=Object.values(weatherData).filter(w=>w.risk.length).length;
-      if(nRisk)summary+=`<span><span class="hr-mark hr-watch" aria-hidden="true">!</span> Health-risk weather on ${nRisk} day${nRisk>1?'s':''}</span>`;
+      const nRisk=temps.filter(w=>w.risk.length).length;
+      if(nRisk)summary+=`<span>${hrMark(temps.some(w=>riskLevel(w)==='high')?'high':'watch')} Health-risk weather on ${nRisk} day${nRisk>1?'s':''}</span>`;
       $('stats').innerHTML=summary;
     } else { $('stats').innerHTML='<span>No weather data — only shows 7 days from today</span>'; }
     return;
@@ -865,10 +875,10 @@ function wxDayHtml(key,wx){
     if(wx.rh!=null)bits.push(`humidity ${Math.round(wx.rh)}%`);
     if(wx.pressure!=null)bits.push(`${Math.round(wx.pressure)} hPa${wx.dPressure!=null?` (${wx.dPressure>0?'+':''}${wx.dPressure})`:''}`);
     if(wx.precipMm)bits.push(`rain ${wx.precipMm} mm${wx.precipPct!=null?` · ${wx.precipPct}%`:''}`);
-    h+=`<div>${wx.icon} <b>${wx.tMax}°C</b> / ${wx.tMin}°C${wx.at&&WX_AT[wx.at]?` <span class="wx-at">· ${WX_AT[wx.at]}</span>`:''}</div>`;
+    h+=`<div>${wx.icon} <b>${wx.tMax??'—'}°C</b> / ${wx.tMin??'—'}°C${wx.at&&WX_AT[wx.at]?` <span class="wx-at">· ${WX_AT[wx.at]}</span>`:''}</div>`;
     if(bits.length)h+=`<div class="wx-sub">${esc(bits.join(' · '))}</div>`;
     if(wx.change)h+=`<div class="wx-sub">vs day before: ${esc(wx.change)}</div>`;
-    if(wx.risk.length)h+=`<ul class="wx-risks">${wx.risk.map(r=>`<li><span class="hr-mark hr-${r.level==='high'?'high':'watch'}" aria-hidden="true">!</span><span>${esc(r.reason)}<span class="wx-lvl"> · ${r.level==='high'?'high':'watch'}</span></span></li>`).join('')}</ul>`;
+    if(wx.risk.length)h+=`<ul class="wx-risks">${wx.risk.map(r=>`<li>${hrMark(r.level)}<span>${esc(r.reason)}<span class="wx-lvl"> · ${r.level==='high'?'high':'watch'}</span></span></li>`).join('')}</ul>`;
   }
   if(seasons.length)h+=`<div class="wx-seasons">${seasons.map(s=>`<span>🩺 ${esc(s.label)}</span>`).join('')}</div>`;
   return h+'</div>';

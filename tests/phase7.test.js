@@ -125,3 +125,45 @@ test('the season band lists every season overlapping the month on screen, and cr
   assert.match(app.el('wx-season').innerHTML, /flu season/);
   assert.doesNotMatch(app.el('wx-season').innerHTML, /秋の寒暖差/);
 });
+
+test('risk reasons with quotes cannot break out of the badge attributes', async () => {
+  const app = signedIn([Object.assign({}, PLAN, { days: [{ date: '2026-10-20', code: 1, tmax_c: 20, tmin_c: 10,
+    risk: [{ id: 'storm', level: 'watch', reason: 'Heavy rain ("typhoon") x" onmouseover="alert(1)' }] }] })]);
+  await app.run('loadWeather()');
+  app.run('renderCal()');
+  const html = app.el('cells').innerHTML;
+  assert.doesNotMatch(html, /onmouseover="alert/);
+  assert.match(html, /aria-label="Health-risk weather: Heavy rain \(&quot;typhoon&quot;\) x&quot; onmouseover=&quot;alert\(1\)"/);
+});
+
+test('a hub day without temperatures shows — and does not poison the week summary', async () => {
+  const app = signedIn([Object.assign({}, PLAN, { days: PLAN.days.concat([{ date: '2026-10-27', code: 1, risk: [] }]) })]);
+  await app.run('loadWeather()');
+  app.run('wxMode=true;renderCal()');
+  assert.match(app.el('cells').innerHTML, /wx-hi">—°/);
+  assert.doesNotMatch(app.el('cells').innerHTML, /NaN/);
+  assert.match(app.el('stats').innerHTML, /Week: <b[^>]*>23°C<\/b> \/ <b[^>]*>14°C/);
+  assert.match(app.el('stats').innerHTML, /hr-high[^>]*>!<\/span> Health-risk weather on 2 days/);
+});
+
+test('seasons with timestamps or missing bounds neither throw nor match wrongly', async () => {
+  const app = signedIn([Object.assign({}, PLAN, { seasons: [
+    { id: 'a', label: 'ISO bounds', from: '2026-09-20T00:00:00Z', to: '2026-11-30T00:00:00Z' },
+    { id: 'b', label: 'broken', from: null, to: '2026-11-30' }] })]);
+  await app.run('loadWeather()');
+  app.run('renderCal()');
+  assert.match(app.el('wx-season').innerHTML, /ISO bounds.*20 Sep – 30 Nov/);
+  assert.doesNotMatch(app.el('wx-season').innerHTML, /broken/);
+});
+
+test('a birthday day with a risk carries one standalone badge and one on the weather-view icon', async () => {
+  const app = signedIn([PLAN]);
+  app.run(`birthdays=[{id:'b1',person_name:'Aki',birth_date:'1990-10-25'}]`);
+  await app.run('loadWeather()');
+  app.run('renderCal()');
+  const html = app.el('cells').innerHTML;
+  const cell = html.slice(html.indexOf('data-k="2026-10-25"'), html.indexOf('data-k="2026-10-26"'));
+  assert.match(cell, /^data-k="2026-10-25"><span class="hr-mark hr-high" role="img"/, 'standalone badge (no small weather icon on birthdays)');
+  assert.match(cell, /<span class="wx-big-icon">[^<]*<span class="hr-mark hr-high"/, 'badge on the big icon for weather view');
+  assert.equal((cell.match(/class="hr-mark /g) || []).length, 2);
+});

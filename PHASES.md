@@ -271,6 +271,15 @@ risk rows no longer solid colour bars. Deferred: legend for the "!" badge in nor
 (Phase 5), badge brushing the first chip on busy days (Phase 3), small editor text in the
 handwriting theme (Phase 5).
 
+**Code review (high effort) — done, 9 findings, 6 fixed:** quote-escaping of hub text inside
+badge attributes (now `escAttr` + one `hrMark()` helper for every badge), duplicate badge
+on birthday days in weather view, `renderWxSeason` throwing on non-`YYYY-MM-DD` season
+bounds, `NaN°` for days without temperatures, weather-view summary badge ignoring a
+`high` day, redundant `Object.values`. Accepted as-is: the ≤ 0 °C 🥶 override was
+dropped on purpose (it hid the real conditions; the hub's `cold_snap` risk covers it);
+preview mode keeps a plain Open-Meteo fallback because it has no hub access — it carries
+no risk flags, so the "flag every period" rule holds only when signed in.
+
 **Still open (hub / owner):**
 - 🔴 **Privacy:** `akatsuki_weather` is owned by `postgres` without `security_invoker`, and
   `anon` has SELECT. Verified as role `anon`: it returns the `here`, `place:office` and
