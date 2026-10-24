@@ -1,0 +1,10 @@
+{
+  "_note": "Weekly Focus task shapes as the Calendar builds them (wfTasks). Long text, links and long source labels are deliberate: they caught the phone zoom-out bug of 2026-10-24.",
+  "tasks": [
+    { "kind": "sub", "board": "b", "itemKey": "app:jlpt", "sid": "t1", "text": "Review N3 grammar deck", "date": "2026-10-21", "time": "19:30", "done": false, "src": "Japanese Study App Advanced · Office", "urg": false },
+    { "kind": "sub", "board": "b", "itemKey": "app:cal", "sid": "t2", "text": "Merge https://github.com/Celeritas7/Calender_app/pull/1 and check on phone", "date": "2026-10-22", "time": "", "done": true, "src": "Calendar", "urg": true },
+    { "kind": "sub", "board": "b", "itemKey": "app:jlpt", "sid": "t3", "text": "Short task", "date": "", "time": "", "done": false, "src": "Japanese Study App Advanced · Office", "urg": false },
+    { "kind": "sub", "board": "b", "itemKey": "app:rm", "sid": "t4", "text": "Check https://github.com/Celeritas7/Japanese_study_app_advanced/pull/12", "date": "", "time": "", "done": false, "src": "Roadmap", "urg": false },
+    { "kind": "inbox", "board": "b", "itemKey": "__inbox", "sid": "t5", "text": "Supercalifragilisticexpialidocious-style unbroken token for the wrap test", "date": "", "time": "", "done": false, "src": "Inbox · 南浦和 home desk", "urg": false }
+  ]
+}

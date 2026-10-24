@@ -223,10 +223,10 @@ body.wx-mode .cell .sk-cy,body.wx-mode .cell .sk-ghost,body.wx-mode .cell .sk-aw
 .tk-row{display:flex;align-items:flex-start;gap:8px;padding:4px 2px;font-size:14px;color:var(--txt)}
 .tk-row.done{opacity:.55}
 .tk-row.done .tk-t{text-decoration:line-through}
-.tk-t{min-width:0}
+.tk-t{min-width:0;flex:1;overflow-wrap:anywhere}  /* long words / links wrap instead of widening the page */
 .tk-chk{flex:none;width:16px;height:16px;margin-top:1px;border:1.5px solid var(--border);border-radius:5px;background:var(--input-bg);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;padding:0;transition:all .12s}
 .tk-chk.on{background:var(--accent);border-color:var(--accent)}
-.tk-src{font-size:11px;color:var(--txt2);white-space:nowrap;margin-left:auto;padding-left:6px}
+.tk-src{font-size:11px;color:var(--txt2);white-space:nowrap;margin-left:auto;padding-left:6px;max-width:42%;overflow:hidden;text-overflow:ellipsis}
 .tk-urgflag{color:#e74c3c;font-weight:700}
 #modal-tasks .tk-row{font-size:15px}
 #modal-tasks .msec-t{font-size:16px;display:block;margin-bottom:3px;color:var(--txt);font-weight:600}

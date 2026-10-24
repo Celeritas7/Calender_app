@@ -19,6 +19,7 @@ const OUT = path.join(__dirname, 'shots', LABEL);   // always under this checkou
 const FIXED_NOW = new Date('2026-10-19T09:00:00+09:00');
 const THEMES = [[0, 'newsprint'], [2, 'terminal'], [6, 'solar'], [7, 'parchment'], [8, 'tokyo']];
 const WEATHER_PLAN = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'weather-plan.json'), 'utf8'));
+const TASKS = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'tasks.json'), 'utf8')).tasks;
 const VIEWPORTS = [['desk', { width: 1280, height: 900 }], ['phone', { width: 390, height: 844 }]];
 
 const SUPABASE_STUB = `(function(){
@@ -71,10 +72,16 @@ async function openApp(browser, base, viewport) {
         weatherData = {}; plan.days.forEach(d => { weatherData[d.date] = hubDayToWx(d); });
         wxSeasons = plan.seasons; wxAttribution = plan.attribution; renderCal();
       }, WEATHER_PLAN);
+      /* realistic Weekly Focus tasks — dated (in cells) and undated (No date yet panel) */
+      await page.evaluate(tasks => { wfTasks = tasks; renderCal(); renderNoDate(); }, TASKS);
+      const themeOverflow = [];
       for (const [idx, name] of THEMES) {
         await page.evaluate(i => applyTheme(i), idx);
         await page.waitForTimeout(250);
         await page.screenshot({ path: path.join(OUT, `${vpName}-main-${name}.png`), fullPage: true });
+        /* fonts differ per theme, so overflow must be checked in each one */
+        const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+        if (over > 0) themeOverflow.push(`${name} +${over}px`);
       }
       await page.evaluate(() => applyTheme(7));
       await page.evaluate(() => toggleWxView());
@@ -103,7 +110,8 @@ async function openApp(browser, base, viewport) {
         await page.evaluate(() => closeAllDD());
       }
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
-      report.push(`${vpName}: horizontal overflow ${overflow}px, page errors ${errors.length}${errors.length ? ' — ' + errors.join(' | ') : ''}`);
+      const worst = Math.max(overflow, ...themeOverflow.map(t => +t.match(/\+(\d+)px/)[1]));
+      report.push(`${vpName}: horizontal overflow ${worst}px${themeOverflow.length ? ' (' + themeOverflow.join(', ') + ')' : ''}, page errors ${errors.length}${errors.length ? ' — ' + errors.join(' | ') : ''}`);
       await page.close();
     }
   } finally {
@@ -112,4 +120,6 @@ async function openApp(browser, base, viewport) {
   }
   console.log(`Saved to ${path.relative(process.cwd(), OUT)}/`);
   report.forEach(l => console.log('  ' + l));
+  /* a page wider than the screen makes phones zoom out — treat it as a failure */
+  if (report.some(l => !/overflow 0px, page errors 0$/.test(l))) { console.error('FAIL: horizontal overflow or page errors'); process.exitCode = 1; }
 })().catch(e => { console.error(e); process.exit(1); });
