@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Cardo:wght@400;700&family=Cormorant+Garamond:wght@600;700&family=Cormorant+Infant:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Newsreader:wght@400;500;600;700&family=PT+Serif:wght@400;700&family=Saira:wght@400;500;600;700&family=Share+Tech+Mono&family=Spectral:wght@400;500;600;700&family=VT323&family=Work+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;900&family=Caveat:wght@400;600;700&family=Audiowide&family=Chakra+Petch:wght@400;500;600;700&family=DM+Serif+Display&family=Nunito:wght@400;600;700&family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600&family=Recoleta&family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;600&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&display=swap" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
 <link rel="stylesheet" href="css/styles.css" />
 </head>
 
@@ -32,14 +32,16 @@
     <h2>My Calendar</h2>
     <p id="login-subtitle">Sign in to access your calendar</p>
     <div class="login-tabs">
-      <button class="login-tab act" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
-      <button class="login-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+      <button type="button" class="login-tab act" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+      <button type="button" class="login-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
     </div>
-    <input type="email" id="login-email" placeholder="Email address" autocomplete="email" />
-    <input type="password" id="login-password" placeholder="Password" autocomplete="current-password" />
-    <button class="login-btn" id="login-btn" onclick="handleAuth()">Sign In</button>
+    <form id="login-form" class="login-form" onsubmit="event.preventDefault();handleAuth()">
+      <input type="email" id="login-email" placeholder="Email address" autocomplete="email" />
+      <input type="password" id="login-password" placeholder="Password" autocomplete="current-password" />
+      <button type="submit" class="login-btn" id="login-btn">Sign In</button>
+    </form>
     <div class="login-divider"><span>or</span></div>
-    <button class="login-btn google-btn" onclick="signInWithGoogle()">
+    <button type="button" class="login-btn google-btn" onclick="signInWithGoogle()">
       <svg width="18" height="18" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:8px"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.93 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
       Continue with Google
     </button>
@@ -50,21 +52,26 @@
 <div class="top-bar">
   <div class="top-bar-left"><svg class="brand-mark" width="26" height="26" viewBox="0 0 100 100" role="img" aria-label="My Calendar"><rect x="4.5" y="4.5" width="28" height="28" rx="7" fill="#e84393"/><rect x="36" y="4.5" width="28" height="28" rx="7" fill="#e17055"/><rect x="67.5" y="4.5" width="28" height="28" rx="7" fill="#fdcb6e"/><rect x="4.5" y="36" width="28" height="28" rx="7" fill="#6c5ce7"/><rect x="36" y="36" width="28" height="28" rx="7" fill="#c8102e"/><rect x="67.5" y="36" width="28" height="28" rx="7" fill="#27ae60"/><rect x="4.5" y="67.5" width="28" height="28" rx="7" fill="#00b894"/><rect x="36" y="67.5" width="28" height="28" rx="7" fill="#00cec9"/><rect x="67.5" y="67.5" width="28" height="28" rx="7" fill="#3498db"/></svg><button class="btn-today" onclick="goToday()">● Today</button></div>
   <div class="top-bar-right">
-    <button class="icon-btn" id="bulk-toggle" onclick="toggleBulkMode()" title="Bulk Mark Mode">✕</button>
-    <button class="icon-btn" id="wx-toggle" onclick="toggleWxView()" title="Weather View">🌤️</button>
-    <button class="icon-btn" onclick="openBdayManager()" title="Birthday Manager">🎂</button>
-    <button class="icon-btn" onclick="openSukkiri()" title="Sukkiri — garbage days & cleaning cycles">🧹</button>
-    <button class="icon-btn" onclick="togglePrintOpts()" title="Print This Month">🖨️</button>
-    <div class="dd-wrap">
-      <button class="icon-btn" onclick="toggleDD('task-dd',event)" title="Weekly Focus Tasks">📋</button>
+    <button class="icon-btn" id="bulk-toggle" onclick="toggleBulkMode()" title="Bulk Mark Mode" aria-label="Bulk mark mode">✕</button>
+    <button class="icon-btn" id="wx-toggle" onclick="toggleWxView()" title="Weather View" aria-label="Weather view">🌤️</button>
+    <button class="icon-btn ov-item" onclick="openBdayManager()" title="Birthday Manager" aria-label="Birthdays">🎂</button>
+    <button class="icon-btn" onclick="openSukkiri()" title="Sukkiri — garbage days & cleaning cycles" aria-label="Sukkiri: garbage days and cleaning cycles">🧹</button>
+    <button class="icon-btn ov-item" onclick="togglePrintOpts()" title="Print This Month" aria-label="Print">🖨️</button>
+    <div class="dd-wrap ov-item">
+      <button class="icon-btn" onclick="toggleDD('task-dd',event)" title="Weekly Focus Tasks" aria-label="Weekly Focus tasks">📋</button>
       <div id="task-dd" class="dd-panel hidden" onclick="event.stopPropagation()" style="min-width:230px"></div>
     </div>
-    <div class="dd-wrap">
+    <div class="dd-wrap ov-item">
       <button class="dd-btn" onclick="toggleDD('theme-dd',event)"><span id="t-emoji"></span> <span id="t-name"></span> ▾</button>
       <div id="theme-dd" class="dd-panel hidden"></div>
     </div>
-    <button class="icon-btn install-btn" id="install-btn" onclick="installApp()" title="Install app" hidden>⤓</button>
-    <button class="icon-btn" onclick="signOut()" title="Sign Out">🚪</button>
+    <button class="icon-btn install-btn ov-item" id="install-btn" onclick="installApp()" title="Install app" aria-label="Install app" hidden>⤓</button>
+    <button class="icon-btn ov-item" onclick="signOut()" title="Sign Out" aria-label="Sign out">🚪</button>
+    <!-- phone only: the ov-item buttons above live in this menu instead -->
+    <div class="dd-wrap more-wrap">
+      <button class="icon-btn" id="more-btn" onclick="toggleMoreMenu(event)" title="More" aria-label="More options" aria-haspopup="menu" aria-expanded="false">⋯</button>
+      <div id="more-dd" class="dd-panel hidden" role="menu" onclick="event.stopPropagation()"></div>
+    </div>
   </div>
 </div>
 <script>
@@ -111,6 +118,8 @@ if('serviceWorker'in navigator&&location.protocol!=='file:')addEventListener('lo
   <button class="nav-arrow" onclick="nextMonth()">›</button>
 </div>
 
+<div id="wx-season" class="wx-season hidden" role="note"></div>
+
 <div id="picker-ov" class="picker-overlay hidden" onclick="if(event.target===this)closePicker()"></div>
 
 <div class="calendar-grid" id="cal-grid">
@@ -122,6 +131,7 @@ if('serviceWorker'in navigator&&location.protocol!=='file:')addEventListener('lo
 </div>
 
 <div class="stats" id="stats"></div>
+<div class="wx-attr" id="wx-attr"></div>
 <div class="nd-panel hidden" id="nd-panel"></div>
 <div class="hint">Click month name to jump · ✕ bulk mark · 🎂 birthdays · 🌤️ weather view</div>
 
@@ -155,7 +165,7 @@ if('serviceWorker'in navigator&&location.protocol!=='file:')addEventListener('lo
         <button class="diary-mood neutral" id="dm-neutral" onclick="setDiaryMood('neutral')" title="Neutral">😐</button>
         <button class="diary-mood bad" id="dm-bad" onclick="setDiaryMood('bad')" title="Bad">😟</button>
       </div>
-      <textarea id="inp-diary" rows="4" placeholder="Type a line... switch ink color for the next line" oninput="diaryPreviewUpdate()"></textarea>
+      <textarea id="inp-diary" rows="4" placeholder="Type a line... switch ink color for the next line" oninput="diaryInput()"></textarea>
       <div class="diary-preview" id="diary-preview"></div>
     </div>
     <button class="btn-save" onclick="saveModal()">Save Entry</button>

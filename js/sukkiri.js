@@ -79,7 +79,16 @@ skMigrate();
 
 /* Akatsuki step 1 — Sukkiri's half (home cycles + garbage) comes from the hub.
    Calendar keeps its own digital cycles; garbage is replaced only when Sukkiri has rules. */
-const SK_APP_URL='http://localhost:8091';
+/* Where "Edit in Sukkiri" points: a saved URL (localStorage calapp_sukkiri_url), else the
+   local dev server when running on localhost, else the Sukkiri repo's GitHub Pages site on
+   this same github.io origin (Celeritas7/Sukkiri), else nothing — never a dead localhost link. */
+function skAppUrl(){
+  try{const u=localStorage.getItem('calapp_sukkiri_url');if(u)return u}catch(e){}
+  const host=location.hostname||'';
+  if(/^(localhost|127\.0\.0\.1)$/.test(host))return 'http://localhost:8091';
+  if(/\.github\.io$/.test(host))return location.origin+'/Sukkiri/';
+  return '';
+}
 let skGarbRemote=false; /* true when Sukkiri supplied garbage rules → read-only here */
 function skApplyRemote(r){
   if(!r)return;
@@ -243,7 +252,9 @@ function renderSukkiriSettings(){
 <div class="sk-row"><label class="cbl"><input type="checkbox" id="sk-show"${sk.show?' checked':''}><span>Show on calendar</span></label><label class="cbl"><input type="checkbox" id="sk-wm"${sk.wm?' checked':''}><span>Garbage watermark</span></label></div>
 <div class="msec"><span class="msec-t">🗑 Garbage collection</span><div class="sk-dim" style="margin-bottom:8px">Pick weekdays. Leave week numbers empty for every week, or choose e.g. 2 + 4 for 2nd & 4th.</div>`;
   const icBtns=(g)=>SK_ICON_IDS.map(i=>`<button class="sk-ic${g.icon===i?' on':''}" data-gi="${g.id}" data-i="${i}" title="${i}">${skIconSvg(i,g.icon===i?g.color:'currentColor')}</button>`).join('');
-  const skLink=`<a class="sk-add" href="${SK_APP_URL}" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Edit in Sukkiri ↗</a>`;
+  const skUrl=skAppUrl();
+  const skLink=skUrl?`<a class="sk-add" href="${esc(skUrl)}" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Edit in Sukkiri ↗</a>`
+    :`<div class="sk-dim" style="text-align:center;margin-top:6px">Change these in the Sukkiri app</div>`;
   const roRow=(c,txt)=>`<div class="sk-c" style="opacity:.85"><span style="width:14px;height:14px;border-radius:50%;flex:none;background:${c.color||'#8e44ad'}"></span><span style="flex:1;min-width:0">${esc(c.name||'')}</span><span class="sk-dim">${txt}</span></div>`;
   if(skGarbRemote){sk.garbage.forEach(g=>{h+=roRow(g,`${g.days.map(d=>SK_WD[d]).join(' ')}${g.weeks.length?' · wk '+g.weeks.join('+'):''}`)});h+=skLink+'</div>'}
   else{

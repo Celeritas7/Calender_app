@@ -9,7 +9,7 @@ const sb = window.supabase.createClient(
 let UID = null;
 
 /* ── Akatsuki hub (step 1: Sukkiri link) ── */
-const AK_BUILD='mycal-v5';
+const AK_BUILD='mycal-v6';
 const calHub = CalHub(sb, { uid: () => UID });
 window.cal = { supabase: sb, hub: calHub };
 console.log('[ak] cal build', AK_BUILD);
@@ -170,7 +170,7 @@ async function refreshHolidays() {
       const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${y}/JP`);
       if (!res.ok) continue;
       const data = await res.json();
-      data.forEach(h => { holidays[h.date] = h.localName || h.name; });
+      data.forEach(h => { holidays[h.date] = h.name || h.localName; });  /* English, matching the offline list */
     }
   } catch (e) { console.warn('Holiday API failed, using static:', e.message); }
 }
@@ -185,25 +185,75 @@ const WX_ICONS = {
   80:'🌧️',81:'🌧️',82:'🌧️',85:'❄️',86:'❄️',95:'⛈️',96:'⛈️',99:'⛈️'
 };
 
+/* Weather comes from the Akatsuki hub (R046, view akatsuki_weather, "read, never publish").
+   Row key=plan: one entry per day at the place you will be (here today, office Mon–Fri,
+   home Sat/Sun), with health-risk flags and the active sickness-prone seasons.
+   Preview mode can't read the hub, so it falls back to a plain Open-Meteo forecast for
+   Minami-Urawa station (public coordinates — never the home pin). */
+let wxSeasons=[];        /* [{id,label,from,to}] from the hub */
+let wxAttribution='';
+const WX_AT={here:'Here',home:'Home',office:'Office'};
+
+/* hub day → the shape the calendar renders */
+function hubDayToWx(d){
+  return {
+    icon: WX_ICONS[d.code] || '🌤️', code: d.code,
+    tMax: Number.isFinite(d.tmax_c)?Math.round(d.tmax_c):null, tMin: Number.isFinite(d.tmin_c)?Math.round(d.tmin_c):null,
+    at: d.at || null, precipMm: d.precip_mm, precipPct: d.precip_prob_pct,
+    rh: d.rh_mean_pct, pressure: d.pressure_hpa_mean, dPressure: d.pressure_d24_hpa,
+    feelsMax: d.feels_max_c, change: d.change && d.change.summary || '',
+    risk: Array.isArray(d.risk) ? d.risk : []
+  };
+}
+/* text → safe inside a double-quoted attribute (esc() alone leaves " untouched) */
+function escAttr(v){return esc(v).replace(/"/g,'&quot;')}
+/* the "!" badge, one place for its markup: level 'watch'|'high', label for assistive tech
+   (omit the label for a purely decorative copy next to visible text) */
+function hrMark(level,label){
+  const lv=level==='high'?'high':'watch';
+  return label?`<span class="hr-mark hr-${lv}" role="img" aria-label="${escAttr(label)}" title="${escAttr(label)}">!</span>`
+              :`<span class="hr-mark hr-${lv}" aria-hidden="true">!</span>`;
+}
+function riskLevel(wx){return !wx||!wx.risk.length?null:wx.risk.some(r=>r.level==='high')?'high':'watch'}
+/* seasons overlapping [from,to] (YYYY-MM-DD strings) */
+const ymd=v=>typeof v==='string'?v.slice(0,10):'';
+function seasonsBetween(from,to){return wxSeasons.filter(s=>ymd(s.from)&&ymd(s.to)&&ymd(s.from)<=to&&ymd(s.to)>=from)}
+
 async function loadWeather() {
+  weatherData = {}; wxSeasons = []; wxAttribution = '';
+  if (!GUEST && UID) {
+    try {
+      const { data, error } = await sb.from('akatsuki_weather').select('key,days,seasons,attribution')
+        .eq('user_id', UID).in('key', ['plan', 'place:home']);
+      if (error) throw error;
+      const row = (data || []).find(r => r.key === 'plan') || (data || []).find(r => r.key === 'place:home');
+      if (row) {
+        (row.days || []).forEach(d => { if (d && d.date) weatherData[d.date] = hubDayToWx(d); });
+        wxSeasons = Array.isArray(row.seasons) ? row.seasons : [];
+        wxAttribution = row.attribution || '';
+      }
+    } catch (e) { console.warn('Hub weather failed:', e.message || e); }
+    return;  /* signed in: hub only — a missing row means "no forecast", not a second copy */
+  }
   try {
-    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=35.79&longitude=140.06&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo&forecast_days=7');
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=35.8461&longitude=139.6203&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo&forecast_days=7');
     if (!res.ok) return;
-    const d = await res.json();
-    const days = d.daily;
+    const d = await res.json(), days = d.daily;
     for (let i = 0; i < days.time.length; i++) {
-      const code = days.weathercode[i];
-      const tMax = days.temperature_2m_max[i];
-      const tMin = days.temperature_2m_min[i];
-      let icon = WX_ICONS[code] || '🌤️';
-      if (tMin <= 0) icon = '🥶';
-      weatherData[days.time[i]] = { icon, tMax: Math.round(tMax), tMin: Math.round(tMin), code };
+      weatherData[days.time[i]] = hubDayToWx({ date: days.time[i], code: days.weathercode[i], tmax_c: days.temperature_2m_max[i], tmin_c: days.temperature_2m_min[i] });
     }
+    wxAttribution = 'Weather data by Open-Meteo.com (CC BY 4.0)';
   } catch (e) { console.warn('Weather failed:', e.message); }
 }
 
 /* ═══════════════ BIRTHDAYS ═══════════════ */
+/* preview mode keeps birthdays on this device only */
+const BD_KEY='calapp_bdays_guest';
+function loadGuestBdays(){try{const a=JSON.parse(localStorage.getItem(BD_KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function saveGuestBdays(){try{localStorage.setItem(BD_KEY,JSON.stringify(birthdays))}catch(e){}}
+
 async function loadBirthdays() {
+  if (GUEST) { birthdays = loadGuestBdays(); return; }
   try {
     const { data } = await sb.from('calendar_app_birthdays').select('*').eq('user_id', UID);
     birthdays = data || [];
@@ -292,35 +342,54 @@ async function addBday() {
   const year = $('bday-year').value.trim();
   $('bday-msg').textContent = '';
   $('bday-msg').style.color = 'var(--accent)';
-  if (!name || !day || !month) return ($('bday-msg').textContent = 'Fill in name, day, and month');
+  if (!name || !day || !month) {
+    /* name only what is missing: "Add a month", "Add a day and month", "Add a name and a day" */
+    const parts = [];
+    if (!name) parts.push('a name');
+    if (!day && !month && name) parts.push('a day and month');
+    else { if (!day) parts.push('a day'); if (!month) parts.push('a month'); }
+    return ($('bday-msg').textContent = 'Add ' + (parts.length > 2 ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] : parts.join(' and ')));
+  }
+  const thisYear = new Date().getFullYear();
+  if (year && !(+year >= 1901 && +year <= thisYear)) return ($('bday-msg').textContent = `Enter a year between 1901 and ${thisYear}, or leave it empty`);
   const y = year ? parseInt(year) : 1900;
+  /* unknown year (stored as 1900) still allows 29 February */
+  const maxDay = daysIn(year ? y : 2000, parseInt(month) - 1);
+  if (+day > maxDay) return ($('bday-msg').textContent = `${MO[parseInt(month) - 1]} has only ${maxDay} days${year ? ' in ' + y : ''}`);
   const m = String(parseInt(month)).padStart(2, '0');
   const d = String(parseInt(day)).padStart(2, '0');
   const date = `${y}-${m}-${d}`;
-  if (editingBdayId) {
-    try {
-      const { data, error } = await sb.from('calendar_app_birthdays').update({ person_name: name, birth_date: date }).eq('id', editingBdayId).select();
+  try {
+    let row;
+    if (GUEST) {
+      row = editingBdayId ? Object.assign({}, birthdays.find(b => b.id === editingBdayId), { person_name: name, birth_date: date })
+                          : { id: 'local_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), user_id: 'guest', person_name: name, birth_date: date };
+    } else {
+      const q = editingBdayId
+        ? sb.from('calendar_app_birthdays').update({ person_name: name, birth_date: date }).eq('id', editingBdayId).select()
+        : sb.from('calendar_app_birthdays').insert({ user_id: UID, person_name: name, birth_date: date }).select();
+      const { data, error } = await q;
       if (error) throw error;
-      const idx = birthdays.findIndex(b => b.id === editingBdayId);
-      if (idx >= 0) birthdays[idx] = data[0];
-      cancelEdit(); renderBdayList(); renderCal();
-    } catch (e) { $('bday-msg').textContent = e.message; }
-  } else {
-    try {
-      const { data, error } = await sb.from('calendar_app_birthdays').insert({ user_id: UID, person_name: name, birth_date: date }).select();
-      if (error) throw error;
-      birthdays.push(data[0]);
-      cancelEdit(); renderBdayList(); renderCal();
-    } catch (e) { $('bday-msg').textContent = e.message; }
-  }
+      row = data && data[0];
+      if (!row) throw new Error('empty insert/update result');
+    }
+    const idx = birthdays.findIndex(b => b.id === row.id);
+    if (idx >= 0) birthdays[idx] = row; else birthdays.push(row);
+    if (GUEST) saveGuestBdays();
+    cancelEdit(); renderBdayList(); renderCal();
+  } catch (e) { console.error('Save bday:', e); $('bday-msg').textContent = 'Not saved — check your connection and try again'; }
 }
 
 async function deleteBday(id) {
   try {
-    await sb.from('calendar_app_birthdays').delete().eq('id', id);
+    if (!GUEST) {
+      const { error } = await sb.from('calendar_app_birthdays').delete().eq('id', id);
+      if (error) throw error;
+    }
     birthdays = birthdays.filter(b => b.id !== id);
+    if (GUEST) saveGuestBdays();
     renderBdayList(); renderCal();
-  } catch (e) { console.error('Delete bday:', e); }
+  } catch (e) { console.error('Delete bday:', e); $('bday-msg').textContent = 'Not deleted — check your connection and try again'; }
 }
 
 /* ═══════════════ WEATHER VIEW ═══════════════ */
@@ -351,7 +420,26 @@ async function loadThemePref(){const{data}=await sb.from('calendar_app_preferenc
 
 /* ═══════════════ DROPDOWN ═══════════════ */
 function toggleDD(id,e){e.stopPropagation();const el=$(id),was=el.classList.contains('hidden');closeAllDD();if(was)el.classList.remove('hidden')}
-function closeAllDD(){document.querySelectorAll('.dd-panel').forEach(p=>p.classList.add('hidden'))}
+function closeAllDD(){document.querySelectorAll('.dd-panel').forEach(p=>p.classList.add('hidden'));const m=$('more-btn');if(m)m.setAttribute('aria-expanded','false')}
+
+/* phone "⋯" menu — the toolbar buttons that don't fit, as labelled rows */
+function toggleMoreMenu(e){
+  e.stopPropagation();
+  const dd=$('more-dd'),open=dd.classList.contains('hidden');
+  closeAllDD();if(!open)return;
+  const items=[
+    ['🎂','Birthdays',()=>openBdayManager()],
+    ['📋','Weekly Focus tasks',()=>$('task-dd').classList.remove('hidden')],
+    [$('t-emoji').textContent||'🎨','Theme · '+$('t-name').textContent,()=>$('theme-dd').classList.remove('hidden')],
+    ['🖨️','Print…',()=>togglePrintOpts()],
+    ...($('install-btn').hidden?[]:[['⤓','Install app',()=>installApp()]]),
+    ['🚪','Sign out',()=>signOut()]
+  ];
+  dd.innerHTML='';
+  items.forEach(([ic,label,fn])=>{const b=document.createElement('button');b.className='dd-opt';b.setAttribute('role','menuitem');
+    b.innerHTML=`<span class="dd-ic" aria-hidden="true">${ic}</span>${esc(label)}`;b.onclick=()=>{closeAllDD();fn()};dd.appendChild(b)});
+  dd.classList.remove('hidden');$('more-btn').setAttribute('aria-expanded','true');
+}
 document.addEventListener('click',closeAllDD);
 
 /* ═══════════════ CALENDAR RENDERING ═══════════════ */
@@ -454,7 +542,11 @@ function renderCal(){
     let dcls='dnum';
     h+=`<div class="${cls}" ${skf?`style="--sk-c:${skf.color}"`:''} ${cur?`data-k="${key}"`:''}>`;
     if(today) h+='<div class="today-dot"></div>';
-    if(wx&&cur&&bdays.length===0) h+=`<span class="wx-icon">${wx.icon}</span>`;
+    /* health-risk marker: a badge on the weather icon's corner, so it never collides with the date */
+    const rl=cur?riskLevel(wx):null;
+    const hr=rl?hrMark(rl,'Health-risk weather: '+wx.risk.map(r=>r.reason).join(' · ')):'';
+    if(wx&&cur&&bdays.length===0) h+=`<span class="wx-icon">${wx.icon}${hr}</span>`;
+    else if(hr) h+=hr;
     if(bdays.length>0&&cur) h+='<span class="bday-icon">🎂</span>';
     if(cur)h+=skCellHtml(key);
     h+=`<div class="${dcls}">${day}</div>`;
@@ -481,7 +573,7 @@ function renderCal(){
       h+=`<span class="bday-name">${esc(bname)}</span>`;
     }
     if(hol&&cur&&bdays.length===0) h+=`<span class="holiday-tag">🎌 ${esc(hol)}</span>`;
-    if(cur&&wx) h+=`<div class="wx-big"><span class="wx-big-icon">${wx.icon}</span><div class="wx-temps"><span class="wx-hi">${wx.tMax}°</span><span class="wx-lo">${wx.tMin}°</span></div></div>`;
+    if(cur&&wx) h+=`<div class="wx-big"><span class="wx-big-icon">${wx.icon}${hr}</span><div class="wx-temps"><span class="wx-hi">${wx.tMax??'—'}°</span><span class="wx-lo">${wx.tMin??'—'}°</span></div></div>`;
     else if(cur&&!wx) h+='<div class="wx-big"><span class="wx-none">—</span></div>';
     h+='</div>';
   }
@@ -494,20 +586,33 @@ function renderCal(){
   });
   const g=$('cal-grid');g.style.animation='none';g.offsetHeight;g.style.animation='slideIn .35s ease';
   updateStats();
+  renderWxSeason();
+}
+
+/* band above the grid: every sickness-prone season the hub reports for the month on screen */
+function renderWxSeason(){
+  const el=$('wx-season');if(!el)return;
+  const from=dk(1),to=dk(daysIn(curYear,curMonth)),list=seasonsBetween(from,to);
+  const md=s=>{const d=new Date(ymd(s)+'T00:00:00');return isNaN(d)?esc(String(s)):`${d.getDate()} ${MO[d.getMonth()].slice(0,3)}`};
+  el.innerHTML=list.map(s=>`<span class="wx-season-item">🩺 <b>${esc(s.label)}</b> <span class="wx-season-dates">${md(s.from)} – ${md(s.to)}</span></span>`).join('');
+  el.classList.toggle('hidden',!list.length);
+  const a=$('wx-attr');if(a)a.textContent=Object.keys(weatherData).length&&wxAttribution?wxAttribution:'';
 }
 
 function updateStats(){
   if(wxMode){
     const keys=Object.keys(weatherData);
     if(keys.length>0){
-      const temps=Object.values(weatherData);
-      const hi=Math.max(...temps.map(w=>w.tMax)),lo=Math.min(...temps.map(w=>w.tMin));
+      const temps=Object.values(weatherData),num=a=>a.filter(Number.isFinite);
+      const hi=Math.max(...num(temps.map(w=>w.tMax))),lo=Math.min(...num(temps.map(w=>w.tMin)));
       const hasRain=temps.some(w=>[51,53,55,61,63,65,66,67,80,81,82].includes(w.code));
       const hasSnow=temps.some(w=>[71,73,75,77,85,86].includes(w.code));
       let summary=`<span>🌡️ Week: <b style="color:#e74c3c">${hi}°C</b> / <b style="color:#3498db">${lo}°C</b></span>`;
       if(hasRain)summary+='<span>🌧️ Rain expected</span>';
       if(hasSnow)summary+='<span>❄️ Snow expected</span>';
       if(lo<=0)summary+='<span>🥶 Below freezing</span>';
+      const nRisk=temps.filter(w=>w.risk.length).length;
+      if(nRisk)summary+=`<span>${hrMark(temps.some(w=>riskLevel(w)==='high')?'high':'watch')} Health-risk weather on ${nRisk} day${nRisk>1?'s':''}</span>`;
       $('stats').innerHTML=summary;
     } else { $('stats').innerHTML='<span>No weather data — only shows 7 days from today</span>'; }
     return;
@@ -581,7 +686,14 @@ async function bulkToggleCell(key){
   else{console.error('Bulk save failed:',r.msg);flashToast('⚠️ Not synced — '+r.msg)}
 }
 
-document.addEventListener('keydown',e=>{if(!$('modal-ov').classList.contains('hidden')||!$('bday-ov').classList.contains('hidden')||!$('picker-ov').classList.contains('hidden'))return;if(e.key==='ArrowLeft')prevMonth();if(e.key==='ArrowRight')nextMonth()});
+/* ← → change month only on the bare calendar — never while typing or with a panel open */
+function isTypingTarget(t){return !!t&&(/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName||'')||t.isContentEditable)}
+function anyPanelOpen(){return ['modal-ov','bday-ov','picker-ov','sk-ov'].some(id=>{const el=$(id);return el&&!el.classList.contains('hidden')})||$('pr-opts').classList.contains('open')}
+document.addEventListener('keydown',e=>{
+  if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
+  if(e.altKey||e.ctrlKey||e.metaKey||isTypingTarget(e.target)||anyPanelOpen())return;
+  if(e.key==='ArrowLeft')prevMonth();else nextMonth();
+});
 
 /* ═══════════════ LOAD DATA ═══════════════ */
 async function loadAndRender(){
@@ -632,15 +744,36 @@ addEventListener('online',()=>flushPending());
 function buildCP(){const cpk=$('cpk');cpk.innerHTML='';Object.entries(MC).forEach(([n,c])=>{const b=document.createElement('button');b.className='cdot'+(modalColor===n?' act':'');b.style.background=c;b.onclick=()=>{modalColor=n;buildCP()};cpk.appendChild(b)})}
 function toggleCP(){$('cpk').classList.toggle('hidden',!$('chk-mark').checked)}
 
-function setDiaryMood(m){
+/* highlight the ink button without touching any line */
+function showDiaryMood(m){
   diaryMood=m;
   document.querySelectorAll('.diary-mood').forEach(b=>b.classList.remove('act'));
   $('dm-'+m).classList.add('act');
+}
+/* ink button: recolour the caret's line and use this ink for new lines */
+function setDiaryMood(m){
+  showDiaryMood(m);
   const ta=$('inp-diary');
-  const pos=ta.selectionStart;
-  let lineIdx=ta.value.substring(0,pos).split('\n').length-1;
-  while(diaryLineMoods.length<=lineIdx)diaryLineMoods.push({mood:'neutral'});
+  const lineIdx=ta.value.substring(0,ta.selectionStart).split('\n').length-1;
+  while(diaryLineMoods.length<=lineIdx)diaryLineMoods.push({mood:diaryMood});
   diaryLineMoods[lineIdx].mood=m;
+  diaryLines=ta.value.split('\n');
+  diaryPreviewUpdate();
+}
+
+/* typing: lines that already existed keep their mood; only new lines take the current ink.
+   Diff against the previous text so a line inserted mid-way doesn't shift the moods below it. */
+let diaryLines=[];
+function diaryInput(){
+  const lines=$('inp-diary').value.split('\n'),old=diaryLines;
+  let pre=0;while(pre<lines.length&&pre<old.length&&lines[pre]===old[pre])pre++;
+  let suf=0;while(suf<lines.length-pre&&suf<old.length-pre&&lines[lines.length-1-suf]===old[old.length-1-suf])suf++;
+  const oldMid=old.length-pre-suf,newMid=lines.length-pre-suf,moodAt=i=>diaryLineMoods[i]||{mood:diaryMood};
+  const mid=[];
+  for(let i=0;i<newMid;i++)mid.push(i<oldMid&&(newMid===oldMid||i===0)?moodAt(pre+i):{mood:diaryMood});
+  const keep=(from,n)=>Array.from({length:n},(_,i)=>moodAt(from+i));
+  diaryLineMoods=[...keep(0,pre),...mid,...keep(old.length-suf,suf)];
+  diaryLines=lines;
   diaryPreviewUpdate();
 }
 
@@ -649,11 +782,6 @@ function diaryPreviewUpdate(){
   const prev=$('diary-preview');
   if(!raw.trim()){prev.innerHTML='';return}
   const lines=raw.split('\n');
-  while(diaryLineMoods.length<lines.length)diaryLineMoods.push({mood:diaryMood});
-  diaryLineMoods.length=lines.length;
-  const ta=$('inp-diary');
-  const curLine=ta.value.substring(0,ta.selectionStart).split('\n').length-1;
-  diaryLineMoods[curLine].mood=diaryMood;
   prev.innerHTML=lines.map((l,i)=>{
     if(!l.trim())return'';
     const m=diaryLineMoods[i]?.mood||'neutral';
@@ -719,9 +847,7 @@ function openModal(key,data){
     $('modal-holiday-info').innerHTML=`<div class="bday-info" style="margin-bottom:12px;border-color:rgba(192,57,43,.25);background:linear-gradient(135deg,rgba(231,76,60,.08),rgba(241,196,15,.08))">🎌 <b>${esc(hol)}</b></div>`;
   } else { $('modal-holiday-info').innerHTML=''; }
   const wx=weatherData[key];
-  if(wx){
-    $('modal-wx-info').innerHTML=`<div class="bday-info" style="margin-bottom:12px;border-color:rgba(52,152,219,.25);background:linear-gradient(135deg,rgba(52,152,219,.08),rgba(46,204,113,.08))">${wx.icon} <b>${wx.tMax}°C</b> / ${wx.tMin}°C</div>`;
-  } else { $('modal-wx-info').innerHTML=''; }
+  $('modal-wx-info').innerHTML=wxDayHtml(key,wx);
   renderModalTasks(key);
   renderModalSukkiri(key);
   const dd=data||{};
@@ -731,10 +857,31 @@ function openModal(key,data){
   const decoded=decodeDiary(dd.diary||'');
   $('inp-diary').value=decoded.text;
   diaryLineMoods=decoded.moods;
-  diaryMood='good';
-  setDiaryMood('good');
+  diaryLines=decoded.text?decoded.text.split('\n'):[];
+  /* new lines continue in the last line's ink; opening never recolours existing lines */
+  showDiaryMood(decoded.moods.length?decoded.moods[decoded.moods.length-1].mood:'good');
   diaryPreviewUpdate();
   buildCP();toggleCP();$('modal-ov').classList.remove('hidden');
+}
+
+/* day editor: forecast, where it applies, change vs the day before, health-risk flags and
+   every sickness-prone season covering the day */
+function wxDayHtml(key,wx){
+  const seasons=seasonsBetween(key,key);
+  if(!wx&&!seasons.length)return'';
+  let h='<div class="bday-info wx-day" style="margin-bottom:12px;border-color:rgba(52,152,219,.25);background:linear-gradient(135deg,rgba(52,152,219,.08),rgba(46,204,113,.08))">';
+  if(wx){
+    const bits=[];
+    if(wx.rh!=null)bits.push(`humidity ${Math.round(wx.rh)}%`);
+    if(wx.pressure!=null)bits.push(`${Math.round(wx.pressure)} hPa${wx.dPressure!=null?` (${wx.dPressure>0?'+':''}${wx.dPressure})`:''}`);
+    if(wx.precipMm)bits.push(`rain ${wx.precipMm} mm${wx.precipPct!=null?` · ${wx.precipPct}%`:''}`);
+    h+=`<div>${wx.icon} <b>${wx.tMax??'—'}°C</b> / ${wx.tMin??'—'}°C${wx.at&&WX_AT[wx.at]?` <span class="wx-at">· ${WX_AT[wx.at]}</span>`:''}</div>`;
+    if(bits.length)h+=`<div class="wx-sub">${esc(bits.join(' · '))}</div>`;
+    if(wx.change)h+=`<div class="wx-sub">vs day before: ${esc(wx.change)}</div>`;
+    if(wx.risk.length)h+=`<ul class="wx-risks">${wx.risk.map(r=>`<li>${hrMark(r.level)}<span>${esc(r.reason)}<span class="wx-lvl"> · ${r.level==='high'?'high':'watch'}</span></span></li>`).join('')}</ul>`;
+  }
+  if(seasons.length)h+=`<div class="wx-seasons">${seasons.map(s=>`<span>🩺 ${esc(s.label)}</span>`).join('')}</div>`;
+  return h+'</div>';
 }
 
 function closeModal(){$('modal-ov').classList.add('hidden');modalKey=null}
@@ -754,7 +901,13 @@ async function saveModal(){
   else{console.error('Save failed:',r.msg);flashToast('⚠️ Not synced — '+r.msg)}
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeBdayManager();closePicker();closeSukkiri()}});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  /* the picker applies its choice on close, so only close it when it is actually open */
+  if(!$('picker-ov').classList.contains('hidden')){closePicker();return}
+  closeModal();closeBdayManager();closeSukkiri();closeAllDD();$('pr-opts').classList.remove('open');
+  if(bulkMode)toggleBulkMode();
+});
 
 /* ═══════════════ WEEKLY FOCUS TASKS ═══════════════ */
 const TKS_KEY='calapp_task_style';
@@ -892,6 +1045,8 @@ function printTaskSheet(){
   ps.classList.remove('tsheet');
 }
 
+function resetSignedOutState(){UID=null;calData={};birthdays=[]}
+
 /* ═══════════════ BOOT ═══════════════ */
 async function bootApp() {
   await Promise.allSettled([loadThemePref(), loadBirthdays(), loadWeather(), refreshHolidays(), loadWfTasks(), loadSukkiri()]);
@@ -931,9 +1086,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       hideLoginScreen();
       await bootApp();
     } else if (event === 'SIGNED_OUT') {
-      UID = null;
-      calData = {};
-      birthdays = {};
+      resetSignedOutState();
       showLoginScreen();
     }
   });

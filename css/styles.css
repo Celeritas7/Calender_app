@@ -42,6 +42,7 @@ body{min-height:100vh;background:var(--bg);font-family:var(--b-font);color:var(-
 .login-box p{font-size:13px;color:var(--txt2,#8888bb);text-align:center;margin-bottom:4px}
 .login-tabs{display:flex;gap:6px;background:rgba(128,128,128,.1);border-radius:10px;padding:4px}
 .login-tab{flex:1;padding:7px;border:none;border-radius:7px;background:transparent;color:var(--txt2,#8888bb);font-size:13px;cursor:pointer;font-family:var(--b-font,sans-serif);font-weight:600;transition:all .15s}
+.login-form{display:contents}
 .login-tab.act{background:var(--card-bg,#12122e);color:var(--txt,#e0e0ff);box-shadow:0 2px 8px rgba(0,0,0,.2)}
 .login-box input{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border,#2a2a5e);background:var(--input-bg,#1a1a3e);color:var(--txt,#e0e0ff);font-size:15px;font-family:var(--b-font,sans-serif);outline:none;transition:border-color .15s}
 .login-box input:focus{border-color:var(--accent,#ff2d95)}
@@ -433,3 +434,64 @@ body.wx-mode .cell .wx-big{display:flex!important;flex-direction:column;align-it
 .install-btn[hidden]{display:none}
 @media (display-mode:standalone){.install-btn{display:none!important}}
 @media print{.brand-mark,#splash,.install-btn{display:none!important}.month-title-wrap{display:block}}
+
+/* ═══════════════ LAYOUT — header + phone (Phase 2) ═══════════════ */
+/* month and year on one line, the ▾ beside them instead of on its own row */
+.month-title{display:flex;align-items:baseline;justify-content:center;gap:.35em;flex-wrap:wrap}
+.month-title h1{font-size:clamp(30px,7.5vw,54px)}
+.month-title p{font-size:clamp(17px,3.8vw,26px)}
+.month-header{margin-bottom:8px}
+.dd-ic{display:inline-block;width:1.6em;text-align:center}
+.more-wrap{display:none}
+.icon-btn{color:var(--txt)}  /* text glyphs (✕ ⋯ ⤓) follow the theme instead of browser black */
+
+@media (max-width:599px){
+  /* toolbar: daily actions stay, the rest move into the ⋯ menu */
+  .top-bar{margin-bottom:2px}
+  .top-bar-right{gap:6px}
+  .icon-btn{width:44px;height:44px;font-size:18px}
+  .icon-btn.ov-item,.dd-wrap.ov-item>.icon-btn,.dd-wrap.ov-item>.dd-btn{display:none}
+  .dd-wrap.ov-item{display:contents}  /* button hidden; its panel opens as a fixed sheet */
+  .more-wrap{display:block}
+  .btn-today{min-height:44px;padding:0 14px}
+  /* dropdowns open as a sheet under the toolbar so they work from the ⋯ menu too */
+  .dd-panel{position:fixed;top:60px;left:8px;right:8px;max-height:calc(100vh - 80px);overflow-y:auto}
+  .dd-panel .dd-opt{min-height:44px;font-size:15px}
+  /* 44px touch targets */
+  .nav-arrow{min-width:44px;min-height:44px;font-size:36px;padding:0 8px}
+  .modal-x{width:44px;height:44px;top:6px;right:6px}
+  .diary-mood{width:44px;height:44px;font-size:18px}
+  .cbl{min-height:44px}
+  .sk-b{min-height:44px;padding:4px 14px;font-size:13px}
+  .bday-row-actions button{min-width:44px;min-height:44px}
+  .bulk-dot{width:32px;height:32px}
+  .bulk-done{min-height:44px}
+  /* the hint names toolbar icons that now live in the ⋯ menu */
+  .hint{display:none}
+}
+
+/* ═══════════════ HEALTH-RISK WEATHER (Phase 7, hub R046) ═══════════════ */
+.hr-mark{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;font:900 10px/1 var(--b-font);flex:none}
+.hr-watch{background:#c77c02;color:#1a1a1a}  /* ≥ 3:1 against every theme background */
+.hr-high{background:#c0392b;color:#fff}
+/* badge on the weather icon's lower-left corner; standalone (birthday days) sits under the 🎂 */
+.wx-icon .hr-mark{position:absolute;left:-6px;bottom:-5px;width:12px;height:12px;font-size:9px;box-shadow:0 0 0 1.5px var(--card-bg)}
+.cell>.hr-mark{position:absolute;top:18px;right:3px;z-index:6;width:12px;height:12px;font-size:9px;box-shadow:0 0 0 1.5px var(--card-bg)}
+body.wx-mode .cell>.hr-mark{display:none}  /* weather view: the big icon carries the badge */
+.wx-big-icon{position:relative}
+.wx-big-icon .hr-mark{position:absolute;right:-8px;top:-2px;width:14px;height:14px;font-size:10px;box-shadow:0 0 0 1.5px var(--card-bg)}
+.wx-day{display:block}
+.wx-sub{font-size:12px;color:var(--txt2);margin-top:3px}
+.wx-at{font-size:12px;color:var(--txt2);font-weight:600}
+.wx-risks{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:3px;font-size:13px}
+.wx-risks li{display:flex;align-items:center;gap:6px}
+.wx-seasons{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;color:var(--txt2)}
+.wx-season{width:100%;max-width:840px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;margin:0 0 8px;font-size:12px;color:var(--txt2);z-index:1}
+.wx-season-item b{color:var(--txt);font-weight:700}
+.wx-season-dates{opacity:.8}
+.wx-attr{margin-top:4px;font-size:10px;color:var(--txt2);opacity:.7;z-index:1}
+.wx-attr:empty{display:none}
+#wx-season.hidden{display:none}
+.stats .hr-mark{margin-right:4px;vertical-align:-2px}
+@media print{.wx-season,.wx-attr{display:none!important}}
+.wx-lvl{color:var(--txt2);font-size:11px}

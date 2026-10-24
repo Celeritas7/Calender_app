@@ -1,0 +1,12 @@
+{
+  "name": "my-calendar",
+  "private": true,
+  "description": "Static PWA calendar — no build step. This file only holds dev tooling.",
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\"",
+    "shots": "node tools/screenshots.js"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}
