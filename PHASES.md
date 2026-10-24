@@ -160,7 +160,7 @@ Design reviews a mock-up **before** build, then `design-critique` after.
 
 ---
 
-## Phase 7 — Weather → Health (via Akatsuki) — requested 2026-10-23, not started
+## Phase 7 — Weather → Health (via Akatsuki) — hub R046 live 2026-10-24 · Calendar side ✅ done
 
 **Request (owner's words, condensed):** publish daily forecast data to Akatsuki so Health Log
 and Setu can use it — date, location, min/max temperature, humidity, pressure, precipitation,
@@ -242,7 +242,50 @@ Day-level triggers (any season):
 - First days ≥ 3 °C below the monthly normal (first cold snap).
 - Typhoon / heavy rain days (code ≥ 95 or precip ≥ 30 mm).
 
-### Open questions before building
+### Outcome (2026-10-24)
+
+**Hub (R046, done by Akatsuki):** `akatsuki_weather` now carries `rh_mean_pct, rh_min_pct,
+pressure_hpa_mean` (surface), `pressure_d24_hpa, feels_max_c, gust_max_ms, wind_max_ms,
+uv_max, change{d_tmax_c,d_tmin_c,d_pressure_hpa,d_rh_mean_pct,summary},
+risk[{id,level,reason}]` per day, a top-level `seasons[]` array (periods overlap), and a
+`key=plan` row: today → here, Mon–Fri → office (Ageo, pinned), Sat/Sun → home. Risk ids:
+temp_swing, day_night, pressure_fall, dry, muggy, heat, tropical_night, cold_snap, storm.
+Seasons: dry_flu, cedar_pollen, spring_swings, gogatsu, tsuyu, heat, zansho, autumn.
+
+**Calendar (this repo):**
+- `loadWeather()` reads `akatsuki_weather` key `plan` (fallback `place:home`) filtered by
+  `user_id`. No second fetch when signed in; a missing row shows no forecast.
+- Preview mode (no hub access) falls back to Open-Meteo at Minami-Urawa station
+  (public coordinates — the old point was in Chiba; the home pin is never put in this
+  public repo).
+- Grid: health-risk badge on the weather icon (amber watch / red high, reasons in its
+  label); weather view badges the big icon and counts flagged days.
+- Season band above the grid lists every hub season overlapping the month on screen.
+- Day editor: temps, where (Here / Office / Home), humidity, pressure and change, the
+  hub's change summary, each risk with its level, and the seasons covering that day.
+- Open-Meteo CC BY 4.0 attribution shown under the grid (was missing).
+- Tests: `tests/phase7.test.js`. Screenshot fixture: `tools/fixtures/weather-plan.json`.
+
+**Design review — done.** Fixed: amber badge contrast (`#c77c02`, ≥ 3:1 on all themes),
+risk rows no longer solid colour bars. Deferred: legend for the "!" badge in normal view
+(Phase 5), badge brushing the first chip on busy days (Phase 3), small editor text in the
+handwriting theme (Phase 5).
+
+**Still open (hub / owner):**
+- 🔴 **Privacy:** `akatsuki_weather` is owned by `postgres` without `security_invoker`, and
+  `anon` has SELECT. Verified as role `anon`: it returns the `here`, `place:office` and
+  `plan` rows, i.e. where the owner is right now and the weekday plan, to anyone holding
+  the public anon key (it is committed in this repo). The table itself correctly denies
+  anon. Fix in the hub: `alter view akatsuki_weather set (security_invoker = on);
+  revoke select on akatsuki_weather from anon;`
+- Location rule ignores holidays and away-days. Away-days already reach the hub
+  (`calapp_sukkiri` → `away` path in `akatsuki_state`), so the hub can read them now;
+  Japanese holidays could come from the same nager.at source the Calendar uses.
+- Route `hub → cal weather.now` can be flipped to live once this branch is deployed.
+- Optional (owner decision): Health Log's personal, symptom-based marker as
+  `health.risk_day {date, level}` on `healthlog → cal`.
+
+### Open questions before building (answered in R046)
 
 - Which repo holds the hub's Edge Functions and SQL (R0xx files)? The hub changes live there.
 - Does the "weekdays → Ageo" rule need exceptions (holidays, away days, leave)? Proposed:

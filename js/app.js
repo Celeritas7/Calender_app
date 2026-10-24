@@ -185,20 +185,54 @@ const WX_ICONS = {
   80:'🌧️',81:'🌧️',82:'🌧️',85:'❄️',86:'❄️',95:'⛈️',96:'⛈️',99:'⛈️'
 };
 
+/* Weather comes from the Akatsuki hub (R046, view akatsuki_weather, "read, never publish").
+   Row key=plan: one entry per day at the place you will be (here today, office Mon–Fri,
+   home Sat/Sun), with health-risk flags and the active sickness-prone seasons.
+   Preview mode can't read the hub, so it falls back to a plain Open-Meteo forecast for
+   Minami-Urawa station (public coordinates — never the home pin). */
+let wxSeasons=[];        /* [{id,label,from,to}] from the hub */
+let wxAttribution='';
+const WX_AT={here:'Here',home:'Home',office:'Office'};
+
+/* hub day → the shape the calendar renders */
+function hubDayToWx(d){
+  return {
+    icon: WX_ICONS[d.code] || '🌤️', code: d.code,
+    tMax: Math.round(d.tmax_c), tMin: Math.round(d.tmin_c),
+    at: d.at || null, precipMm: d.precip_mm, precipPct: d.precip_prob_pct,
+    rh: d.rh_mean_pct, pressure: d.pressure_hpa_mean, dPressure: d.pressure_d24_hpa,
+    feelsMax: d.feels_max_c, change: d.change && d.change.summary || '',
+    risk: Array.isArray(d.risk) ? d.risk : []
+  };
+}
+function riskLevel(wx){return !wx||!wx.risk.length?null:wx.risk.some(r=>r.level==='high')?'high':'watch'}
+/* seasons overlapping [from,to] (YYYY-MM-DD strings) */
+function seasonsBetween(from,to){return wxSeasons.filter(s=>s.from<=to&&s.to>=from)}
+
 async function loadWeather() {
+  weatherData = {}; wxSeasons = []; wxAttribution = '';
+  if (!GUEST && UID) {
+    try {
+      const { data, error } = await sb.from('akatsuki_weather').select('key,days,seasons,attribution')
+        .eq('user_id', UID).in('key', ['plan', 'place:home']);
+      if (error) throw error;
+      const row = (data || []).find(r => r.key === 'plan') || (data || []).find(r => r.key === 'place:home');
+      if (row) {
+        (row.days || []).forEach(d => { if (d && d.date) weatherData[d.date] = hubDayToWx(d); });
+        wxSeasons = Array.isArray(row.seasons) ? row.seasons : [];
+        wxAttribution = row.attribution || '';
+      }
+    } catch (e) { console.warn('Hub weather failed:', e.message || e); }
+    return;  /* signed in: hub only — a missing row means "no forecast", not a second copy */
+  }
   try {
-    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=35.79&longitude=140.06&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo&forecast_days=7');
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=35.8461&longitude=139.6203&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo&forecast_days=7');
     if (!res.ok) return;
-    const d = await res.json();
-    const days = d.daily;
+    const d = await res.json(), days = d.daily;
     for (let i = 0; i < days.time.length; i++) {
-      const code = days.weathercode[i];
-      const tMax = days.temperature_2m_max[i];
-      const tMin = days.temperature_2m_min[i];
-      let icon = WX_ICONS[code] || '🌤️';
-      if (tMin <= 0) icon = '🥶';
-      weatherData[days.time[i]] = { icon, tMax: Math.round(tMax), tMin: Math.round(tMin), code };
+      weatherData[days.time[i]] = hubDayToWx({ date: days.time[i], code: days.weathercode[i], tmax_c: days.temperature_2m_max[i], tmin_c: days.temperature_2m_min[i] });
     }
+    wxAttribution = 'Weather data by Open-Meteo.com (CC BY 4.0)';
   } catch (e) { console.warn('Weather failed:', e.message); }
 }
 
@@ -498,7 +532,11 @@ function renderCal(){
     let dcls='dnum';
     h+=`<div class="${cls}" ${skf?`style="--sk-c:${skf.color}"`:''} ${cur?`data-k="${key}"`:''}>`;
     if(today) h+='<div class="today-dot"></div>';
-    if(wx&&cur&&bdays.length===0) h+=`<span class="wx-icon">${wx.icon}</span>`;
+    /* health-risk marker: a badge on the weather icon's corner, so it never collides with the date */
+    const rl=cur?riskLevel(wx):null;
+    const hr=rl?(why=>`<span class="hr-mark hr-${rl}" role="img" aria-label="Health-risk weather: ${why}" title="Health-risk weather — ${why}">!</span>`)(esc(wx.risk.map(r=>r.reason).join(' · '))):'';
+    if(wx&&cur&&bdays.length===0) h+=`<span class="wx-icon">${wx.icon}${hr}</span>`;
+    else if(hr) h+=hr;
     if(bdays.length>0&&cur) h+='<span class="bday-icon">🎂</span>';
     if(cur)h+=skCellHtml(key);
     h+=`<div class="${dcls}">${day}</div>`;
@@ -525,7 +563,7 @@ function renderCal(){
       h+=`<span class="bday-name">${esc(bname)}</span>`;
     }
     if(hol&&cur&&bdays.length===0) h+=`<span class="holiday-tag">🎌 ${esc(hol)}</span>`;
-    if(cur&&wx) h+=`<div class="wx-big"><span class="wx-big-icon">${wx.icon}</span><div class="wx-temps"><span class="wx-hi">${wx.tMax}°</span><span class="wx-lo">${wx.tMin}°</span></div></div>`;
+    if(cur&&wx) h+=`<div class="wx-big"><span class="wx-big-icon">${wx.icon}${hr}</span><div class="wx-temps"><span class="wx-hi">${wx.tMax}°</span><span class="wx-lo">${wx.tMin}°</span></div></div>`;
     else if(cur&&!wx) h+='<div class="wx-big"><span class="wx-none">—</span></div>';
     h+='</div>';
   }
@@ -538,6 +576,17 @@ function renderCal(){
   });
   const g=$('cal-grid');g.style.animation='none';g.offsetHeight;g.style.animation='slideIn .35s ease';
   updateStats();
+  renderWxSeason();
+}
+
+/* band above the grid: every sickness-prone season the hub reports for the month on screen */
+function renderWxSeason(){
+  const el=$('wx-season');if(!el)return;
+  const from=dk(1),to=dk(daysIn(curYear,curMonth)),list=seasonsBetween(from,to);
+  const md=s=>{const d=new Date(s+'T00:00:00');return `${d.getDate()} ${MO[d.getMonth()].slice(0,3)}`};
+  el.innerHTML=list.map(s=>`<span class="wx-season-item">🩺 <b>${esc(s.label)}</b> <span class="wx-season-dates">${md(s.from)} – ${md(s.to)}</span></span>`).join('');
+  el.classList.toggle('hidden',!list.length);
+  const a=$('wx-attr');if(a)a.textContent=Object.keys(weatherData).length&&wxAttribution?wxAttribution:'';
 }
 
 function updateStats(){
@@ -552,6 +601,8 @@ function updateStats(){
       if(hasRain)summary+='<span>🌧️ Rain expected</span>';
       if(hasSnow)summary+='<span>❄️ Snow expected</span>';
       if(lo<=0)summary+='<span>🥶 Below freezing</span>';
+      const nRisk=Object.values(weatherData).filter(w=>w.risk.length).length;
+      if(nRisk)summary+=`<span><span class="hr-mark hr-watch" aria-hidden="true">!</span> Health-risk weather on ${nRisk} day${nRisk>1?'s':''}</span>`;
       $('stats').innerHTML=summary;
     } else { $('stats').innerHTML='<span>No weather data — only shows 7 days from today</span>'; }
     return;
@@ -786,9 +837,7 @@ function openModal(key,data){
     $('modal-holiday-info').innerHTML=`<div class="bday-info" style="margin-bottom:12px;border-color:rgba(192,57,43,.25);background:linear-gradient(135deg,rgba(231,76,60,.08),rgba(241,196,15,.08))">🎌 <b>${esc(hol)}</b></div>`;
   } else { $('modal-holiday-info').innerHTML=''; }
   const wx=weatherData[key];
-  if(wx){
-    $('modal-wx-info').innerHTML=`<div class="bday-info" style="margin-bottom:12px;border-color:rgba(52,152,219,.25);background:linear-gradient(135deg,rgba(52,152,219,.08),rgba(46,204,113,.08))">${wx.icon} <b>${wx.tMax}°C</b> / ${wx.tMin}°C</div>`;
-  } else { $('modal-wx-info').innerHTML=''; }
+  $('modal-wx-info').innerHTML=wxDayHtml(key,wx);
   renderModalTasks(key);
   renderModalSukkiri(key);
   const dd=data||{};
@@ -803,6 +852,26 @@ function openModal(key,data){
   showDiaryMood(decoded.moods.length?decoded.moods[decoded.moods.length-1].mood:'good');
   diaryPreviewUpdate();
   buildCP();toggleCP();$('modal-ov').classList.remove('hidden');
+}
+
+/* day editor: forecast, where it applies, change vs the day before, health-risk flags and
+   every sickness-prone season covering the day */
+function wxDayHtml(key,wx){
+  const seasons=seasonsBetween(key,key);
+  if(!wx&&!seasons.length)return'';
+  let h='<div class="bday-info wx-day" style="margin-bottom:12px;border-color:rgba(52,152,219,.25);background:linear-gradient(135deg,rgba(52,152,219,.08),rgba(46,204,113,.08))">';
+  if(wx){
+    const bits=[];
+    if(wx.rh!=null)bits.push(`humidity ${Math.round(wx.rh)}%`);
+    if(wx.pressure!=null)bits.push(`${Math.round(wx.pressure)} hPa${wx.dPressure!=null?` (${wx.dPressure>0?'+':''}${wx.dPressure})`:''}`);
+    if(wx.precipMm)bits.push(`rain ${wx.precipMm} mm${wx.precipPct!=null?` · ${wx.precipPct}%`:''}`);
+    h+=`<div>${wx.icon} <b>${wx.tMax}°C</b> / ${wx.tMin}°C${wx.at&&WX_AT[wx.at]?` <span class="wx-at">· ${WX_AT[wx.at]}</span>`:''}</div>`;
+    if(bits.length)h+=`<div class="wx-sub">${esc(bits.join(' · '))}</div>`;
+    if(wx.change)h+=`<div class="wx-sub">vs day before: ${esc(wx.change)}</div>`;
+    if(wx.risk.length)h+=`<ul class="wx-risks">${wx.risk.map(r=>`<li><span class="hr-mark hr-${r.level==='high'?'high':'watch'}" aria-hidden="true">!</span><span>${esc(r.reason)}<span class="wx-lvl"> · ${r.level==='high'?'high':'watch'}</span></span></li>`).join('')}</ul>`;
+  }
+  if(seasons.length)h+=`<div class="wx-seasons">${seasons.map(s=>`<span>🩺 ${esc(s.label)}</span>`).join('')}</div>`;
+  return h+'</div>';
 }
 
 function closeModal(){$('modal-ov').classList.add('hidden');modalKey=null}

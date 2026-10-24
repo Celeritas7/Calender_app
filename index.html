@@ -118,6 +118,8 @@ if('serviceWorker'in navigator&&location.protocol!=='file:')addEventListener('lo
   <button class="nav-arrow" onclick="nextMonth()">›</button>
 </div>
 
+<div id="wx-season" class="wx-season hidden" role="note"></div>
+
 <div id="picker-ov" class="picker-overlay hidden" onclick="if(event.target===this)closePicker()"></div>
 
 <div class="calendar-grid" id="cal-grid">
@@ -129,6 +131,7 @@ if('serviceWorker'in navigator&&location.protocol!=='file:')addEventListener('lo
 </div>
 
 <div class="stats" id="stats"></div>
+<div class="wx-attr" id="wx-attr"></div>
 <div class="nd-panel hidden" id="nd-panel"></div>
 <div class="hint">Click month name to jump · ✕ bulk mark · 🎂 birthdays · 🌤️ weather view</div>
 

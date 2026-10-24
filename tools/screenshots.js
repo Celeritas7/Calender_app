@@ -18,6 +18,7 @@ const LABEL = process.argv[2] || 'current';
 const OUT = path.join(__dirname, 'shots', LABEL);   // always under this checkout's tools/
 const FIXED_NOW = new Date('2026-10-19T09:00:00+09:00');
 const THEMES = [[0, 'newsprint'], [2, 'terminal'], [6, 'solar'], [7, 'parchment'], [8, 'tokyo']];
+const WEATHER_PLAN = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'weather-plan.json'), 'utf8'));
 const VIEWPORTS = [['desk', { width: 1280, height: 900 }], ['phone', { width: 390, height: 844 }]];
 
 const SUPABASE_STUB = `(function(){
@@ -65,12 +66,25 @@ async function openApp(browser, base, viewport) {
       await page.screenshot({ path: path.join(OUT, `${vpName}-login.png`) });
       await page.evaluate(() => enterGuest());
       await page.waitForTimeout(1200);
+      /* preview mode can't read the hub — inject a recorded akatsuki_weather plan row instead */
+      await page.evaluate(plan => {
+        weatherData = {}; plan.days.forEach(d => { weatherData[d.date] = hubDayToWx(d); });
+        wxSeasons = plan.seasons; wxAttribution = plan.attribution; renderCal();
+      }, WEATHER_PLAN);
       for (const [idx, name] of THEMES) {
         await page.evaluate(i => applyTheme(i), idx);
         await page.waitForTimeout(250);
         await page.screenshot({ path: path.join(OUT, `${vpName}-main-${name}.png`), fullPage: true });
       }
       await page.evaluate(() => applyTheme(7));
+      await page.evaluate(() => toggleWxView());
+      await page.waitForTimeout(250);
+      await page.screenshot({ path: path.join(OUT, `${vpName}-weather-view.png`), fullPage: true });
+      await page.evaluate(() => toggleWxView());
+      await page.evaluate(() => { const k = dk(20); openModal(k, calData[k]); });
+      await page.waitForTimeout(300);
+      await page.screenshot({ path: path.join(OUT, `${vpName}-day-weather.png`) });
+      await page.evaluate(() => closeModal());
       await page.evaluate(() => { const k = dk(11); openModal(k, calData[k]); });
       await page.waitForTimeout(300);
       await page.screenshot({ path: path.join(OUT, `${vpName}-day-editor.png`) });
