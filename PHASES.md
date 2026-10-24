@@ -280,19 +280,27 @@ dropped on purpose (it hid the real conditions; the hub's `cold_snap` risk cover
 preview mode keeps a plain Open-Meteo fallback because it has no hub access — it carries
 no risk flags, so the "flag every period" rule holds only when signed in.
 
-**Still open (hub / owner):**
-- 🔴 **Privacy:** `akatsuki_weather` is owned by `postgres` without `security_invoker`, and
-  `anon` has SELECT. Verified as role `anon`: it returns the `here`, `place:office` and
-  `plan` rows, i.e. where the owner is right now and the weekday plan, to anyone holding
-  the public anon key (it is committed in this repo). The table itself correctly denies
-  anon. Fix in the hub: `alter view akatsuki_weather set (security_invoker = on);
-  revoke select on akatsuki_weather from anon;`
-- Location rule ignores holidays and away-days. Away-days already reach the hub
-  (`calapp_sukkiri` → `away` path in `akatsuki_state`), so the hub can read them now;
-  Japanese holidays could come from the same nager.at source the Calendar uses.
-- Route `hub → cal weather.now` can be flipped to live once this branch is deployed.
-- Optional (owner decision): Health Log's personal, symptom-based marker as
-  `health.risk_day {date, level}` on `healthlog → cal`.
+**Deployed:** merged to `main` (PR #1), owner confirmed on phone 2026-10-24. Follow-up
+PR #2 fixed a phone zoom-out caused by long Weekly Focus task text.
+
+**Hub follow-ups:**
+- ✅ **Privacy — hub R048** (applied 2026-10-24; first announced as R047, renumbered
+  because R047 was taken; the migration is recorded as
+  `akatsuki_weather_R047_security_invoker`, file `sql/akatsuki_weather_R048.sql`).
+  `akatsuki_weather` had no `security_invoker` and `anon` could SELECT it, exposing
+  `here` / `plan` (where the owner is, weekday plan) to the public anon key. Now
+  `security_invoker = on` and anon revoked. Verified from the Calendar side: anon →
+  permission denied; owner → 11 rows; another user → 0 rows.
+- ⏳ Route `hub → cal weather.now` → live: requested; hub is waiting on the owner's
+  approval of the database update.
+- Later, own R-change (owner decision): holidays and away-days count as home in the
+  `plan` row. Away-days already reach the hub (`calapp_sukkiri` → `away` path in
+  `akatsuki_state`); Japanese holidays could come from the nager.at source the Calendar uses.
+- Skipped for now (owner decision): Health Log's personal, symptom-based marker
+  (`health.risk_day {date, level}` on `healthlog → cal`).
+- Optional: the security advisor lists 5 other SECURITY DEFINER views (dhara_act_overview,
+  v_calendar_requests, chatak_daily_best, sift_conflicts, wf_subtasks_flat) — same pattern,
+  not reviewed.
 
 ### Open questions before building (answered in R046)
 
