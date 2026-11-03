@@ -1,7 +1,7 @@
 /* ═══════════════ SUPABASE ═══════════════ */
 const sb = window.supabase.createClient(
   'https://wylxvmkcrexwfpjpbhyy.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5bHh2bWtjcmV4d2ZwanBiaHl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2MzkxMDYsImV4cCI6MjA4NDIxNTEwNn0.6Bxo42hx4jwlJGWnfjiTpiDUsYfc1QLTN3YtrU1efak'
+  'sb_publishable_e3pDOuxIdstaC7s0a680kQ_R10TrAyv'
   ,{ global: { headers: { 'x-akatsuki-app': 'cal' } } }
 );
 
@@ -9,9 +9,10 @@ const sb = window.supabase.createClient(
 let UID = null;
 
 /* ── Akatsuki hub (step 1: Sukkiri link) ── */
-const AK_BUILD='mycal-v6';
+const AK_BUILD='mycal-v7';
 const calHub = CalHub(sb, { uid: () => UID });
 window.cal = { supabase: sb, hub: calHub };
+if (window.AkatsukiBroadcast) window.AkatsukiBroadcast(sb, 'cal').start();
 console.log('[ak] cal build', AK_BUILD);
 let calHubWatching=false;
 
