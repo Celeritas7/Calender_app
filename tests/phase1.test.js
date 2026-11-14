@@ -41,7 +41,7 @@ test('a new diary line takes the current ink colour; inserting mid-text does not
 
 test('arrow keys do not change month while typing in a field', () => {
   const app = loadApp();
-  ['modal-ov', 'bday-ov', 'picker-ov', 'sk-ov'].forEach(id => app.el(id).classList.add('hidden'));
+  ['modal-ov', 'bday-ov', 'picker-ov', 'sk-ov', 'alert-ov'].forEach(id => app.el(id).classList.add('hidden'));
   const before = app.run('curMonth');
   for (const tag of ['INPUT', 'TEXTAREA', 'SELECT']) {
     app.fire('keydown', { key: 'ArrowLeft', target: { tagName: tag, isContentEditable: false } });
@@ -64,7 +64,7 @@ test('arrow keys do not change month while the Sukkiri or print panel is open', 
 
 test('arrow keys still change month on the plain calendar', () => {
   const app = loadApp();
-  ['modal-ov', 'bday-ov', 'picker-ov', 'sk-ov'].forEach(id => app.el(id).classList.add('hidden'));
+  ['modal-ov', 'bday-ov', 'picker-ov', 'sk-ov', 'alert-ov'].forEach(id => app.el(id).classList.add('hidden'));
   const before = app.run('curMonth');
   app.fire('keydown', { key: 'ArrowRight', target: { tagName: 'BODY' } });
   assert.equal(app.run('curMonth'), (before + 1) % 12);

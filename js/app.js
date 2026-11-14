@@ -9,7 +9,7 @@ const sb = window.supabase.createClient(
 let UID = null;
 
 /* ── Akatsuki hub (step 1: Sukkiri link) ── */
-const AK_BUILD='mycal-v7';
+const AK_BUILD='mycal-v8';
 const calHub = CalHub(sb, { uid: () => UID });
 window.cal = { supabase: sb, hub: calHub };
 if (window.AkatsukiBroadcast) window.AkatsukiBroadcast(sb, 'cal').start();
@@ -109,6 +109,7 @@ async function signInWithGoogle() {
 }
 
 async function signOut() {
+  if(window.closeCalendarAlerts)closeCalendarAlerts();
   await sb.auth.signOut();
 }
 
@@ -689,7 +690,7 @@ async function bulkToggleCell(key){
 
 /* ← → change month only on the bare calendar — never while typing or with a panel open */
 function isTypingTarget(t){return !!t&&(/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName||'')||t.isContentEditable)}
-function anyPanelOpen(){return ['modal-ov','bday-ov','picker-ov','sk-ov'].some(id=>{const el=$(id);return el&&!el.classList.contains('hidden')})||$('pr-opts').classList.contains('open')}
+function anyPanelOpen(){return ['modal-ov','bday-ov','picker-ov','sk-ov','alert-ov'].some(id=>{const el=$(id);return el&&!el.classList.contains('hidden')})||$('pr-opts').classList.contains('open')}
 document.addEventListener('keydown',e=>{
   if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
   if(e.altKey||e.ctrlKey||e.metaKey||isTypingTarget(e.target)||anyPanelOpen())return;
@@ -906,7 +907,7 @@ document.addEventListener('keydown',e=>{
   if(e.key!=='Escape')return;
   /* the picker applies its choice on close, so only close it when it is actually open */
   if(!$('picker-ov').classList.contains('hidden')){closePicker();return}
-  closeModal();closeBdayManager();closeSukkiri();closeAllDD();$('pr-opts').classList.remove('open');
+  closeModal();closeBdayManager();closeSukkiri();if(window.closeCalendarAlerts)closeCalendarAlerts();closeAllDD();$('pr-opts').classList.remove('open');
   if(bulkMode)toggleBulkMode();
 });
 

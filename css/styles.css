@@ -495,3 +495,13 @@ body.wx-mode .cell>.hr-mark{display:none}  /* weather view: the big icon carries
 .stats .hr-mark{margin-right:4px;vertical-align:-2px}
 @media print{.wx-season,.wx-attr{display:none!important}}
 .wx-lvl{color:var(--txt2);font-size:11px}
+
+/* Notification preferences */
+#alert-ov fieldset {border:1px solid var(--border,#ccc);border-radius:10px;margin:16px 0;padding:12px;}
+#alert-ov label {display:flex;gap:10px;align-items:center;justify-content:space-between;margin:12px 0;}
+#alert-ov label:has(input[type=checkbox]) {justify-content:flex-start;}
+#alert-ov input:not([type=checkbox]),#alert-ov select {max-width:60%;min-width:0;padding:8px;font:inherit;}
+#alert-ov p {font-size:13px;line-height:1.5;margin:10px 0;}
+#alert-ov .alert-actions {display:flex;gap:8px;flex-wrap:wrap;}
+#alert-ov .alert-actions button {padding:10px;border:1px solid var(--border,#ccc);border-radius:8px;cursor:pointer;}
+#alert-message {overflow-wrap:anywhere;}
