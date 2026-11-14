@@ -53,6 +53,7 @@
   <div class="top-bar-left"><svg class="brand-mark" width="26" height="26" viewBox="0 0 100 100" role="img" aria-label="My Calendar"><rect x="4.5" y="4.5" width="28" height="28" rx="7" fill="#e84393"/><rect x="36" y="4.5" width="28" height="28" rx="7" fill="#e17055"/><rect x="67.5" y="4.5" width="28" height="28" rx="7" fill="#fdcb6e"/><rect x="4.5" y="36" width="28" height="28" rx="7" fill="#6c5ce7"/><rect x="36" y="36" width="28" height="28" rx="7" fill="#c8102e"/><rect x="67.5" y="36" width="28" height="28" rx="7" fill="#27ae60"/><rect x="4.5" y="67.5" width="28" height="28" rx="7" fill="#00b894"/><rect x="36" y="67.5" width="28" height="28" rx="7" fill="#00cec9"/><rect x="67.5" y="67.5" width="28" height="28" rx="7" fill="#3498db"/></svg><button class="btn-today" onclick="goToday()">● Today</button></div>
   <div class="top-bar-right">
     <button class="icon-btn" id="bulk-toggle" onclick="toggleBulkMode()" title="Bulk Mark Mode" aria-label="Bulk mark mode">✕</button>
+    <button class="icon-btn" onclick="openCalendarAlerts()" title="Notifications" aria-label="Notifications">🔔</button>
     <button class="icon-btn" id="wx-toggle" onclick="toggleWxView()" title="Weather View" aria-label="Weather view">🌤️</button>
     <button class="icon-btn ov-item" onclick="openBdayManager()" title="Birthday Manager" aria-label="Birthdays">🎂</button>
     <button class="icon-btn" onclick="openSukkiri()" title="Sukkiri — garbage days & cleaning cycles" aria-label="Sukkiri: garbage days and cleaning cycles">🧹</button>
@@ -193,12 +194,48 @@ if('serviceWorker'in navigator&&location.protocol!=='file:')addEventListener('lo
 
 <div id="sk-ov" class="modal-overlay hidden" onclick="closeSukkiri()"></div>
 
+<div id="alert-ov" class="modal-overlay hidden" onclick="if(event.target===this)closeCalendarAlerts()">
+ <div class="modal" role="dialog" aria-modal="true" aria-labelledby="alert-title" style="max-width:520px">
+  <button class="modal-x" onclick="closeCalendarAlerts()" aria-label="Close notifications">✕</button>
+  <h2 id="alert-title">🔔 Notifications</h2>
+  <p>Delivered by Akatsuki, including when Calendar is closed. Receiving new alerts needs internet.</p>
+  <p id="alert-device" role="status"></p>
+  <div class="alert-actions">
+   <button data-action onclick="enableCalendarPush()">Enable this device</button>
+   <button data-action onclick="testCalendarPush()">Test registered devices</button>
+   <button data-action onclick="disableCalendarPush()">Disable this device</button>
+  </div>
+  <form id="alert-form" onsubmit="event.preventDefault();saveCalendarAlerts()">
+   <fieldset><legend>🎂 Birthdays</legend>
+    <label><input id="alert-birthday" type="checkbox"> Enable birthday reminders</label>
+    <label>Japan time <input id="alert-birthday-time" type="time" required value="08:00"></label>
+    <label>Days before <input id="alert-before" type="number" min="0" max="7" required value="0"></label>
+    <p>0 = the birthday itself. Repeats yearly. February 29 birthdays use February 28 in other years.</p>
+   </fieldset>
+   <fieldset><legend>🌧️ Daily rain forecast</legend>
+    <label><input id="alert-rain" type="checkbox"> Enable rain reminders</label>
+    <label>Location <select id="alert-place" required></select></label>
+    <label>Japan time <input id="alert-rain-time" type="time" required value="07:00"></label>
+    <label>Minimum forecast rain (mm) <input id="alert-mm" type="number" min="0.1" max="500" step="0.1" required value="2"></label>
+    <p>One alert per day when the fresh daily forecast reaches your threshold. This does not predict the moment rain starts. No alert is sent when weather data is unavailable or stale. Missed checks retry for up to two hours.</p>
+   </fieldset>
+   <fieldset><legend>🚆 Train delays — not connected</legend>
+    <p>Automatic train-delay alerts need a verified live data feed for your lines. They are not active yet.</p>
+    <a href="https://traininfo.jreast.co.jp/train_info/kanto.aspx" target="_blank" rel="noopener noreferrer">Check JR East live train status ↗</a>
+   </fieldset>
+   <button id="alert-save" data-action type="submit" class="btn-save">Save alert settings</button>
+  </form>
+  <p id="alert-message" role="status" aria-live="polite"></p>
+  <p>Done and Snooze are shared with Akatsuki. <a href="https://celeritas7.github.io/Akatsuki/#broadcast" target="_blank" rel="noopener noreferrer">Open Akatsuki ↗</a></p>
+ </div>
+</div>
 <div id="toast" class="toast hidden">Loading...</div>
 
 <script src="js/akatsuki-client.js"></script>
 <script src="https://celeritas7.github.io/Akatsuki/js/akatsuki-broadcast.js"></script>
 <script src="js/cal-adapter.js"></script>
 <script src="js/app.js"></script>
+<script src="js/notifications.js"></script>
 <script src="js/sukkiri.js"></script>
 <script src="js/sukkiri-trash.js"></script>
 </body>
